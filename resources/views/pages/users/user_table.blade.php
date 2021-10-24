@@ -9,7 +9,7 @@
 </div>
 @if (auth()->user()->current_role == 'أمير المركز')
     <div class="card-body">
-        @can('قائمة المستخدمين')
+        @can('إدارة المستخدمين')
             <div class="row">
                 @if (auth()->user()->current_role == 'أمير المركز')
                     @if (isset($grades))
