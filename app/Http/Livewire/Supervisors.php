@@ -32,7 +32,6 @@ class Supervisors extends Component
 
     public function render()
     {
-
         $this->grades = $this->all_Grades();
         return view('livewire.supervisors', ['supervisors' => $this->all_Supervisors()]);
     }
