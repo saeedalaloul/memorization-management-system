@@ -24,16 +24,16 @@
                             <div class="clearfix"></div>
                         </a>
                         <ul id="lowersupervisors-menu" class="collapse" data-parent="#sidebarnav">
-                            @can('قائمة المراحل')
+                            @can('إدارة المراحل')
                                 <li><a href="{{url('manage_grade')}}">إدارة المراحل</a></li>
                             @endcan
-                            @can('قائمة المجموعات')
+                            @can('إدارة المجموعات')
                                 <li><a href="{{url('manage_group')}}">إدارة الحلقات</a></li>
                             @endcan
-                            @can('قائمة مشرفي المراحل')
+                            @can('إدارة مشرفي المراحل')
                                 <li><a href="{{url('manage_supervisor')}}">إدارة مشرفي المراحل</a></li>
                             @endcan
-                            @can('قائمة الإداريين')
+                            @can('إدارة الإداريين')
                                 <li><a href="{{url('manage_lower_supervisor')}}">إدارة إداريي المراحل</a></li>
                             @endcan
                         </ul>
@@ -48,10 +48,10 @@
                             <div class="clearfix"></div>
                         </a>
                         <ul id="TeachersAttendance-icon" class="collapse" data-parent="#sidebarnav">
-                            @can('قائمة المحفظين')
+                            @can('إدارة المحفظين')
                                 <li><a href="{{url('manage_teacher')}}">إدارة المحفظين</a></li>
                             @endcan
-                            @can('قائمة حضور وغياب المحفظين')
+                            @can('إدارة حضور وغياب المحفظين')
                                 <li><a href="{{url('manage_teachers_attendance')}}">حضور وغياب المحفظين</a></li>
                             @endcan
                         </ul>
@@ -66,17 +66,17 @@
                             <div class="clearfix"></div>
                         </a>
                         <ul id="StudentsDailyPreservation-icon" class="collapse" data-parent="#sidebarnav">
-                            @can('قائمة الطلاب')
+                            @can('إدارة الطلاب')
                                 <li><a href="{{url('manage_student')}}">إدارة الطلاب</a></li>
                             @endcan
-                            @can('قائمة حضور وغياب الطلاب')
+                            @can('إدارة حضور وغياب الطلاب')
                                 <li><a href="{{url('manage_students_attendance')}}">حضور وغياب الطلاب</a></li>
                             @endcan
-                            @can('قائمة متابعة الحفظ والمراجعة')
+                            @can('إدارة متابعة الحفظ والمراجعة')
                                 <li><a href="{{url('manage_students_daily_preservation')}}">متابعة الحفظ والمراجعة</a>
                                 </li>
                             @endcan
-                            @can('قائمة تقرير الحفظ والمراجعة')
+                            @can('إدارة تقرير الحفظ والمراجعة')
                                 <li><a href="{{url('manage_report_daily_preservation')}}">تقرير الحفظ والمراجعة</a>
                                 </li>
                             @endcan
@@ -91,7 +91,7 @@
                             <div class="clearfix"></div>
                         </a>
                         <ul id="tester_exams" class="collapse" data-parent="#sidebarnav">
-                            @can('قائمة طلبات الإختبارات')
+                            @can('إدارة طلبات الإختبارات')
                                 <li>
                                     @if (\App\Models\ExamOrder::unreadexams() > 0)
                                         <a href="{{url('manage_exams_orders')}}">طلبات الإختبارات<span
@@ -101,7 +101,7 @@
                                     @endif
                                 </li>
                             @endcan
-                            @can('قائمة الإختبارات')
+                            @can('إدارة الإختبارات')
                                 <li>
                                     @if (\App\Models\Exam::unreadexams() > 0)
                                         <a href="{{url('manage_exams')}}">الإختبارات القرآنية<span
@@ -111,7 +111,7 @@
                                     @endif
                                 </li>
                             @endcan
-                            @can('قائمة اختبارات اليوم')
+                            @can('إدارة اختبارات اليوم')
                                 <li>
                                     @if (\App\Models\ExamOrder::unreadtodayexams() > 0)
                                         <a href="{{url('manage_today_exams')}}">اختبارات اليوم<span
@@ -121,16 +121,16 @@
                                     @endif
                                 </li>
                             @endcan
-                            @can('قائمة المختبرين')
+                            @can('إدارة المختبرين')
                                 <li><a href="{{url('manage_testers')}}">المختبرين</a></li>
                             @endcan
-                            @can('قائمة إعدادات الإختبارات')
+                            @can('إعدادات الإختبارات')
                                 <li><a href="{{url('manage_exams_settings')}}">إعدادات الإختبارات القرآنية</a></li>
                             @endcan
                         </ul>
                     </li>
 
-                @can('قائمة المستخدمين')
+                @can('إدارة المستخدمين')
                     <!-- Users-->
                         <li>
                             <a href="javascript:void(0);" data-toggle="collapse" data-target="#Users-icon">
