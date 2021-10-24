@@ -30,13 +30,15 @@
                         <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col">
-                        <label for="title">كلمة المرور</label>
-                        <input type="password" wire:model="student_password" class="form-control">
-                        @error('student_password')
-                        <div class="alert alert-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @if (!$updateMode)
+                        <div class="col">
+                            <label for="title">كلمة المرور</label>
+                            <input type="password" wire:model="student_password" class="form-control">
+                            @error('student_password')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endif
                 </div>
 
                 <div class="form-row">

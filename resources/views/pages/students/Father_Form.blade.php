@@ -51,14 +51,16 @@
                         <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col">
-                        <label for="title">كلمة المرور</label>
-                        <input type="password" wire:model="father_password" class="form-control"
-                            {{$isFoundFather == true?'disabled':''}}>
-                        @error('father_password')
-                        <div class="alert alert-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @if (!$updateMode)
+                        <div class="col">
+                            <label for="title">كلمة المرور</label>
+                            <input type="password" wire:model="father_password" class="form-control"
+                                {{$isFoundFather == true?'disabled':''}}>
+                            @error('father_password')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endif
                 </div>
                 <div class="form-row">
                     <div class="col">

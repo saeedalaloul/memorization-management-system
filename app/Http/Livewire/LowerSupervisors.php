@@ -3,15 +3,11 @@
 namespace App\Http\Livewire;
 
 use App\Models\Grade;
-use App\Models\Group;
 use App\Models\LowerSupervisor;
-use App\Models\Supervisor;
-use App\Models\Teacher;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -85,7 +81,6 @@ class LowerSupervisors extends Component
         $this->grade_id = $data->grade_id;
         $this->name = $data->user->name;
         $this->email = $data->user->email;
-        $this->password = '12345678';
         $this->dob = $data->user->dob;
         $this->address = $data->user->address;
         $this->phone = $data->user->phone;
@@ -102,15 +97,26 @@ class LowerSupervisors extends Component
 
     public function modelUser()
     {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => Hash::make($this->password),
-            'dob' => $this->dob,
-            'address' => $this->address,
-            'phone' => $this->phone,
-            'identification_number' => $this->identification_number,
-        ];
+        if ($this->modalId == null) {
+            return [
+                'name' => $this->name,
+                'email' => $this->email,
+                'password' => Hash::make($this->password),
+                'dob' => $this->dob,
+                'address' => $this->address,
+                'phone' => $this->phone,
+                'identification_number' => $this->identification_number,
+            ];
+        } else {
+            return [
+                'name' => $this->name,
+                'email' => $this->email,
+                'dob' => $this->dob,
+                'address' => $this->address,
+                'phone' => $this->phone,
+                'identification_number' => $this->identification_number,
+            ];
+        }
     }
 
     public function messages()
@@ -189,15 +195,26 @@ class LowerSupervisors extends Component
 
     public function rules()
     {
-        return ['email' => 'required|email|unique:users,email,' . $this->modalId,
-            'password' => 'required|min:8|max:10',
-            'name' => 'required|string|unique:users,name,' . $this->modalId,
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
-            'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
-            'dob' => 'required|date|date_format:Y-m-d',
-            'address' => 'required',
-            'grade_id' => 'required',
-        ];
+        if ($this->modalId == null) {
+            return ['email' => 'required|email|unique:users,email,' . $this->modalId,
+                'password' => 'required|min:8|max:10',
+                'name' => 'required|string|unique:users,name,' . $this->modalId,
+                'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
+                'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
+                'dob' => 'required|date|date_format:Y-m-d',
+                'address' => 'required',
+                'grade_id' => 'required',
+            ];
+        } else {
+            return ['email' => 'required|email|unique:users,email,' . $this->modalId,
+                'name' => 'required|string|unique:users,name,' . $this->modalId,
+                'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
+                'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
+                'dob' => 'required|date|date_format:Y-m-d',
+                'address' => 'required',
+                'grade_id' => 'required',
+            ];
+        }
     }
 
     public function update()

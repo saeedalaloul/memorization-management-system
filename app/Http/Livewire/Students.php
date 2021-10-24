@@ -151,7 +151,6 @@ class Students extends Component
                     $this->father_phone = $father->user->phone;
                     $this->father_address = $father->user->address;
                     $this->father_email = $father->user->email;
-                    $this->father_password = '123456789';
                     $this->father_dob = $father->user->dob;
                     $this->isFoundFather = true;
                     $this->successMessage = 'لقد تم اعتماد معلومات الأب من خلال رقم الهوية المدخل مسبقا في النظام, يرجى متابعة إدخال باقي البيانات أو تعديل رقم الهوية المدخل...';
@@ -505,7 +504,6 @@ class Students extends Component
         $this->student_name = $student->user->name;
         $this->student_phone = $student->user->phone;
         $this->student_identification_number = $student->user->identification_number;
-        $this->student_password = '12345678';
         $this->student_email = $student->user->email;
         $this->dob = $student->user->dob;
         $this->student_address = $student->user->address;
@@ -515,7 +513,6 @@ class Students extends Component
 
         $this->father_name = $student->father->user->name;
         $this->father_email = $student->father->user->email;
-        $this->father_password = '12345678';
         $this->father_phone = $student->father->user->phone;
         $this->father_identification_number = $student->father->user->identification_number;
         $this->father_dob = $student->father->user->dob;
@@ -532,7 +529,6 @@ class Students extends Component
             'father_name' => 'required|string|unique:users,name,' . $this->father_id,
             'father_email' => 'required|email|unique:users,email,' . $this->father_id,
             'father_phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->father_id,
-            'father_password' => 'required|min:8|max:10',
             'father_dob' => 'required|date|date_format:Y-m-d',
             'father_address' => 'required',
         ]);
@@ -548,7 +544,6 @@ class Students extends Component
             'student_name' => 'required|string|unique:users,name,' . $this->student_id,
             'student_phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->student_id,
             'student_email' => 'required|email|unique:users,email,' . $this->student_id,
-            'student_password' => 'required|min:8|max:10',
             'dob' => 'required|date|date_format:Y-m-d',
             'grade_id' => 'required',
             'group_id' => 'required',
@@ -571,7 +566,6 @@ class Students extends Component
             $father->user->update([
                 'name' => $this->father_name,
                 'email' => $this->father_email,
-                'password' => Hash::make($this->father_password),
                 'phone' => $this->father_phone,
                 'identification_number' => $this->father_identification_number,
                 'dob' => $this->father_dob,
@@ -584,7 +578,6 @@ class Students extends Component
             $student->user->update([
                 'name' => $this->student_name,
                 'phone' => $this->student_phone,
-                'password' => Hash::make($this->student_password),
                 'email' => $this->student_email,
                 'identification_number' => $this->student_identification_number,
                 'dob' => $this->dob,

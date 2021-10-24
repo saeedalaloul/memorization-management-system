@@ -80,7 +80,6 @@ class Supervisors extends Component
         $this->grade_id = $data->grade_id;
         $this->name = $data->user->name;
         $this->email = $data->user->email;
-        $this->password = '12345678';
         $this->dob = $data->user->dob;
         $this->address = $data->user->address;
         $this->phone = $data->user->phone;
@@ -97,15 +96,26 @@ class Supervisors extends Component
 
     public function modelUser()
     {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => Hash::make($this->password),
-            'dob' => $this->dob,
-            'phone' => $this->phone,
-            'address' => $this->address,
-            'identification_number' => $this->identification_number,
-        ];
+        if ($this->modalId == null) {
+            return [
+                'name' => $this->name,
+                'email' => $this->email,
+                'password' => Hash::make($this->password),
+                'dob' => $this->dob,
+                'phone' => $this->phone,
+                'address' => $this->address,
+                'identification_number' => $this->identification_number,
+            ];
+        } else {
+            return [
+                'name' => $this->name,
+                'email' => $this->email,
+                'dob' => $this->dob,
+                'phone' => $this->phone,
+                'address' => $this->address,
+                'identification_number' => $this->identification_number,
+            ];
+        }
     }
 
     public function messages()
@@ -184,15 +194,26 @@ class Supervisors extends Component
 
     public function rules()
     {
-        return ['email' => 'required|email|unique:users,email,' . $this->modalId,
-            'password' => 'required|min:8|max:10',
-            'name' => 'required|string|unique:users,name,' . $this->modalId,
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
-            'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
-            'dob' => 'required|date|date_format:Y-m-d',
-            'address' => 'required',
-            'grade_id' => 'required',
-        ];
+        if ($this->modalId == null) {
+            return ['email' => 'required|email|unique:users,email,' . $this->modalId,
+                'password' => 'required|min:8|max:10',
+                'name' => 'required|string|unique:users,name,' . $this->modalId,
+                'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
+                'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
+                'dob' => 'required|date|date_format:Y-m-d',
+                'address' => 'required',
+                'grade_id' => 'required',
+            ];
+        } else {
+            return ['email' => 'required|email|unique:users,email,' . $this->modalId,
+                'name' => 'required|string|unique:users,name,' . $this->modalId,
+                'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
+                'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
+                'dob' => 'required|date|date_format:Y-m-d',
+                'address' => 'required',
+                'grade_id' => 'required',
+            ];
+        }
     }
 
     public function update()
