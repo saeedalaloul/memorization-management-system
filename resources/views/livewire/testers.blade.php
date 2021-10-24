@@ -19,7 +19,7 @@
             @if(auth()->user()->current_role == 'أمير المركز' ||
                 auth()->user()->current_role == 'مشرف الإختبارات')
                 <div class="card-body">
-                    @can('اضافة مختبر')
+                    @can('إضافة مختبر')
                         <button type="button" wire:click.prevent="modalFormReset()" class="button x-small"
                                 data-toggle="modal"
                                 data-target="#add_tester">
@@ -27,7 +27,7 @@
                         </button>
                         @include('pages.testers.add')
                     @endcan
-                    @can('قائمة المختبرين')
+                    @can('إدارة المختبرين')
                         <br><br>
                         @include('livewire.search')
                             <div class="table-responsive mt-15">

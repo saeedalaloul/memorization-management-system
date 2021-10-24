@@ -22,7 +22,7 @@
                 auth()->user()->current_role == 'مشرف الإختبارات')
                 <div class="card-body">
                     <br>
-                    @can('قائمة اعدادات الإختبارات')
+                    @can('إعدادات الإختبارات')
                         <div class="col-xl-12 mb-30">
                             <div class="card card-statistics h-100">
                                 <div class="card-body">

@@ -26,7 +26,7 @@
                     @if ($isExamOfStart == true)
                         @include('pages.today_exams.exam_of_start')
                     @else
-                        @can('قائمة اختبارات اليوم')
+                        @can('إدارة اختبارات اليوم')
                             @include('livewire.search')
                             <div class="table-responsive mt-15">
                                 <table class="table center-aligned-table mb-0">

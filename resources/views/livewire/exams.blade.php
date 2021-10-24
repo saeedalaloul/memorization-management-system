@@ -57,7 +57,7 @@
                          id="add-exam-05"
                          role="tabpanel"
                          aria-labelledby="add-exam-05-tab">
-                        @can('اضافة اختبار')
+                        @can('إضافة اختبار')
                             @include('pages.exams.add_exam')
                         @endcan
                     </div>

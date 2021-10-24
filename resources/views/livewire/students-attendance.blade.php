@@ -13,7 +13,7 @@
              auth()->user()->current_role == 'مشرف' ||
              auth()->user()->current_role == 'اداري' ||
              auth()->user()->current_role == 'محفظ')
-            @can('قائمة حضور وغياب الطلاب')
+            @can('إدارة حضور وغياب الطلاب')
                 <h5 style="font-family: 'Cairo', sans-serif;color: red"> تاريخ اليوم : {{ date('Y-m-d') }}</h5>
                 <div class="card-body">
                     <div class="row">

@@ -20,7 +20,7 @@
         <div class="card card-statistics h-100">
             <div class="card-body">
                 <br>
-                @can('قائمة طلبات الإختبارات')
+                @can('إدارة طلبات الإختبارات')
                     <div class="row">
                         @if (isset($grades))
                             <div>

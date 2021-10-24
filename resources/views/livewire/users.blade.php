@@ -47,7 +47,6 @@
                         <div class="tab-pane fade {{$show_table == false ? 'active show':''}}" id="add_user-05"
                              role="tabpanel"
                              aria-labelledby="add_user-05-tab">
-{{--                            @include('pages.users.user_form')--}}
                         </div>
                     </div>
                 </div>

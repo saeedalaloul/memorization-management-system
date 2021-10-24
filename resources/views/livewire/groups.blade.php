@@ -47,7 +47,7 @@
                auth()->user()->current_role == 'مشرف' ||
                auth()->user()->current_role == 'اداري')
                                 <div class="card-body">
-                                    @can('قائمة المجموعات')
+                                    @can('إدارة المجموعات')
                                         @if(auth()->user()->current_role == 'أمير المركز')
                                             <form>
                                                 <label>
@@ -163,7 +163,7 @@
                                 @include('pages.groups.group_move')
                                 @include('pages.groups.move_warning')
                             @else
-                                @can('اضافة مجموعة')
+                                @can('إضافة مجموعة')
                                     @include('pages.groups.group_form')
                                 @endcan
                             @endif

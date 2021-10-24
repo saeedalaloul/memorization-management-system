@@ -12,7 +12,7 @@
                     <div class="card card-statistics h-100">
                         @if (auth()->user()->current_role == 'أمير المركز')
                             <div class="card-body">
-                                @can('اضافة مرحلة')
+                                @can('إضافة مرحلة')
                                     <button type="button" wire:click.prevent="modalFormReset()" class="button x-small"
                                             data-toggle="modal"
                                             data-target="#gradeAdded">

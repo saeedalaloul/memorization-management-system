@@ -13,7 +13,7 @@
              auth()->user()->current_role == 'مشرف' ||
              auth()->user()->current_role == 'اداري' ||
              auth()->user()->current_role == 'محفظ')
-            @can('قائمة متابعة الحفظ والمراجعة')
+            @can('إدارة متابعة الحفظ والمراجعة')
                 <div class="card-body">
                     <div class="row">
                         @if (auth()->user()->current_role == 'أمير المركز')
