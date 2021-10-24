@@ -49,7 +49,7 @@
                         <div class="tab-pane fade {{$show_table == false ? 'active show':''}}" id="add_supervisor-05"
                              role="tabpanel"
                              aria-labelledby="add_supervisor-05-tab">
-                            @include('pages.supervisors.Supervisor_Form')
+                            @include('pages.supervisors.supervisor_form')
                         </div>
                     </div>
                 </div>
