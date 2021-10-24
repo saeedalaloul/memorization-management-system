@@ -2,13 +2,13 @@
 @section('css')
     @toastr_css
 @section('title')
-    اضافة مختبر
+    إضافة مختبر
 @stop
 @endsection
 @section('page-header')
     <!-- breadcrumb -->
 @section('PageTitle')
-    اضافة مختبر
+    إضافة مختبر
 @stop
 <!-- breadcrumb -->
 @endsection

@@ -3,7 +3,7 @@
      auth()->user()->current_role == 'اداري' ||
      auth()->user()->current_role == 'محفظ')
     <div class="card-body">
-        @can('قائمة الطلاب')
+        @can('إدارة الطلاب')
             <div class="row">
                 @if (auth()->user()->current_role == 'أمير المركز')
                     @if (isset($grades))

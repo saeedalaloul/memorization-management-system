@@ -1,6 +1,6 @@
 @if (auth()->user()->current_role == 'أمير المركز')
     <div class="card-body">
-        @can('قائمة مشرفي المراحل')
+        @can('إدارة مشرفي المراحل')
             @include('livewire.search')
             <div class="table-responsive mt-15">
                 <table class="table center-aligned-table mb-0">

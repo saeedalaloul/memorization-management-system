@@ -6,7 +6,7 @@
             <div class="modal-header">
                 <h5 style="font-family: 'Cairo', sans-serif;" class="modal-title"
                     id="exampleModalLabel">
-                    اضافة مرحلة
+                    إضافة مرحلة
                 </h5>
                 <button type="button" class="close" wire:click.prevent = "modalFormReset()" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
