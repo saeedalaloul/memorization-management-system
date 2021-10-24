@@ -94,7 +94,8 @@
                                         <button class="dropdown-item"><i
                                                 style="color:green" class="fa fa-edit"></i> تعديل الصلاحيات
                                         </button>
-                                        <button class="dropdown-item"><i
+                                        <button class="dropdown-item"
+                                                wire:click.prevent="loadModalData({{$user->id}})"><i
                                                 style="color:green" class="fa fa-recycle"></i> إعادة تعيين كلمة المرور
                                         </button>
                                     </div>

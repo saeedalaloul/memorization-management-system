@@ -30,12 +30,20 @@
                                 المستخدمين</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
-                               data-bs-toggle="tab" role="tab"
-                               wire:click="showformadd(false);" href="#"
-                               aria-controls="add_user-05" aria-selected="false"><i
-                                    class="fas {{!empty($modalId) ? 'fa-edit' : 'fa-plus-square'}}"></i>
-                                {{!empty($modalId) ? ' تحديث مستخدم' : ' إضافة مستخدم'}}</a>
+                            @if ($proccess_type == 'reset')
+                                <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
+                                   data-bs-toggle="tab" role="tab"
+                                   wire:click="showformadd(false);" href="#"
+                                   aria-controls="add_user-05" aria-selected="false"><i
+                                        class="fas fa-recycle"></i> إعادة تعيين كلمة المرور</a>
+                            @else
+                                <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
+                                   data-bs-toggle="tab" role="tab"
+                                   wire:click="showformadd(false);" href="#"
+                                   aria-controls="add_user-05" aria-selected="false"><i
+                                        class="fas {{!empty($modalId) ? 'fa-edit' : 'fa-plus-square'}}"></i>
+                                    {{!empty($modalId) ? ' تحديث مستخدم' : ' إضافة مستخدم'}}</a>
+                            @endif
                         </li>
                     </ul>
                     <div class="tab-content">
@@ -47,6 +55,9 @@
                         <div class="tab-pane fade {{$show_table == false ? 'active show':''}}" id="add_user-05"
                              role="tabpanel"
                              aria-labelledby="add_user-05-tab">
+                            @if ($proccess_type == 'reset')
+                                @include('pages.users.reset_password_user')
+                            @endif
                         </div>
                     </div>
                 </div>
