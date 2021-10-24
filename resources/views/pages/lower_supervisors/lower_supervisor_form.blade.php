@@ -19,14 +19,16 @@
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col">
-                                <label for="title">كلمة المرور</label>
-                                <input type="password" name="password" class="form-control" wire:model="password"
-                                       required>
-                                @error('password')
-                                <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            @if ($modalId == null)
+                                <div class="col">
+                                    <label for="title">كلمة المرور</label>
+                                    <input type="password" name="password" class="form-control" wire:model="password"
+                                           required>
+                                    @error('password')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @endif
                         </div>
                         <br>
 
