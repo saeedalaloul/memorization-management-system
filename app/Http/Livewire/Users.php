@@ -102,7 +102,10 @@ class Users extends Component
         $this->modalId = null;
         $this->name = null;
         $this->show_table = false;
+        $this->proccess_type = null;
         $this->catchError = null;
+        $this->password = null;
+        $this->password_confirm = null;
         $this->search = null;
     }
 

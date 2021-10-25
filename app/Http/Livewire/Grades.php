@@ -11,7 +11,7 @@ class Grades extends Component
     use WithPagination;
 
     public $name;
-    public $modalId = null;
+    public $modalId;
     public $sortBy = 'name';
     public $sortDirection = 'asc';
     public $perPage = 10;
@@ -42,7 +42,7 @@ class Grades extends Component
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName, [
-            'name' => 'required|unique:grades,name,',
+            'name' => 'required|unique:grades,name,' . $this->modalId,
         ]);
     }
 
@@ -64,7 +64,7 @@ class Grades extends Component
 
     public function rules()
     {
-        return ['name' => 'required|unique:grades,name,'];
+        return ['name' => 'required|unique:grades,name,' . $this->modalId];
     }
 
     public function messages()
