@@ -42,7 +42,7 @@ class Grades extends Component
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName, [
-            'name' => 'required|unique:grades,name,' . $this->modalId,
+            'name' => 'required|unique:grades,name,',
         ]);
     }
 
@@ -64,7 +64,7 @@ class Grades extends Component
 
     public function rules()
     {
-        return ['name' => 'required|unique:grades,name,' . $this->modalId];
+        return ['name' => 'required|unique:grades,name,'];
     }
 
     public function messages()
