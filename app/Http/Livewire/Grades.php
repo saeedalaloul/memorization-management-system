@@ -3,7 +3,6 @@
 namespace App\Http\Livewire;
 
 use App\Models\Grade;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,7 +11,7 @@ class Grades extends Component
     use WithPagination;
 
     public $name;
-    public $modalId;
+    public $modalId = null;
     public $sortBy = 'name';
     public $sortDirection = 'asc';
     public $perPage = 10;
@@ -40,12 +39,12 @@ class Grades extends Component
         $this->resetPage();
     }
 
-//    public function updated($propertyName)
-//    {
-//        $this->validateOnly($propertyName, [
-//            'name' => 'required|unique:grades,name,' . $this->modalId,
-//        ]);
-//    }
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName, [
+            'name' => 'required|unique:grades,name,' . $this->modalId,
+        ]);
+    }
 
     public function loadModalData($id)
     {
@@ -87,7 +86,7 @@ class Grades extends Component
     public function store()
     {
 
-      //  $this->validate();
+        $this->validate();
 
         Grade::create($this->modelData());
 
