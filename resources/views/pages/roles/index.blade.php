@@ -16,7 +16,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-right">
-                @can('اضافة دور')
+                @can('إضافة دور')
                     <a class="btn btn-success" href="{{ route('roles.create') }}"> اضافة دور جديد</a>
                     <br><br><br>
                 @endcan

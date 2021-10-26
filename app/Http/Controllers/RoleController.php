@@ -13,8 +13,8 @@ class RoleController extends Controller
 
     function __construct()
     {
-        $this->middleware('permission:قائمة الأدوار|اضافة دور|تعديل دور|حذف دور', ['only' => ['index','store']]);
-        $this->middleware('permission:اضافة دور', ['only' => ['create','store']]);
+        $this->middleware('permission:قائمة الأدوار|إضافة دور|تعديل دور|حذف دور', ['only' => ['index','store']]);
+        $this->middleware('permission:إضافة دور', ['only' => ['create','store']]);
         $this->middleware('permission:تعديل دور', ['only' => ['edit','update']]);
         $this->middleware('permission:حذف دور', ['only' => ['destroy']]);
     }
