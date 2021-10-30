@@ -11,6 +11,15 @@
     <meta name="author" content="potenzaglobalsolutions.com" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <link rel="preconnect" href="https://fonts.gstatic.com">
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script>
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "84b0c55f-c845-4f78-be68-f9bea972f208",
+            });
+        });
+    </script>
     @include('layouts.head')
 </head>
 

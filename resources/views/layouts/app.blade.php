@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+        <script>
+            window.OneSignal = window.OneSignal || [];
+            OneSignal.push(function() {
+                OneSignal.init({
+                    appId: "84b0c55f-c845-4f78-be68-f9bea972f208",
+                });
+            });
+        </script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -12,17 +21,6 @@
 
         <!-- Styles -->
         <link rel="stylesheet" href="{{ mix('css/app.css') }}">
-
-
-        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
-        <script>
-            window.OneSignal = window.OneSignal || [];
-            OneSignal.push(function() {
-                OneSignal.init({
-                    appId: "84b0c55f-c845-4f78-be68-f9bea972f208",
-                });
-            });
-        </script>
 
         @livewireStyles
 
