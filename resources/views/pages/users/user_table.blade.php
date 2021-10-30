@@ -28,7 +28,13 @@
                         </div>
                     @endif
                 @endif
+                <div style="margin-right: 10px;">
+                    <a class="modal-effect btn btn-sm btn-success" style="color: white"
+                       wire:click.prevent="export();"><i class="fas fa-file-download"></i>&nbsp;تصدير اكسيل
+                    </a>
+                </div>
             </div>
+            <br>
             @include('livewire.search')
             <div class="table-responsive mt-15">
                 <table class="table center-aligned-table mb-0">
@@ -65,11 +71,11 @@
                                 @if($user->email_verified_at != null)
                                     @csrf
                                     <button wire:click="activeEmail({{$user->id}});"
-                                            class="btn btn-outline-danger btn-sm">إلغاء تفعيل
+                                            class="btn btn-outline-success btn-sm">مفعل
                                     </button>
                                 @else
                                     <button wire:click="activeEmail({{$user->id}});"
-                                            class="btn btn-outline-success btn-sm">تفعيل
+                                            class="btn btn-outline-danger btn-sm">غير مفعل
                                     </button>
                                 @endif
                             </td>
@@ -88,14 +94,16 @@
                                                                          class="fa fa-eye"></i>&nbsp; عرض بيانات
                                             المستخدم
                                         </button>
-                                        <button class="dropdown-item"><i
+                                        <button class="dropdown-item"
+                                                wire:click.prevent="loadModalData({{$user->id}},'edit')"><i
                                                 style="color:green" class="fas fa-user-edit"></i> تعديل بيانات المستخدم
                                         </button>
-                                        <button class="dropdown-item"><i
+                                        <button class="dropdown-item"
+                                                wire:click.prevent="loadModalData({{$user->id}},'edit_roles')"><i
                                                 style="color:green" class="fa fa-edit"></i> تعديل الصلاحيات
                                         </button>
                                         <button class="dropdown-item"
-                                                wire:click.prevent="loadModalData({{$user->id}})"><i
+                                                wire:click.prevent="loadModalData({{$user->id}},'reset')"><i
                                                 style="color:green" class="fa fa-recycle"></i> إعادة تعيين كلمة المرور
                                         </button>
                                     </div>

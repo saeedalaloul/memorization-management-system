@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Spatie\Permission\Models\Role;
 
 class Students extends Component
 {
@@ -38,11 +39,11 @@ class Students extends Component
         // Father_INPUTS
         $father_identification_number, $father_name,
         $father_phone, $father_password, $father_address,
-        $father_dob,$father_email,
+        $father_dob, $father_email,
 
         // Student_INPUTS
         $student_identification_number, $student_name,
-        $student_email, $student_password,$student_phone,
+        $student_email, $student_password, $student_phone,
         $dob, $grade_id, $group_id, $student_address;
 
     public $searchGradeId, $searchGroupId;
@@ -154,7 +155,7 @@ class Students extends Component
                     $this->father_dob = $father->user->dob;
                     $this->isFoundFather = true;
                     $this->successMessage = 'لقد تم اعتماد معلومات الأب من خلال رقم الهوية المدخل مسبقا في النظام, يرجى متابعة إدخال باقي البيانات أو تعديل رقم الهوية المدخل...';
-                    $this->resetValidation(['father_identification_number','father_name','father_phone','father_address','father_password','father_dob','father_email']);
+                    $this->resetValidation(['father_identification_number', 'father_name', 'father_phone', 'father_address', 'father_password', 'father_dob', 'father_email']);
                 } else {
                     $this->father_id = null;
                     $this->isFoundFather = false;
@@ -355,14 +356,24 @@ class Students extends Component
 
     public function firstStepSubmit()
     {
-        $this->validate(['father_identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->father_id,
-            'father_name' => 'required|string|unique:users,name,' . $this->father_id,
-            'father_phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->father_id,
-            'father_email' => 'required|email|unique:users,email,' . $this->father_id,
-            'father_password' => 'required|min:8|max:10',
-            'father_dob' => 'required|date|date_format:Y-m-d',
-            'father_address' => 'required',
-        ]);
+        if ($this->isFoundFather) {
+            $this->validate(['father_identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->father_id,
+                'father_name' => 'required|string|unique:users,name,' . $this->father_id,
+                'father_phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->father_id,
+                'father_email' => 'required|email|unique:users,email,' . $this->father_id,
+                'father_dob' => 'required|date|date_format:Y-m-d',
+                'father_address' => 'required',
+            ]);
+        } else {
+            $this->validate(['father_identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->father_id,
+                'father_name' => 'required|string|unique:users,name,' . $this->father_id,
+                'father_phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->father_id,
+                'father_email' => 'required|email|unique:users,email,' . $this->father_id,
+                'father_password' => 'required|min:8|max:10',
+                'father_dob' => 'required|date|date_format:Y-m-d',
+                'father_address' => 'required',
+            ]);
+        }
 
         $this->currentStep = 2;
     }
@@ -430,6 +441,7 @@ class Students extends Component
                 }
             }
 
+
             // حفظ البيانات في جدول الطلاب
             Student::create([
                 'id' => $userStudent->id,
@@ -438,6 +450,11 @@ class Students extends Component
                 'group_id' => $this->group_id,
             ]);
 
+            $roleId = Role::select('*')->where('name', '=', 'طالب')->get();
+            $userStudent->assignRole([$roleId]);
+
+            $roleId = Role::select('*')->where('name', '=', 'ولي أمر الطالب')->get();
+            $userFather->assignRole([$roleId]);
 
             if (!empty($this->photo)) {
                 $this->photo->storeAs($this->student_identification_number, $this->photo->getClientOriginalName(), $disk = 'students_images');
@@ -571,6 +588,9 @@ class Students extends Component
                 'dob' => $this->father_dob,
                 'address' => $this->father_address,
             ]);
+
+            $roleId = Role::select('*')->where('name', '=', 'ولي أمر الطالب')->get();
+            $father->user->assignRole([$roleId]);
         }
 
         if ($this->student_id) {
@@ -587,6 +607,9 @@ class Students extends Component
                 'grade_id' => $this->grade_id,
                 'group_id' => $this->group_id,
             ]);
+
+            $roleId = Role::select('*')->where('name', '=', 'طالب')->get();
+            $student->user->assignRole([$roleId]);
         }
 
         if (!empty($this->photo)) {

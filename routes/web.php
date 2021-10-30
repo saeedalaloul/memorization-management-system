@@ -1,12 +1,7 @@
 <?php
 
-use App\Http\Controllers\Grades\GradeController;
-use App\Http\Controllers\Groups\GroupController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\LowerSupervisors\LowerSupervisorController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\Supervisors\SupervisorController;
-use App\Http\Controllers\Teachers\TeacherController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;

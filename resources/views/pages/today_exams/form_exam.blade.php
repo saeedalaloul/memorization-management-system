@@ -4,7 +4,7 @@
         <tr class="table-success">
             <th>رقم السؤال</th>
             <th>أخطاء السؤال</th>
-            <th>درجة السؤال</th>
+            <th>درجة أخطاء السؤال</th>
         </tr>
         </thead>
         <tbody>
@@ -44,7 +44,7 @@
         <tr class="table-success">
             <th>#</th>
             <th>أخطاء السؤال</th>
-            <th>درجة السؤال</th>
+            <th>درجة أخطاء السؤال</th>
         </tr>
         </tfoot>
     </table>
@@ -52,13 +52,13 @@
 <div class="row" style="transform: translate(-30%); padding: 10px;">
     <div class="card-body">
         <div class="col-md-12">
-            <button wire:click.prevent="minus_5()" style="width: 50px;" type="button"
+            <button wire:click.prevent="minus_1()" style="width: 50px;" type="button"
                     class="btn btn-outline-danger btn-sm">/
             </button>
             <button style="width: 50px;" wire:click.prevent="remove()" type="button"
                     class="btn btn-outline-primary btn-sm">مسح
             </button>
-            <button wire:click.prevent="minus_2()" style="width: 50px;" type="button"
+            <button wire:click.prevent="minus_0_5()" style="width: 50px;" type="button"
                     class="btn btn-outline-danger btn-sm">-
             </button>
             <button type="button"

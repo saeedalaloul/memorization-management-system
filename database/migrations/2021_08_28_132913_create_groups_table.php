@@ -16,8 +16,8 @@ class CreateGroupsTable extends Migration
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
             $table->string('name')->index()->unique();
-            $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->unique()->index()->references('id')->on('teachers')->cascadeOnDelete();
+            $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('teacher_id')->unique()->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

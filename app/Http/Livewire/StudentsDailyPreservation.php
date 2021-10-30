@@ -117,11 +117,16 @@ class StudentsDailyPreservation extends Component
                 if ($this->sura_from_id == $this->ret_sura_from_id) {
                     if ($this->aya_from_id == $this->ret_aya_from_id) {
                         if ($this->sura_to_id <= $this->ret_sura_to_id) {
-                            if ($this->aya_to_id >= $this->ret_aya_from_id) {
-                                $this->store();
+                            // إذا سورة البداية نفس سورة النهاية
+                            if ($this->sura_from_id == $this->sura_to_id) {
+                                if ($this->aya_to_id >= $this->ret_aya_from_id) {
+                                    $this->store();
+                                } else {
+                                    $messageBag->add('aya_to_id', 'عذرا يجب أن يكون هنا اختيار صحيح');
+                                    $this->setErrorBag($messageBag);
+                                }
                             } else {
-                                $messageBag->add('aya_to_id', 'عذرا يجب أن يكون هنا اختيار صحيح');
-                                $this->setErrorBag($messageBag);
+                                $this->store();
                             }
                         } else {
                             $messageBag->add('sura_to_id', 'عذرا يجب أن يكون هنا اختيار صحيح');

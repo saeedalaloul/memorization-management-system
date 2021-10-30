@@ -1,7 +1,14 @@
 <div>
+    @if (!empty($successMessage))
+        <div class="alert alert-success" id="success-alert">
+            <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
+            {{ $successMessage }}
+        </div>
+    @endif
+
     @if ($catchError)
         <div class="alert alert-danger" id="success-danger">
-            <button type="button" class="close" data-dismiss="alert">x</button>
+            <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
             {{ $catchError }}
         </div>
     @endif
@@ -30,12 +37,18 @@
                                 المستخدمين</a>
                         </li>
                         <li class="nav-item">
-                            @if ($proccess_type == 'reset')
+                            @if ($process_type == 'reset')
                                 <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
                                    data-bs-toggle="tab" role="tab"
                                    wire:click="showformadd(false);" href="#"
                                    aria-controls="add_user-05" aria-selected="false"><i
                                         class="fas fa-recycle"></i> إعادة تعيين كلمة المرور</a>
+                            @elseif($process_type == 'edit_roles')
+                                <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
+                                   data-bs-toggle="tab" role="tab"
+                                   wire:click="showformadd(false);" href="#"
+                                   aria-controls="add_user-05" aria-selected="false"><i
+                                        class="fas fa-edit"></i> تعديل الصلاحيات</a>
                             @else
                                 <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
                                    data-bs-toggle="tab" role="tab"
@@ -55,8 +68,12 @@
                         <div class="tab-pane fade {{$show_table == false ? 'active show':''}}" id="add_user-05"
                              role="tabpanel"
                              aria-labelledby="add_user-05-tab">
-                            @if ($proccess_type == 'reset')
+                            @if ($process_type == 'reset')
                                 @include('pages.users.reset_password_user')
+                            @elseif($process_type == 'edit_roles')
+                                @include('pages.users.user_roles_edit')
+                            @else
+                                @include('pages.users.user_form')
                             @endif
                         </div>
                     </div>

@@ -88,7 +88,15 @@
             <a class="nav-link nav-pill user-avatar" data-toggle="dropdown" href="#" role="button"
                aria-haspopup="true"
                aria-expanded="false">
-                <img src="{{asset('/storage/students_images/230145575/IMG_٢٠٢١١٠١٥_١٤٢٢٢٧_resized.jpg')}}" alt="avatar">
+                @if (auth()->user()->profile_photo_path == null || empty(auth()->user()->profile_photo_path))
+                    <img
+                        src="{{asset('https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name).'&color=7F9CF5&background=EBF4FF')}}"
+                        alt="avatar">
+                @else
+                    <img
+                        src="{{asset('/storage/users_images/'.auth()->user()->identification_number.'/'.auth()->user()->profile_photo_path),true}}"
+                        alt="avatar">
+                @endif
             </a>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-header">

@@ -18,11 +18,11 @@ class CreateExamsTable extends Migration
             $table->json('readable');
             $table->json('signs_questions');
             $table->json('marks_questions');
-            $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->cascadeOnDelete();
-            $table->foreignId('exam_success_mark_id')->index()->references('id')->on('exam_success_mark')->cascadeOnDelete();
-            $table->foreignId('student_id')->index()->references('id')->on('students')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete();
-            $table->foreignId('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete();
+            $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('exam_success_mark_id')->index()->references('id')->on('exam_success_mark')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('student_id')->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('exam_date')->index();
             $table->string('notes',50)->nullable();
         });

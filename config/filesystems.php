@@ -35,20 +35,12 @@ return [
             'root' => storage_path('app'),
         ],
 
-        'students_images' => [
+        'users_images' => [
             'driver' => 'local',
-            'root' => storage_path('app/public/students_images'),
-            'url' => env('APP_URL').'/storage/students_images',
+            'root' => storage_path('app/public/users_images'),
+            'url' => env('APP_URL').'/storage/users_images',
             'visibility' => 'public',
         ],
-
-        'teachers_images' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public/teachers_images'),
-            'url' => env('APP_URL').'/storage/teachers_images',
-            'visibility' => 'public',
-        ],
-
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
@@ -82,8 +74,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
-        public_path('storage/teachers_images') => storage_path('app/public/teachers_images'),
-        public_path('storage/students_images') => storage_path('app/public/students_images'),
+        public_path('storage/users_images') => storage_path('app/public/users_images'),
     ],
 
 ];

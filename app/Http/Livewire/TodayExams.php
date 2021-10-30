@@ -23,7 +23,7 @@ class TodayExams extends Component
     public $perPage = 10;
     public $search = '';
     public $modalId, $notes, $student_name, $teacher_name, $tester_name, $quran_part, $numberOfReplays = 0;
-    public $exam_date, $exam_mark = 95, $exam_questions_count, $focus_id, $success_mark;
+    public $exam_date, $exam_mark = 100, $exam_questions_count, $focus_id, $success_mark, $mark_another = 10;
     public $final_exam_score, $exam_notes, $quran_part_id, $student_id, $teacher_id, $tester_id;
     public $isExamOfStart = false, $signs_questions = [], $marks_questions = [];
     public $exam_questions_min, $exam_questions_max, $examOrder;
@@ -38,6 +38,9 @@ class TodayExams extends Component
     public function render()
     {
         $this->read_All_Exams_Today_Orders();
+        if ($this->isExamOfStart && $this->modalId && $this->mark_another) {
+            $this->calcAverage();
+        }
         return view('livewire.today-exams', [
             'exams_today' => $this->all_Exams_Today(),
         ]);
@@ -58,17 +61,21 @@ class TodayExams extends Component
     {
         $this->validateOnly($propertyName, [
             'notes' => 'required|string|max:50',
+            'mark_another' => 'required|numeric|between:5,10',
+            'exam_mark' => 'required|numeric|between:60,100',
         ]);
     }
 
-    public function rules()
+    public
+    function rules()
     {
         return [
             'notes' => 'required|string|max:50',
         ];
     }
 
-    public function messages()
+    public
+    function messages()
     {
         return [
             'notes.required' => 'حقل الملاحظات مطلوب',
@@ -77,10 +84,17 @@ class TodayExams extends Component
             'exam_notes.max' => 'حقل الملاحظات يجب أن لا يزيد عن 50 حرف',
             'exam_questions_count.required' => 'حقل عدد أسئلة الإختبار مطلوب',
             'exam_questions_count.numeric' => 'حقل عدد أسئلة الإختبار يجب أن يحتوي على رقم',
+            'mark_another.required' => 'علامة أحكام الطالب مطلوبة',
+            'mark_another.numeric' => 'يجب أن يكون رقم',
+            'mark_another.between' => 'يجب أن تكون علامة أحكام الطالب بين 5 أو 10',
+            'exam_mark.required' => 'علامة الاختبار مطلوبة',
+            'exam_mark.numeric' => 'يجب أن يكون رقم',
+            'exam_mark.between' => 'يجب أن تكون علامة الاختبار بين 60 أو 100',
         ];
     }
 
-    public function examOrderRefusal()
+    public
+    function examOrderRefusal()
     {
         $this->validate();
         $examOrder = ExamOrder::where('id', $this->modalId)->first();
@@ -96,21 +110,23 @@ class TodayExams extends Component
                         'readable' => json_encode($array),
                     ]);
                     $this->emit('refusal-exam');
-                    session()->flash('success_message', 'تمت عملية اعتماد عدم إجراء الطالب الإختبار بنجاح.');
+                    session()->flash('success_message', 'تمت عملية اعتماد عدم إجراء الطالب الاختبار بنجاح.');
                     $this->clearForm();
                 }
             }
         }
     }
 
-    public function examQuestionsNumberApproval()
+    public
+    function examQuestionsNumberApproval()
     {
         $this->validate(['exam_questions_count' => 'required|numeric']);
         $this->initializeExamStartInputs(null);
         $this->emit('exam-question-count-select');
     }
 
-    public function examOfStart($id)
+    public
+    function examOfStart($id)
     {
         $this->examOrder = ExamOrder::where('id', $id)->first();
         if ($this->examOrder) {
@@ -137,7 +153,8 @@ class TodayExams extends Component
         }
     }
 
-    private function initializeExamStartInputs($count)
+    private
+    function initializeExamStartInputs($count)
     {
         $this->isExamOfStart = true;
         $this->modalId = $this->examOrder->id;
@@ -154,7 +171,7 @@ class TodayExams extends Component
             $this->exam_questions_count = $count;
         }
         for ($i = 1; $i <= $this->exam_questions_count; $i++) {
-            $this->marks_questions[$i] = 95;
+            $this->marks_questions[$i] = 0;
         }
 
         for ($i = 1; $i <= $this->exam_questions_count; $i++) {
@@ -170,7 +187,7 @@ class TodayExams extends Component
                 for ($j = 1; $j <= count($exams[$i]->marks_questions); $j++) {
                     $sum += $exams[$i]->marks_questions[$j];
                 }
-                $exam_mark = round($sum / count($exams[$i]->marks_questions));
+                $exam_mark = round(100 - $sum);
                 if ($exam_mark < $exams[$i]->examSuccessMark->mark) {
                     $this->numberOfReplays++;
                 }
@@ -178,8 +195,11 @@ class TodayExams extends Component
         }
     }
 
-    public function examApproval()
+    public
+    function examApproval()
     {
+        $this->validate(['mark_another' => 'required|numeric|between:5,10',
+            'exam_mark' => 'required|numeric|between:60,100']);
 
         $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
             "isReadableTester" => false, "isReadableLowerSupervisor" => false,
@@ -216,41 +236,38 @@ class TodayExams extends Component
         }
     }
 
-    public function getFocusId($id)
+    public
+    function getFocusId($id)
     {
         if (in_array($id, range(1, $this->exam_questions_count))) {
             $this->focus_id = $id;
         }
     }
 
-    public function minus_5()
+    public
+    function minus_1()
     {
         if ($this->focus_id != null) {
             if (isset($this->signs_questions[$this->focus_id])) {
-                if ($this->marks_questions[$this->focus_id] > 62.5) {
-                    $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '/';
-                }
+                $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '/';
             } else {
-                if ($this->marks_questions[$this->focus_id] > 62.5) {
-                    $this->signs_questions[$this->focus_id] = '/';
-                }
+                $this->signs_questions[$this->focus_id] = '/';
             }
-            if ($this->marks_questions[$this->focus_id] > 62.5) {
-                $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 5;
-            }
+            $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 1;
             $this->calcAverage();
         }
     }
 
-    public function remove()
+    public
+    function remove()
     {
         if ($this->focus_id != null && isset($this->signs_questions[$this->focus_id])) {
             $length = strlen($this->signs_questions[$this->focus_id]);
             if (isset($this->signs_questions[$this->focus_id][$length - 1])) {
                 if ($this->signs_questions[$this->focus_id][$length - 1] == '/') {
-                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 5;
+                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 1;
                 } else {
-                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 2.5;
+                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 0.5;
                 }
                 $this->signs_questions[$this->focus_id] = substr($this->signs_questions[$this->focus_id], 0, -1);
                 $this->calcAverage();
@@ -258,32 +275,28 @@ class TodayExams extends Component
         }
     }
 
-    public function minus_2()
+    public
+    function minus_0_5()
     {
         if ($this->focus_id != null) {
             if (isset($this->signs_questions[$this->focus_id])) {
-                if ($this->marks_questions[$this->focus_id] > 60) {
-                    $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '-';
-                }
+                $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '-';
             } else {
-                if ($this->marks_questions[$this->focus_id] > 60) {
-                    $this->signs_questions[$this->focus_id] = '-';
-                }
+                $this->signs_questions[$this->focus_id] = '-';
             }
-            if ($this->marks_questions[$this->focus_id] > 60) {
-                $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 2.5;
-            }
+            $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 0.5;
             $this->calcAverage();
         }
     }
 
-    private function calcAverage()
+    private
+    function calcAverage()
     {
         $sum = 0;
         for ($i = 1; $i <= $this->exam_questions_count; $i++) {
             $sum += $this->marks_questions[$i];
         }
-        $this->exam_mark = round($sum / $this->exam_questions_count);
+        $this->exam_mark = round(100 - $sum) - (10 - $this->mark_another);
         if ($this->exam_mark >= $this->success_mark) {
             $this->final_exam_score = 'درجة الطالب : (' . $this->exam_mark . ')' . ' اجتاز الطالب الإختبار بنجاح.';
         } else {
@@ -292,7 +305,8 @@ class TodayExams extends Component
     }
 
 
-    public function getExamOrder($id)
+    public
+    function getExamOrder($id)
     {
         $this->clearForm();
         $examOrder = ExamOrder::where('id', $id)->first();
@@ -303,7 +317,8 @@ class TodayExams extends Component
         }
     }
 
-    public function clearForm()
+    public
+    function clearForm()
     {
         $this->modalId = null;
         $this->student_name = null;
@@ -312,7 +327,8 @@ class TodayExams extends Component
         $this->resetValidation();
     }
 
-    public function all_Exams_Today()
+    public
+    function all_Exams_Today()
     {
         if (auth()->user()->current_role == 'محفظ') {
             return ExamOrder::query()
@@ -342,7 +358,8 @@ class TodayExams extends Component
         return [];
     }
 
-    private function read_All_Exams_Today_Orders()
+    private
+    function read_All_Exams_Today_Orders()
     {
         $exams_orders = $this->all_Exams_Today();
 

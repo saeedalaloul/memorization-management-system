@@ -14,8 +14,8 @@ class CreateLowerSupervisorsTable extends Migration
     public function up()
     {
         Schema::create('lower_supervisors', function (Blueprint $table) {
-            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete();
-            $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete();
+            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

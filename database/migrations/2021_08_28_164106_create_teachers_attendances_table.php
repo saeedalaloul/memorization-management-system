@@ -15,8 +15,8 @@ class CreateTeachersAttendancesTable extends Migration
     {
         Schema::create('teacher_attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete();
-            $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete();
+            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('attendance_date')->index();
             $table->boolean('attendance_status');
             $table->timestamps();

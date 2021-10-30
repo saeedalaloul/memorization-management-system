@@ -13,6 +13,17 @@
         <!-- Styles -->
         <link rel="stylesheet" href="{{ mix('css/app.css') }}">
 
+
+        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+        <script>
+            window.OneSignal = window.OneSignal || [];
+            OneSignal.push(function() {
+                OneSignal.init({
+                    appId: "84b0c55f-c845-4f78-be68-f9bea972f208",
+                });
+            });
+        </script>
+
         @livewireStyles
 
         <!-- Scripts -->

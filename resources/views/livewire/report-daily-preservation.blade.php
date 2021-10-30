@@ -100,7 +100,7 @@
                     </div>
                     @include('livewire.search')
                     <div class="table-responsive mt-15">
-                        <table class="table center-aligned-table mb-0">
+                        <table id="example" class="table center-aligned-table mb-0">
                             <thead>
                             <tr class="text-dark table-success">
                                 <th wire:click="sortBy('id')" style="cursor: pointer;">#

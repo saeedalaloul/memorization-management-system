@@ -34,6 +34,10 @@
         window.livewire.on('groupDeleted', () => {
             $('#groupDeleted').modal('hide');
         });
+
+        window.livewire.on('groupPullTeacher', () => {
+            $('#groupPullTeacher').modal('hide');
+        });
     </script>
 @endsection
 

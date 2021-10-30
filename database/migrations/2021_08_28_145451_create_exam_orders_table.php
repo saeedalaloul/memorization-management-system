@@ -17,10 +17,10 @@ class CreateExamOrdersTable extends Migration
             $table->id();
             $table->tinyInteger('status')->default(0);
             $table->json('readable');
-            $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->cascadeOnDelete();
-            $table->foreignId('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete();
-            $table->foreignId('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete();
+            $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('exam_date')->nullable();
             $table->string('notes', 50)->nullable();
             $table->timestamps();

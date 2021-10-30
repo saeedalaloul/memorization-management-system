@@ -15,7 +15,7 @@ class CreateExamCustomQuestionTable extends Migration
     {
         Schema::create('exam_custom_questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('quran_part_id')->unique()->index()->references('id')->on('quran_parts')->cascadeOnDelete();
+            $table->foreignId('quran_part_id')->unique()->index()->references('id')->on('quran_parts')->cascadeOnDelete()->cascadeOnUpdate();
             $table->unsignedTinyInteger('exam_question_count');
         });
     }

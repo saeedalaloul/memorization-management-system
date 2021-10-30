@@ -15,14 +15,14 @@ class CreateStudentsDailyPreservationTable extends Migration
     {
         Schema::create('student_daily_preservations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id')->index()->references('id')->on('students')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete();
-            $table->foreignId('type')->index()->references('id')->on('daily_preservation_types')->cascadeOnDelete();
-            $table->foreignId('from_sura')->index()->references('id')->on('quran_suras')->cascadeOnDelete();
-            $table->foreignId('to_sura')->index()->references('id')->on('quran_suras')->cascadeOnDelete();
+            $table->foreignId('student_id')->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('type')->index()->references('id')->on('daily_preservation_types')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('from_sura')->index()->references('id')->on('quran_suras')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('to_sura')->index()->references('id')->on('quran_suras')->cascadeOnDelete()->cascadeOnUpdate();
             $table->unsignedTinyInteger('from_aya')->index();
             $table->unsignedTinyInteger('to_aya')->index();
-            $table->foreignId('evaluation')->index()->references('id')->on('daily_preservation_evaluations')->cascadeOnDelete();
+            $table->foreignId('evaluation')->index()->references('id')->on('daily_preservation_evaluations')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('daily_preservation_date')->index();
         });
     }

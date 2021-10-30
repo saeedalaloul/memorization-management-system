@@ -178,7 +178,7 @@ return [
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
         Yoeunes\Toastr\ToastrServiceProvider::class,
-        Yajra\DataTables\DataTablesServiceProvider::class,
+        Ladumor\OneSignal\OneSignalServiceProvider::class,
     ],
 
     /*
@@ -232,7 +232,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'OneSignal' => \Ladumor\OneSignal\OneSignal::class,
     ],
 
 ];

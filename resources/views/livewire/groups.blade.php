@@ -10,6 +10,12 @@
     </div>
 
     <div class="col-xl-12 mb-30">
+        @if ($catchError)
+            <div class="alert alert-danger" id="success-danger">
+                <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
+                {{ $catchError }}
+            </div>
+        @endif
         <div class="card card-statistics h-100">
             <div class="card-body">
                 <h5 class="card-title">إدارة الحلقات</h5>
@@ -85,7 +91,13 @@
                                                         <td>{{ $group->id }}</td>
                                                         <td>{{ $group->name }}</td>
                                                         <td>{{ $group->grade->name }}</td>
-                                                        <td>{{ $group->teacher->user->name }}</td>
+                                                        <td>
+                                                            @if ($group->teacher_id != null)
+                                                                {{ $group->teacher->user->name }}
+                                                            @else
+                                                                لا يوجد محفظ
+                                                            @endif
+                                                        </td>
                                                         <td>{{ $group->students->count() }}</td>
                                                         <td>
                                                             @can('تعديل مجموعة')
@@ -100,6 +112,13 @@
                                                                         title="نقل الحلقة"><i class="fa fa-cut"></i>
                                                                 </button>
                                                             @endcan
+                                                            @if ($group->teacher_id != null)
+                                                                <button type="button" class="btn btn-warning btn-sm"
+                                                                        data-toggle="modal"
+                                                                        data-target="#groupPullTeacher"
+                                                                        title="سحب المحفظ من الحلقة"><i
+                                                                        class="fa fa-remove"></i></button>
+                                                            @endif
                                                             @can('حذف مجموعة')
                                                                 <button type="button" class="btn btn-danger btn-sm"
                                                                         data-toggle="modal"
@@ -111,6 +130,7 @@
                                                     </tr>
 
                                                     @include('pages.groups.delete')
+                                                    @include('pages.groups.pull_teacher')
 
 
                                                 @empty

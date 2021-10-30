@@ -31,7 +31,7 @@ class Groups extends Component
     public $search = '';
     public $show_table = true;
     public $is_moving = false;
-    public $searchGradeId;
+    public $searchGradeId, $catchError;
     protected $paginationTheme = 'bootstrap';
 
     public function render()
@@ -186,6 +186,25 @@ class Groups extends Component
         }
     }
 
+    public function pullATeacherOutOfTheGroup($id, $teacher_id)
+    {
+        if ($id != null && $teacher_id != null) {
+            $this->emit('groupPullTeacher');
+            $teacher = Teacher::find($teacher_id);
+            if ($teacher->exam_order->count() > 0) {
+                $this->catchError = "عذرا , يوجد طلبات اختبارات لهذه الحلقة يجب إجرائها أو حذفها حتى تتمكن من سحب المحفظ";
+            } else {
+                $group = Group::find($id);
+                if ($group->teacher_id != null) {
+                    $group->update(['teacher_id' => null]);
+                    session()->flash('message', 'تم سحب المحفظ من الحلقة بنجاح.');
+                } else {
+                    $this->catchError = "عذرا لا يوجد محفظ في المجموعة";
+                }
+            }
+        }
+    }
+
     public function validateMoveGroup()
     {
         $messageBag = new MessageBag;
@@ -200,6 +219,11 @@ class Groups extends Component
             $messageBag->add('new_grade_id', 'يجب إختيار المرحلة الجديدة');
             $this->setErrorBag($messageBag);
         }
+    }
+
+    public function resetMessage()
+    {
+        $this->catchError = null;
     }
 
     public function destroy($id)

@@ -17,9 +17,19 @@
                             @enderror
                         </div>
                         <div class="col-md-12">
+                            <label class="control-label">علامة أحكام الطالب*</label>
+                            <input type="number" wire:model="mark_another" max="10" min="5" class="form-control">
+                            @error('mark_another')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-12">
                             <label class="control-label">درجة الإختبار النهائية</label>
                             <input type="text" style="color: {{$exam_mark >= $success_mark ? 'green': 'red'}}"
                                    wire:model="final_exam_score" readonly class="form-control">
+                            @error('exam_mark')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </form>
