@@ -6,7 +6,7 @@
                 <ul class="nav navbar-nav side-menu" id="sidebarnav">
                     <!-- menu item Dashboard-->
                     <li>
-                        <a href="{{ url('/dashboard') }}">
+                        <a href="{{ url('/dashboard',null,true) }}">
                             <div class="pull-left"><i class="ti-home"></i><span class="right-nav-text">الرئيسية</span>
                             </div>
                             <div class="clearfix"></div>
@@ -25,16 +25,16 @@
                         </a>
                         <ul id="lowersupervisors-menu" class="collapse" data-parent="#sidebarnav">
                             @can('إدارة المراحل')
-                                <li><a href="{{url('manage_grade')}}">إدارة المراحل</a></li>
+                                <li><a href="{{url('manage_grade',null,true)}}">إدارة المراحل</a></li>
                             @endcan
                             @can('إدارة المجموعات')
-                                <li><a href="{{url('manage_group')}}">إدارة الحلقات</a></li>
+                                <li><a href="{{url('manage_group',null,true)}}">إدارة الحلقات</a></li>
                             @endcan
                             @can('إدارة مشرفي المراحل')
-                                <li><a href="{{url('manage_supervisor')}}">إدارة مشرفي المراحل</a></li>
+                                <li><a href="{{url('manage_supervisor',null,true)}}">إدارة مشرفي المراحل</a></li>
                             @endcan
                             @can('إدارة الإداريين')
-                                <li><a href="{{url('manage_lower_supervisor')}}">إدارة إداريي المراحل</a></li>
+                                <li><a href="{{url('manage_lower_supervisor',null,true)}}">إدارة إداريي المراحل</a></li>
                             @endcan
                         </ul>
                     </li>
@@ -49,10 +49,10 @@
                         </a>
                         <ul id="TeachersAttendance-icon" class="collapse" data-parent="#sidebarnav">
                             @can('إدارة المحفظين')
-                                <li><a href="{{url('manage_teacher')}}">إدارة المحفظين</a></li>
+                                <li><a href="{{url('manage_teacher',null,true)}}">إدارة المحفظين</a></li>
                             @endcan
                             @can('إدارة حضور وغياب المحفظين')
-                                <li><a href="{{url('manage_teachers_attendance')}}">حضور وغياب المحفظين</a></li>
+                                <li><a href="{{url('manage_teachers_attendance',null,true)}}">حضور وغياب المحفظين</a></li>
                             @endcan
                         </ul>
                     </li>
@@ -67,17 +67,17 @@
                         </a>
                         <ul id="StudentsDailyPreservation-icon" class="collapse" data-parent="#sidebarnav">
                             @can('إدارة الطلاب')
-                                <li><a href="{{url('manage_student')}}">إدارة الطلاب</a></li>
+                                <li><a href="{{url('manage_student',null,true)}}">إدارة الطلاب</a></li>
                             @endcan
                             @can('إدارة حضور وغياب الطلاب')
-                                <li><a href="{{url('manage_students_attendance')}}">حضور وغياب الطلاب</a></li>
+                                <li><a href="{{url('manage_students_attendance',null,true)}}">حضور وغياب الطلاب</a></li>
                             @endcan
                             @can('إدارة متابعة الحفظ والمراجعة')
-                                <li><a href="{{url('manage_students_daily_preservation')}}">متابعة الحفظ والمراجعة</a>
+                                <li><a href="{{url('manage_students_daily_preservation',null,true)}}">متابعة الحفظ والمراجعة</a>
                                 </li>
                             @endcan
                             @can('إدارة تقرير الحفظ والمراجعة')
-                                <li><a href="{{url('manage_report_daily_preservation')}}">تقرير الحفظ والمراجعة</a>
+                                <li><a href="{{url('manage_report_daily_preservation',null,true)}}">تقرير الحفظ والمراجعة</a>
                                 </li>
                             @endcan
                         </ul>
@@ -94,38 +94,38 @@
                             @can('إدارة طلبات الإختبارات')
                                 <li>
                                     @if (\App\Models\ExamOrder::unreadexams() > 0)
-                                        <a href="{{url('manage_exams_orders')}}">طلبات الإختبارات<span
+                                        <a href="{{url('manage_exams_orders',null,true)}}">طلبات الإختبارات<span
                                                 class="badge bg-danger float-right mt-1">{{\App\Models\ExamOrder::unreadexams()}}</span></a>
                                     @else
-                                        <a href="{{url('manage_exams_orders')}}">طلبات الإختبارات</a>
+                                        <a href="{{url('manage_exams_orders',null,true)}}">طلبات الإختبارات</a>
                                     @endif
                                 </li>
                             @endcan
                             @can('إدارة الإختبارات')
                                 <li>
                                     @if (\App\Models\Exam::unreadexams() > 0)
-                                        <a href="{{url('manage_exams')}}">الإختبارات القرآنية<span
+                                        <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية<span
                                                 class="badge bg-danger float-right mt-1">{{\App\Models\Exam::unreadexams()}}</span></a>
                                     @else
-                                        <a href="{{url('manage_exams')}}">الإختبارات القرآنية</a>
+                                        <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية</a>
                                     @endif
                                 </li>
                             @endcan
                             @can('إدارة اختبارات اليوم')
                                 <li>
                                     @if (\App\Models\ExamOrder::unreadtodayexams() > 0)
-                                        <a href="{{url('manage_today_exams')}}">اختبارات اليوم<span
+                                        <a href="{{url('manage_today_exams',null,true)}}">اختبارات اليوم<span
                                                 class="badge bg-danger float-right mt-1">{{\App\Models\ExamOrder::unreadtodayexams()}}</span></a>
                                     @else
-                                        <a href="{{url('manage_today_exams')}}">اختبارات اليوم</a>
+                                        <a href="{{url('manage_today_exams',null,true)}}">اختبارات اليوم</a>
                                     @endif
                                 </li>
                             @endcan
                             @can('إدارة المختبرين')
-                                <li><a href="{{url('manage_testers')}}">المختبرين</a></li>
+                                <li><a href="{{url('manage_testers',null,true)}}">المختبرين</a></li>
                             @endcan
                             @can('إعدادات الإختبارات')
-                                <li><a href="{{url('manage_exams_settings')}}">إعدادات الإختبارات القرآنية</a></li>
+                                <li><a href="{{url('manage_exams_settings',null,true)}}">إعدادات الإختبارات القرآنية</a></li>
                             @endcan
                         </ul>
                     </li>
@@ -141,7 +141,7 @@
                             </a>
                             <ul id="Users-icon" class="collapse" data-parent="#sidebarnav">
                                 <li><a href="{{route('roles.index')}}">أدوار المستخدمين</a></li>
-                                <li><a href="{{url('manage_users')}}">المستخدمين</a></li>
+                                <li><a href="{{url('manage_users',null,true)}}">المستخدمين</a></li>
                             </ul>
                         </li>
                     @endcan
