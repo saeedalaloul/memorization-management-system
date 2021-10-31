@@ -79,7 +79,7 @@
 preloader -->
 
     <div id="pre-loader">
-        <img src="{{URL::asset('assets/images/pre-loader/loader-01.svg')}}" alt="">
+        <img src="{{URL::asset('assets/images/pre-loader/loader-01.svg',true)}}" alt="">
     </div>
 
     <!--=================================
