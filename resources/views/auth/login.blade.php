@@ -106,7 +106,7 @@ login-->
                 <div class="col-lg-4 col-md-6 bg-white">
                     <div class="login-fancy pb-40 clearfix">
                         <h3 class="mb-30">تسجيل الدخول إلى لوحة التحكم</h3>
-                        <form method="POST" action="{{ route('login') }}">
+                        <form method="POST" action="{{ route('login',['']) }}">
                             @csrf
                             <div class="section-field mb-20">
                                 <label class="mb-10" for="name">البريدالالكتروني* </label>
