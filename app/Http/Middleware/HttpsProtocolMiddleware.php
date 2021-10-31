@@ -14,12 +14,10 @@ class HttpsProtocolMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
-    {
-        if (!$request->secure() && app()->environment('production')) {
-            return redirect()->secure($request->getRequestUri());
+    public function handle($request, Closure $next){
+        if (!$request->secure()) {
+            return redirect()->secure($request->path());
         }
-
         return $next($request);
     }
 }
