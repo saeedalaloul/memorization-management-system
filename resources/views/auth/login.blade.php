@@ -8,16 +8,17 @@
     <meta name="description" content="Webmin - Bootstrap 4 & Angular 5 Admin Dashboard Template"/>
     <meta name="author" content="#"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>نظام إدارة حلقات التحفيظ</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico')}}"/>
+    <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico',true)}}"/>
 
     <!-- Font -->
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Poppins:200,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900">
     <!-- css -->
-    <link href="{{ URL::asset('assets/css/rtl.css') }}" rel="stylesheet">
+    <link href="{{ URL::asset('assets/css/rtl.css',true) }}" rel="stylesheet">
 
 
     <style type="text/css">/* Chart.js */
@@ -78,7 +79,7 @@
 preloader -->
 
     <div id="pre-loader">
-        <img src="{{URL::asset('assets/images/pre-loader/loader-01.svg')}}" alt="">
+        <img src="{{URL::asset('assets/images/pre-loader/loader-01.svg',true)}}" alt="">
     </div>
 
     <!--=================================
