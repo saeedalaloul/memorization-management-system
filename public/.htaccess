@@ -5,11 +5,9 @@
 
     RewriteEngine On
 
-   # Force SSL
-   RewriteCond %{HTTPS} !=on
-   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-   # Remove public folder form URL
-   RewriteRule ^(.*)$ public/$1 [L]
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
