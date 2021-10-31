@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Ladumor\OneSignal\OneSignal;
 
 class HomeController extends Controller
 {
