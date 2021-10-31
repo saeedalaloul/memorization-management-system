@@ -12,13 +12,13 @@
     <title>نظام إدارة حلقات التحفيظ</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico')}}"/>
+    <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico',true)}}"/>
 
     <!-- Font -->
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Poppins:200,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900">
     <!-- css -->
-    <link href="{{ URL::asset('assets/css/rtl.css') }}" rel="stylesheet">
+    <link href="{{ URL::asset('assets/css/rtl.css',true) }}" rel="stylesheet">
 
 
     <style type="text/css">/* Chart.js */
@@ -88,11 +88,11 @@ preloader -->
     <!--=================================
 login-->
     <section class="height-100vh d-flex align-items-center page-section-ptb login"
-             style="background-image: url({{URL::asset('assets/images/login-bg.jpg')}});">
+             style="background-image: url({{URL::asset('assets/images/login-bg.jpg',true)}});">
         <div class="container">
             <div class="row justify-content-center g-0 vertical-align">
                 <div class="col-lg-4 col-md-6 login-fancy-bg bg"
-                     style="background-image: url({{URL::asset('assets/images/login-inner-bg.jpg')}});">
+                     style="background-image: url({{URL::asset('assets/images/login-inner-bg.jpg',true)}});">
                     <div class="login-fancy">
                         <h2 class="text-white mb-20">Hello world!</h2>
                         <p class="mb-20 text-white">Create tailor-cut websites with the exclusive multi-purpose
@@ -150,36 +150,36 @@ login-->
     </section>
 </div>
 <!-- jquery -->
-<script src="{{ URL::asset('assets/js/jquery-3.6.0.min.js') }}"></script>
+<script src="{{ URL::asset('assets/js/jquery-3.6.0.min.js',true) }}"></script>
 <!-- plugins-jquery -->
-<script src="{{ URL::asset('assets/js/plugins-jquery.js') }}"></script>
+<script src="{{ URL::asset('assets/js/plugins-jquery.js',true) }}"></script>
 <!-- plugin_path -->
 <script>
     var plugin_path = 'js/';
 </script>
 
 <!-- chart -->
-<script src="{{ URL::asset('assets/js/chart-init.js') }}"></script>
+<script src="{{ URL::asset('assets/js/chart-init.js',true) }}"></script>
 <!-- calendar -->
-<script src="{{ URL::asset('assets/js/calendar.init.js') }}"></script>
+<script src="{{ URL::asset('assets/js/calendar.init.js',true) }}"></script>
 <!-- charts sparkline -->
-<script src="{{ URL::asset('assets/js/sparkline.init.js') }}"></script>
+<script src="{{ URL::asset('assets/js/sparkline.init.js',true) }}"></script>
 <!-- charts morris -->
-<script src="{{ URL::asset('assets/js/morris.init.js') }}"></script>
+<script src="{{ URL::asset('assets/js/morris.init.js',true) }}"></script>
 <!-- datepicker -->
-<script src="{{ URL::asset('assets/js/datepicker.js') }}"></script>
+<script src="{{ URL::asset('assets/js/datepicker.js',true) }}"></script>
 <!-- sweetalert2 -->
-<script src="{{ URL::asset('assets/js/sweetalert2.js') }}"></script>
+<script src="{{ URL::asset('assets/js/sweetalert2.js',true) }}"></script>
 <!-- toastr -->
 @yield('js')
-<script src="{{ URL::asset('assets/js/toastr.js') }}"></script>
+<script src="{{ URL::asset('assets/js/toastr.js',true) }}"></script>
 <!-- validation -->
-<script src="{{ URL::asset('assets/js/validation.js') }}"></script>
+<script src="{{ URL::asset('assets/js/validation.js',true) }}"></script>
 <!-- lobilist -->
-<script src="{{ URL::asset('assets/js/lobilist.js') }}"></script>
+<script src="{{ URL::asset('assets/js/lobilist.js',true) }}"></script>
 <!-- custom -->
-<script src="{{ URL::asset('assets/js/custom.js') }}"></script>
-<script type="text/javascript" src="{{URL::asset('assets/js/nicescroll/jquery.nicescroll.js')}}"></script>
+<script src="{{ URL::asset('assets/js/custom.js',true) }}"></script>
+<script type="text/javascript" src="{{URL::asset('assets/js/nicescroll/jquery.nicescroll.js',true)}}"></script>
 </body>
 
 </html>

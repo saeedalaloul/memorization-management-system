@@ -2,7 +2,7 @@
 <title>@yield("title")</title>
 
 <!-- Favicon -->
-<link rel="shortcut icon" href="{{ URL::asset('assets/images/favicon.ico') }}" type="image/x-icon" />
+<link rel="shortcut icon" href="{{ URL::asset('assets/images/favicon.ico',true) }}" type="image/x-icon" />
 
 <!-- Font -->
 <link rel="stylesheet"
@@ -11,16 +11,16 @@
 
 <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
 
-<link href="{{ URL::asset('css/wizard.css') }}" rel="stylesheet" id="bootstrap-css">
+<link href="{{ URL::asset('css/wizard.css',true) }}" rel="stylesheet" id="bootstrap-css">
 
 
 @yield('css')
 <!--- Style css -->
-<link href="{{ URL::asset('assets/css/style.css') }}" rel="stylesheet">
+<link href="{{ URL::asset('assets/css/style.css',true) }}" rel="stylesheet">
 
 <!--- Style css -->
 @if (App::getLocale() == 'en')
-    <link href="{{ URL::asset('assets/css/ltr.css') }}" rel="stylesheet">
+    <link href="{{ URL::asset('assets/css/ltr.css',true) }}" rel="stylesheet">
 @else
-    <link href="{{ URL::asset('assets/css/rtl.css') }}" rel="stylesheet">
+    <link href="{{ URL::asset('assets/css/rtl.css',true) }}" rel="stylesheet">
 @endif
