@@ -19,7 +19,6 @@ class RedirectIfAuthenticated
      */
     public function handle(Request $request, Closure $next, ...$guards)
     {
-        dd('this');
         $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {
