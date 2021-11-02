@@ -11,6 +11,7 @@ class ForceHttpsMiddleWare
     public function handle(Request $request, Closure $next)
     {
         if (!$request->secure() && App::environment(['production'])) {
+            dd('this');
             return redirect()->secure($request->getRequestUri(), 301);
         }
 
