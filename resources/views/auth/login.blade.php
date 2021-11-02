@@ -106,7 +106,7 @@ login-->
                 <div class="col-lg-4 col-md-6 bg-white">
                     <div class="login-fancy pb-40 clearfix">
                         <h3 class="mb-30">تسجيل الدخول إلى لوحة التحكم</h3>
-                        <form method="POST" action="{{ url('login',null,true) }}">
+                        <form method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="section-field mb-20">
                                 <label class="mb-10" for="name">البريدالالكتروني* </label>
@@ -133,9 +133,11 @@ login-->
                             </div>
                             <div class="section-field">
                                 <div class="remember-checkbox mb-30">
-                                    <input type="checkbox" class="form-control" name="remember_token" id="remember_token">
+                                    <input type="checkbox" class="form-control" name="remember_token"
+                                           id="remember_token">
                                     <label for="remember_token"> تذكرني</label>
-                                    <a href="{{route('password.request')}}" class="float-sm-end d-block mt-1 mt-sm-0">هل نسيت كلمةالمرور ؟</a>
+                                    <a href="{{route('password.request')}}" class="float-sm-end d-block mt-1 mt-sm-0">هل
+                                        نسيت كلمةالمرور ؟</a>
                                 </div>
                             </div>
                             <button class="button">

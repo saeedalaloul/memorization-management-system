@@ -14,17 +14,6 @@
 
 <link href="{{ URL::asset('css/wizard.css',true) }}" rel="stylesheet" id="bootstrap-css">
 
-<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
-<script>
-    window.OneSignal = window.OneSignal || [];
-    OneSignal.push(function () {
-        OneSignal.init({
-            appId: "84b0c55f-c845-4f78-be68-f9bea972f208",
-        });
-    });
-</script>
-
-
 @yield('css')
 <!--- Style css -->
 <link href="{{ URL::asset('assets/css/style.css',true) }}" rel="stylesheet">
