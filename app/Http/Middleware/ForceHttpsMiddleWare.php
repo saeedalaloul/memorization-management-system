@@ -11,7 +11,7 @@ class ForceHttpsMiddleWare
     {
         // check if environment is production
         if(env('APP_ENV') === "production") {
-            if ($request->secure()) {
+            if ($request->secure() == false) {
                 return redirect()->secure($request->path());
             }
         }
