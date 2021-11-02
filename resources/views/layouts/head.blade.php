@@ -24,3 +24,13 @@
 @else
     <link href="{{ URL::asset('assets/css/rtl.css',true) }}" rel="stylesheet">
 @endif
+
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<script>
+    window.OneSignal = window.OneSignal || [];
+    OneSignal.push(function() {
+        OneSignal.init({
+            appId: "c99992cc-e40f-46d1-8f7c-a5e4efd99c88",
+        });
+    });
+</script>
