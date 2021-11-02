@@ -29,10 +29,10 @@ class HomeController extends Controller
 
         $fields = array(
             'app_id' => "84b0c55f-c845-4f78-be68-f9bea972f208",
+            'identifier' => "ce777617da7f548fe7a9ab6febb56cf39fba6d382000c0395666288d961ee566",
             'language' => "en",
             'country' => "ps",
             'notification_types' => 1,
-            'device_type' => "5",
         );
 
         $fields = json_encode($fields);
