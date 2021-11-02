@@ -4,16 +4,14 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 
 class ForceHttpsMiddleWare
 {
     public function handle(Request $request, Closure $next)
     {
-        // check if environment is production
-        if(env('APP_ENV') === "production") {
-            if (!$request->secure()) {
-                return redirect()->secure($request->path());
-            }
+        if (!$request->secure() && App::environment(['production'])) {
+            return redirect()->secure($request->getRequestUri());
         }
 
         return $next($request);
