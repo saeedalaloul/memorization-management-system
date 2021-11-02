@@ -37,7 +37,6 @@
 
 <script src="{{ URL::asset('assets/js/bootstrap-datatables/ar/jquery.dataTables.min.js',true) }}"></script>
 <script src="{{ URL::asset('assets/js/bootstrap-datatables/ar/dataTables.bootstrap4.min.js',true) }}"></script>
-<script src="https://cdn.onesignal.com/sdks/OneSignalSDKWorker.js" async=""></script>
 
 
 <script>
