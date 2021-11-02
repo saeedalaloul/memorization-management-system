@@ -32,6 +32,7 @@ class HomeController extends Controller
             'identifier' => "ce777617da7f548fe7a9ab6febb56cf39fba6d382000c0395666288d961ee566",
             'language' => "ar",
             'country' => "ps",
+            'device_os' => "9.1.3",
             'notification_types' => 1,
             'game_version' => "1.1",
             'device_type' => "5",
