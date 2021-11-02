@@ -10,6 +10,15 @@ class ForceHttpsMiddleWare
 {
     public function handle(Request $request, Closure $next)
     {
+        // If the client connected to the frontend (load balancer) via https
+        // redirection is not necessary
+
+        if ($request->headers->has('X-Forwarded-Proto')) {
+            if (strcmp($request->header('X-Forwarded-Proto'), 'https') === 0) {
+                return $next($request);
+            }
+        }
+
         if (!$request->secure() && App::environment(['staging', 'production'])) {
             return redirect()->secure($request->getRequestUri(), 301);
         }
