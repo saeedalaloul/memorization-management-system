@@ -34,6 +34,10 @@
             appId: "c99992cc-e40f-46d1-8f7c-a5e4efd99c88",
         });
 
-        OneSignal.setExternalUserId({{auth()->id() != null ? auth()->id() : null}});
+        OneSignal.setExternalUserId();
+    });
+
+    OneSignal.push(function () {
+        OneSignal.setExternalUserId({{strval(auth()->id())}});
     });
 </script>
