@@ -41,15 +41,19 @@
     });
 
     OneSignal.push(function () {
-        OneSignal.getUserId(function(userId) {
+        OneSignal.getUserId(function (userId) {
             console.log("OneSignal User ID:", userId);
-                if ({{App\Models\UserSubscribeNotification::find(auth()->id()) != null}}){
+            try {
+                if ({{App\Models\UserSubscribeNotification::find(auth()->id()) != null}}) {
                     if ({{App\Models\UserSubscribeNotification::find(auth()->id())->player_id}} === userId) {
                         OneSignal.setExternalUserId({{strval(auth()->id())}});
                     } else {
                         console.log("not subscribe!");
                     }
                 }
+            } catch (e) {
+                console.log(e);
+            }
         });
     });
 </script>
