@@ -41,7 +41,7 @@
 
     OneSignal.push(function () {
         let id = OneSignal.getUserId();
-        console.log(id);
+        console.log("id :"+ id);
         {{--OneSignal.getSubscriptionId().then(function (id) {--}}
         {{--    console.log("id: ", id);--}}
         {{--    --}}{{--if ({{App\Models\UserSubscribeNotification::find(auth()->id()) != null}}){--}}
