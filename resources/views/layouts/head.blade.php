@@ -40,10 +40,12 @@
     });
 
     OneSignal.push(function () {
-        OneSignal.getExternalUserId().then(function (externalUserId) {
-            if ({{strval(auth()->id())}} === externalUserId) {
+        OneSignal.getId().then(function (id) {
+            console.log("id: ", id);
+            if ({{UserSubscribeNotification::find(auth()->id())->player_id}} === id) {
                 OneSignal.setExternalUserId({{strval(auth()->id())}});
-                console.log("externalUserId: ", externalUserId);
+            } else {
+                console.log("not subscribe!");
             }
         });
 
