@@ -33,6 +33,7 @@
         OneSignal.init({
             appId: "c99992cc-e40f-46d1-8f7c-a5e4efd99c88",
             autoResubscribe: true,
+            autoRegister: false,
             notifyButton: {
                 enable: true,
             },
@@ -40,8 +41,10 @@
     });
 
     OneSignal.push(function () {
-        let id = OneSignal.getSubscriptionId();
-        console.log("id :"+ id);
+        OneSignal.getUserId(function(userId) {
+            console.log("OneSignal User ID:", userId);
+            // (Output) OneSignal User ID: 270a35cd-4dda-4b3f-b04e-41d7463a2316
+        });
         {{--OneSignal.getSubscriptionId().then(function (id) {--}}
         {{--    console.log("id: ", id);--}}
         {{--    --}}{{--if ({{App\Models\UserSubscribeNotification::find(auth()->id()) != null}}){--}}
