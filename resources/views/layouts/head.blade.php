@@ -40,7 +40,7 @@
     });
 
     OneSignal.push(function () {
-        let id = OneSignal.getUserId();
+        let id = OneSignal.getSubscriptionId();
         console.log("id :"+ id);
         {{--OneSignal.getSubscriptionId().then(function (id) {--}}
         {{--    console.log("id: ", id);--}}
