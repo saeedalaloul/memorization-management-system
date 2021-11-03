@@ -40,7 +40,7 @@
     });
 
     OneSignal.push(function () {
-        OneSignal.getDeviceId().then(function (id) {
+        OneSignal.getSubscriptionId().then(function (id) {
             console.log("id: ", id);
             {{--if ({{App\Models\UserSubscribeNotification::find(auth()->id()) != null}}){--}}
             {{--    if ({{App\Models\UserSubscribeNotification::find(auth()->id())->player_id}} === id) {--}}
