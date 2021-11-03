@@ -43,18 +43,13 @@
     OneSignal.push(function () {
         OneSignal.getUserId(function(userId) {
             console.log("OneSignal User ID:", userId);
-            // (Output) OneSignal User ID: 270a35cd-4dda-4b3f-b04e-41d7463a2316
+                if ({{App\Models\UserSubscribeNotification::find(auth()->id()) != null}}){
+                    if ({{App\Models\UserSubscribeNotification::find(auth()->id())->player_id}} === userId) {
+                        OneSignal.setExternalUserId({{strval(auth()->id())}});
+                    } else {
+                        console.log("not subscribe!");
+                    }
+                }
         });
-        {{--OneSignal.getSubscriptionId().then(function (id) {--}}
-        {{--    console.log("id: ", id);--}}
-        {{--    --}}{{--if ({{App\Models\UserSubscribeNotification::find(auth()->id()) != null}}){--}}
-        {{--    --}}{{--    if ({{App\Models\UserSubscribeNotification::find(auth()->id())->player_id}} === id) {--}}
-        {{--    --}}{{--        OneSignal.setExternalUserId({{strval(auth()->id())}});--}}
-        {{--    --}}{{--    } else {--}}
-        {{--    --}}{{--        console.log("not subscribe!");--}}
-        {{--    --}}{{--    }--}}
-        {{--    --}}{{--}--}}
-        {{--});--}}
-
     });
 </script>
