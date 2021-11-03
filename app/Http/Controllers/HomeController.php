@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserSubscribeNotification;
+use Berkayk\OneSignal\OneSignalClient;
 use Illuminate\Http\Request;
-use Ladumor\OneSignal\OneSignal;
 
 class HomeController extends Controller
 {
+
     /**
      * Create a new controller instance.
      *
@@ -14,7 +16,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware(['auth','verified']);
+        $this->middleware(['auth', 'verified']);
     }
 
     /**
@@ -25,6 +27,18 @@ class HomeController extends Controller
     public function index()
     {
         $this->checkRoles();
+
+//        OneSignalClient::getUserId(function ($userId) {
+//            if ($userId != null && UserSubscribeNotification::where('id', auth()->id())->first() != null) {
+//                if (UserSubscribeNotification::where('id', auth()->id())->first()->player_id) {
+//                    OneSignalClient::setExternalUserId(strval(auth()->id()));
+//                } else {
+//                    dd('not 1!');
+//                }
+//            } else {
+//                dd('not 2!');
+//            }
+//        });
         return view('dashboard');
     }
 
