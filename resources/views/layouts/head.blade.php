@@ -38,6 +38,12 @@
     });
 
     OneSignal.push(function () {
-        OneSignal.setExternalUserId({{strval(auth()->id())}});
+        OneSignal.getExternalUserId().then(function (externalUserId) {
+            console.log("externalUserId: ", externalUserId);
+            @if (strval(auth()->id()) != $externalUserId)
+            OneSignal.setExternalUserId({{strval(auth()->id())}});
+            @endif
+        });
+
     });
 </script>
