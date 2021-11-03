@@ -33,8 +33,6 @@
         OneSignal.init({
             appId: "c99992cc-e40f-46d1-8f7c-a5e4efd99c88",
         });
-
-        OneSignal.setExternalUserId();
     });
 
     OneSignal.push(function () {
