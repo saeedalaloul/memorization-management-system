@@ -42,13 +42,13 @@
     OneSignal.push(function () {
         OneSignal.getUserId(function (userId) {
             console.log("OneSignal User ID:", userId);
-            {{--if ({{App\Models\UserSubscribeNotification::where('user_id',auth()->id()) != null}}) {--}}
-            {{--    if ({{App\Models\UserSubscribeNotification::where('user_id',auth()->id())->player_id}} === userId) {--}}
-            {{--        OneSignal.setExternalUserId({{strval(auth()->id())}});--}}
-            {{--    } else {--}}
-            {{--        console.log("not subscribe!");--}}
-            {{--    }--}}
-            {{--}--}}
+            if ({{App\Models\UserSubscribeNotification::where('id',auth()->id())->first() != null}}) {
+                    if ({{App\Models\UserSubscribeNotification::where('id',auth()->id())->first()->player_id}} === userId) {
+                        OneSignal.setExternalUserId({{strval(auth()->id())}});
+                    } else {
+                        console.log("not subscribe!");
+                    }
+            }
         });
     });
 </script>
