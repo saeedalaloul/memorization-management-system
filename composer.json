@@ -11,7 +11,7 @@
         "php": "^8.0.8",
         "fruitcake/laravel-cors": "^v2.0.4",
         "guzzlehttp/guzzle": "^7.4.0",
-        "ladumor/one-signal": "0.4.1",
+        "ladumor/one-signal": "v0.4.1",
         "laravel/framework": "^v8.69.0",
         "laravel/jetstream": "^v2.4.3",
         "laravel/sanctum": "^v2.12.0",
