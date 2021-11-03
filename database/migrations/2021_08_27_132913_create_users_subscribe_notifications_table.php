@@ -13,7 +13,7 @@ class CreateUsersSubscribeNotificationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('users_subscribe_notifications', function (Blueprint $table) {
+        Schema::create('user_subscribe_notifications', function (Blueprint $table) {
             $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('player_id', 40)->unique()->index();
         });
@@ -26,6 +26,6 @@ class CreateUsersSubscribeNotificationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users_subscribe_notifications');
+        Schema::dropIfExists('user_subscribe_notifications');
     }
 }
