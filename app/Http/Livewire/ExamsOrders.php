@@ -324,6 +324,9 @@ class ExamsOrders extends Component
                             'notes' => null,
                         ]);
                         session()->flash('success_message', 'تمت عملية اعتماد طلب الإختبار بنجاح.');
+                        $response = $this->sendMessage();
+                        $return["allresponses"] = $response;
+                        $return = json_encode($return);
                         $this->emit('approval-exam');
                         $this->clearForm();
                     }
@@ -331,6 +334,39 @@ class ExamsOrders extends Component
             }
         }
     }
+
+    public function sendMessage()
+    {
+        $content = array(
+            "ar" => 'أول إشعار'
+        );
+
+        $fields = array(
+            'app_id' => env("ONE_SIGNAL_APP_ID"),
+            'include_external_user_ids' => array(strval(auth()->id())),
+            'channel_for_external_user_ids' => 'push',
+            'data' => array("foo" => "bar"),
+            'contents' => $content
+        );
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
+            'Authorization: Basic ' . env('ONE_SIGNAL_AUTHORIZE')));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
 
     public function clearForm()
     {
