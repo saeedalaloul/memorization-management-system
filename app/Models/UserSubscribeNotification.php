@@ -15,6 +15,6 @@ class UserSubscribeNotification extends Model
     // علاقة بين المحفظين والمستخدمين لجلب اسم المحفظ في جدول المحفظين
     public function user()
     {
-        return $this->belongsTo('App\Models\User', 'id');
+        return $this->belongsTo('App\Models\User', 'user_id');
     }
 }
