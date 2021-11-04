@@ -66,7 +66,7 @@ class HomeController extends Controller
     public function checkUserSubscribeNotifications(Request $request)
     {
         if ($request->player_id) {
-            $userSubscribeNotification = UserSubscribeNotification::where('id', auth()->id())->first();
+            $userSubscribeNotification = UserSubscribeNotification::where('user_id', auth()->id())->first();
             if ($userSubscribeNotification != null) {
                 if ($userSubscribeNotification->player_id != $request->player_id) {
                     $userSubscribeNotification->update(['player_id' => $request->player_id]);
