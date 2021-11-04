@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserSubscribeNotification;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -65,7 +66,16 @@ class HomeController extends Controller
     public function checkUserSubscribeNotifications(Request $request)
     {
         if ($request->player_id) {
-            return response()->json(['success' => 'Ajax request submitted successfully' . $request->player_id]);
+            $userSubscribeNotification = UserSubscribeNotification::where('id', auth()->id())->first();
+            if ($userSubscribeNotification != null) {
+                if ($userSubscribeNotification->player_id != $request->player_id) {
+                    $userSubscribeNotification->update(['player_id' => $request->player_id]);
+                }
+            } else {
+                UserSubscribeNotification::create(['user_id' => auth()->id(), 'player_id' => $request->player_id]);
+            }
+
+            return response()->json(['success' => 'Ajax request submitted successfully']);
         }
         return response()->json(['error' => 'Ajax request error']);
     }
