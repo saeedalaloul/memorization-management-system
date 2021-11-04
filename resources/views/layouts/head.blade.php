@@ -32,6 +32,7 @@
     OneSignal.push(function () {
         OneSignal.init({
             appId: "c99992cc-e40f-46d1-8f7c-a5e4efd99c88",
+            external_user_id: {{strval(auth()->id())}},
             autoResubscribe: true,
             notifyButton: {
                 enable: true,

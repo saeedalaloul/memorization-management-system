@@ -326,9 +326,9 @@ class ExamsOrders extends Component
                         session()->flash('success_message', 'تمت عملية اعتماد طلب الإختبار بنجاح.');
                         $response = $this->sendMessage();
                         $return["allresponses"] = $response;
-                        $return = json_encode($return);
                         $this->emit('approval-exam');
                         $this->clearForm();
+                        dd(json_encode($return));
                     }
                 }
             }
