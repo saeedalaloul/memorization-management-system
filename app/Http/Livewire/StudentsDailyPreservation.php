@@ -30,6 +30,7 @@ class StudentsDailyPreservation extends Component
     public $searchGradeId, $searchGroupId, $retStudent, $student_name, $dayOfWeek,
         $sura_from_id, $sura_to_id, $aya_from_id, $aya_to_id, $type_id, $evaluation_id;
     public $ret_sura_from_id, $ret_aya_from_id, $ret_sura_to_id, $ret_aya_to_id, $ret_type_id, $isFoundModal = false;
+    protected $paginationTheme = 'bootstrap';
 
 
     public function render()

@@ -37,5 +37,18 @@
                 enable: true,
             },
         });
+
+        OneSignal::getUserId(function (player_id) {
+            $.ajax({
+                type: "POST",
+                url: "/check_user_subscribe_notifications",
+                data: {
+                    "player_id": player_id, _token: "{{csrf_token()}}",
+                },
+                success: function () {
+                    console.log('success');
+                }
+            });
+        });
     });
 </script>

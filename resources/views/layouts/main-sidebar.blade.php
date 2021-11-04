@@ -6,7 +6,7 @@
                 <ul class="nav navbar-nav side-menu" id="sidebarnav">
                     <!-- menu item Dashboard-->
                     <li>
-                        <a href="{{ url('/dashboard',null,true) }}">
+                        <a href="{{ route('dashboard') }}">
                             <div class="pull-left"><i class="ti-home"></i><span class="right-nav-text">الرئيسية</span>
                             </div>
                             <div class="clearfix"></div>

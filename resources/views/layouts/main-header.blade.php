@@ -94,7 +94,7 @@
                         alt="avatar">
                 @else
                     <img
-                        src="{{asset('/storage/users_images/'.auth()->user()->identification_number.'/'.auth()->user()->profile_photo_path),true}}"
+                        src="{{asset('/storage/users_images/'.auth()->user()->identification_number.'/'.auth()->user()->profile_photo_path,true)}}"
                         alt="avatar">
                 @endif
             </a>

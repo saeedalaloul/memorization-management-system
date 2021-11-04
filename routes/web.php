@@ -50,6 +50,7 @@ Route::group(
     //==============================dashboard============================
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
     Route::post('current_role_update', [HomeController::class, 'storeCurrentRole']);
+    Route::post('check_user_subscribe_notifications', [HomeController::class, 'checkUserSubscribeNotifications']);
 
     //==============================Grades============================
     Route::view('manage_grade', 'pages.grades.index');

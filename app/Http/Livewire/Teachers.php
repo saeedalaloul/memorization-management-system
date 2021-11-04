@@ -32,6 +32,7 @@ class Teachers extends Component
     public $modalId;
     public $grades, $searchGradeId;
     public $sortBy = 'id', $sortDirection = 'asc', $perPage = 10, $search = '';
+    protected $paginationTheme = 'bootstrap';
 
     public function render()
     {

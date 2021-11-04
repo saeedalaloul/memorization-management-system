@@ -21,6 +21,7 @@ class StudentsAttendance extends Component
     public $sortBy = 'id', $sortDirection = 'asc', $perPage = 10, $search = '';
 
     public $searchGradeId, $searchGroupId, $isSelectedRadioBtn1 = false,$isSelectedRadioBtn2 = false, $isSelectedRadioBtn0 = false;
+    protected $paginationTheme = 'bootstrap';
 
 
     public function render()

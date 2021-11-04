@@ -47,6 +47,7 @@ class Students extends Component
         $dob, $grade_id, $group_id, $student_address;
 
     public $searchGradeId, $searchGroupId;
+    protected $paginationTheme = 'bootstrap';
 
     public function updated($propertyName)
     {

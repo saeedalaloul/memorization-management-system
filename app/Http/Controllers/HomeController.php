@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserSubscribeNotification;
-use Berkayk\OneSignal\OneSignalClient;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -63,4 +61,13 @@ class HomeController extends Controller
         }
         return response()->json(['error' => 'Ajax request error']);
     }
+
+    public function checkUserSubscribeNotifications(Request $request)
+    {
+        if ($request->player_id) {
+            return response()->json(['success' => 'Ajax request submitted successfully']);
+        }
+        return response()->json(['error' => 'Ajax request error']);
+    }
+
 }

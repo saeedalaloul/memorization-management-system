@@ -22,6 +22,7 @@ class ReportDailyPreservation extends Component
     public $sortBy = 'id', $sortDirection = 'asc', $perPage = 10, $search = '';
 
     public $searchGradeId, $searchGroupId, $searchStudentId, $searchReportTypeId, $searchDateFrom, $searchDateTo;
+    protected $paginationTheme = 'bootstrap';
 
     public function render()
     {

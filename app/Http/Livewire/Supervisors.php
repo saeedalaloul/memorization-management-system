@@ -29,6 +29,7 @@ class Supervisors extends Component
     public $modalId;
     public $grades;
     public $sortBy = 'id', $sortDirection = 'asc', $perPage = 10, $search;
+    protected $paginationTheme = 'bootstrap';
 
     public function render()
     {
