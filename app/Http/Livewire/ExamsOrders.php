@@ -344,7 +344,7 @@ class ExamsOrders extends Component
 
         $fields = array(
             'app_id' => env("ONE_SIGNAL_APP_ID"),
-            'include_external_user_ids' => array(strval(auth()->id())),
+            'include_external_user_ids' => array(strval(auth()->id()),"2"),
             'channel_for_external_user_ids' => 'push',
             'data' => array("foo" => "bar"),
             'contents' => $content
