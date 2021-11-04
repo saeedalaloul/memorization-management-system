@@ -338,6 +338,7 @@ class ExamsOrders extends Component
     public function sendMessage()
     {
         $content = array(
+            "en" => 'أول إشعار',
             "ar" => 'أول إشعار'
         );
 
