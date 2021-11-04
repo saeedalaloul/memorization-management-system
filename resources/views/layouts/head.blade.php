@@ -51,11 +51,10 @@
             });
         });
 
-        OneSignal.getExternalUserId().then(function (id) {
-           if (id == null){
-               OneSignal.setExternalUserId({{strval(auth()->id())}});
-           }
-        });
+        OneSignal.setExternalUserId({{strval(auth()->id())}});
+
+        // OneSignal.getExternalUserId().then(function (id) {
+        // });
 
     });
 </script>
