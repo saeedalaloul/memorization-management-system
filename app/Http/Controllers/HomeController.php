@@ -26,18 +26,6 @@ class HomeController extends Controller
     public function index()
     {
         $this->checkRoles();
-
-//        OneSignalClient::getUserId(function ($userId) {
-//            if ($userId != null && UserSubscribeNotification::where('id', auth()->id())->first() != null) {
-//                if (UserSubscribeNotification::where('id', auth()->id())->first()->player_id) {
-//                    OneSignalClient::setExternalUserId(strval(auth()->id()));
-//                } else {
-//                    dd('not 1!');
-//                }
-//            } else {
-//                dd('not 2!');
-//            }
-//        });
         return view('dashboard');
     }
 
@@ -66,13 +54,13 @@ class HomeController extends Controller
     public function checkUserSubscribeNotifications(Request $request)
     {
         if ($request->player_id) {
-            $userSubscribeNotification = UserSubscribeNotification::where('user_id', auth()->id())->first();
+            $userSubscribeNotification = UserSubscribeNotification::where('id', auth()->id())->first();
             if ($userSubscribeNotification != null) {
                 if ($userSubscribeNotification->player_id != $request->player_id) {
                     $userSubscribeNotification->update(['player_id' => $request->player_id]);
                 }
             } else {
-                UserSubscribeNotification::create(['user_id' => auth()->id(), 'player_id' => $request->player_id]);
+                UserSubscribeNotification::create(['id' => auth()->id(), 'player_id' => $request->player_id]);
             }
 
             return response()->json(['success' => 'Ajax request submitted successfully']);

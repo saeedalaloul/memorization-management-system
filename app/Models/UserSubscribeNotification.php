@@ -9,12 +9,12 @@ class UserSubscribeNotification extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'player_id'];
+    protected $fillable = ['id', 'player_id'];
     public $timestamps = false;
 
     // علاقة بين المحفظين والمستخدمين لجلب اسم المحفظ في جدول المحفظين
     public function user()
     {
-        return $this->belongsTo('App\Models\User', 'user_id');
+        return $this->belongsTo('App\Models\User', 'id');
     }
 }

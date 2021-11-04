@@ -14,7 +14,7 @@ class CreateUsersSubscribeNotificationsTable extends Migration
     public function up()
     {
         Schema::create('user_subscribe_notifications', function (Blueprint $table) {
-            $table->foreignId('user_id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('player_id', 40)->unique()->index();
         });
     }
