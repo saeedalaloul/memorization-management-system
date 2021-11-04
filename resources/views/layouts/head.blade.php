@@ -51,5 +51,7 @@
             });
         });
 
+        console.log("id :" +OneSignal.getExternalUserId());
+
     });
 </script>
