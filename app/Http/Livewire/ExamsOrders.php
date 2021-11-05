@@ -312,14 +312,14 @@ class ExamsOrders extends Component
                     $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
                     if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
                         && $user_role_supervisor_exams->users[0] != null) {
-                        array_push($arr_external_user_ids, "".$user_role_supervisor_exams->users[0]->id);
+                        array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
                     }
 
-                    array_push($arr_external_user_ids, "".$examOrder->teacher_id);
+                    array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
 
                     if (auth()->user()->current_role != 'مشرف') {
                         $user_role_supervisor_id = Supervisor::where('grade_id', $examOrder->student->grade_id)->first()->id;
-                        array_push($arr_external_user_ids, "".$user_role_supervisor_id);
+                        array_push($arr_external_user_ids, "" . $user_role_supervisor_id);
                     }
 
                     $this->process_notification($arr_external_user_ids, 1, $examOrder->student->user->name, $examOrder->quranPart->name);
