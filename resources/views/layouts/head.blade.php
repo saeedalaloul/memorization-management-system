@@ -26,7 +26,7 @@
 @endif
 <?php
 if (auth()->id() != null && \App\Models\UserSubscribeNotification::where('id', auth()->id())->first() != null) {
-    $player_id = \App\Models\UserSubscribeNotification::where('id', auth()->id())->first();
+    $player_id = \App\Models\UserSubscribeNotification::where('id', auth()->id())->first()->player_id;
 }
 ?>
 <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
