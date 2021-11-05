@@ -24,11 +24,7 @@
 @else
     <link href="{{ URL::asset('assets/css/rtl.css',true) }}" rel="stylesheet">
 @endif
-<?php
-if (auth()->id() != null && \App\Models\UserSubscribeNotification::where('id', auth()->id())->first() != null) {
-    $player_id = \App\Models\UserSubscribeNotification::where('id', auth()->id())->first()->player_id;
-}
-?>
+
 <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
 <script>
     window.OneSignal = window.OneSignal || [];
@@ -36,7 +32,6 @@ if (auth()->id() != null && \App\Models\UserSubscribeNotification::where('id', a
         OneSignal.init({
             appId: "c99992cc-e40f-46d1-8f7c-a5e4efd99c88",
             external_user_id: "{{auth()->id()}}",
-            player_id: "{{$player_id}}",
             autoResubscribe: true,
             notifyButton: {
                 enable: true,
