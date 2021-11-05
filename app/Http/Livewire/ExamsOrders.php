@@ -13,6 +13,7 @@ use App\Models\Tester;
 use Illuminate\Support\MessageBag;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Spatie\Permission\Models\Role;
 
 class ExamsOrders extends Component
 {
@@ -305,6 +306,22 @@ class ExamsOrders extends Component
                         'notes' => null,
                         'readable' => $array,
                     ]);
+
+                    $arr_external_user_ids = [];
+
+                    $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
+                    if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null) {
+                        array_push($arr_external_user_ids, $user_role_supervisor_exams->users[0]->id);
+                    }
+
+                    array_push($arr_external_user_ids, $examOrder->teacher_id);
+
+                    if (auth()->user()->current_role != 'مشرف') {
+                        $user_role_supervisor_id = Supervisor::where('grade_id', $examOrder->student->grade_id)->first()->id;
+                        array_push($arr_external_user_ids, $user_role_supervisor_id);
+                    }
+
+                    $this->process_notification($arr_external_user_ids, 1, $examOrder->student->user->name, $examOrder->quranPart->name);
                     session()->flash('success_message', 'تمت عملية قبول طلب الإختبار بنجاح.');
                 }
             } elseif ($examOrder->status == 1 || $examOrder->status == 2 || $examOrder->status == -2) {
@@ -324,30 +341,63 @@ class ExamsOrders extends Component
                             'notes' => null,
                         ]);
                         session()->flash('success_message', 'تمت عملية اعتماد طلب الإختبار بنجاح.');
-                        $response = $this->sendMessage();
-                        $return["allresponses"] = $response;
+                        // $return["allresponses"] = $response;
                         $this->emit('approval-exam');
                         $this->clearForm();
-                        dd(json_encode($return));
+                        //  dd(json_encode($return));
                     }
                 }
             }
         }
     }
 
-    public function sendMessage()
+    public function process_notification($arr_external_user_ids, $status, $student_name, $part_name)
     {
-        $content = array(
-            "en" => 'أول إشعار',
-            "ar" => 'أول إشعار'
-        );
+        if ($arr_external_user_ids != null && $status != null) {
+            $message = "";
+            if (auth()->user()->current_role == 'أمير المركز') {
+                if ($status == 1) {
+                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام أمير المركز بقبول طلب اختبار";
+                } else if ($status == -1) {
+                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام أمير المركز برفض طلب اختبار";
+                } else if ($status == 2) {
+                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام أمير المركز بقبول اعتماد طلب اختبار";
+                } elseif ($status == -2) {
+                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام أمير المركز برفض اعتماد طلب اختبار";
+                }
+            } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
+                if ($status == 2) {
+                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف الإختبارات بقبول اعتماد طلب اختبار";
+                } elseif ($status == -2) {
+                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف الإختبارات برفض اعتماد طلب اختبار";
+                }
+            } else if (auth()->user()->current_role == 'مشرف') {
+                if ($status == 1) {
+                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف المرحلة بقبول طلب اختبار";
+                } else if ($status == -1) {
+                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف المرحلة برفض طلب اختبار";
+                }
+            }
+            $this->push_notifications($arr_external_user_ids, $message);
+        }
+    }
 
+    public function push_notifications($arr_external_user_ids, $message)
+    {
         $fields = array(
             'app_id' => env("ONE_SIGNAL_APP_ID"),
-            'include_external_user_ids' => array(strval(auth()->id()),"2"),
+            'include_external_user_ids' => $arr_external_user_ids,
             'channel_for_external_user_ids' => 'push',
             'data' => array("foo" => "bar"),
-            'contents' => $content
+            'headings' => array(
+                "en" => 'حالة طلب الاختبار',
+                "ar" => 'حالة طلب الاختبار',
+            ),
+            'url' => 'https://memorization-management-system.herokuapp.com/manage_exams_orders',
+            'contents' => array(
+                "en" => $message,
+                "ar" => $message,
+            )
         );
 
         $fields = json_encode($fields);
