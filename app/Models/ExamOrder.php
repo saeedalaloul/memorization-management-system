@@ -71,11 +71,13 @@ class ExamOrder extends Model
         } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
             return $this
                 ->where('readable->isReadableSupervisorExams', false)
+                ->whereIn('status', [1, 2, -2, -3])
                 ->count();
         } else if (auth()->user()->current_role == 'مختبر') {
             return $this
                 ->where('readable->isReadableTester', false)
                 ->where('tester_id', auth()->id())
+                ->whereIn('status', [2, -3])
                 ->count();
         }
         return 0;

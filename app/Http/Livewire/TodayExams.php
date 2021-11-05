@@ -100,15 +100,14 @@ class TodayExams extends Component
         $this->validate();
         $examOrder = ExamOrder::where('id', $this->modalId)->first();
         $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
-            "isReadableTester" => false, "isReadableLowerSupervisor" => false,
-            "isReadableSupervisorExams" => false];
+            "isReadableTester" => false, "isReadableSupervisorExams" => false];
         if ($examOrder) {
             if ($examOrder->status == 2 && $examOrder->teacher_id != auth()->id()) {
                 if (auth()->user()->current_role == 'مختبر') {
                     $examOrder->update([
                         'status' => -3,
                         'notes' => $this->notes,
-                        'readable' => json_encode($array),
+                        'readable' => $array,
                     ]);
                     $this->emit('refusal-exam');
                     session()->flash('success_message', 'تمت عملية اعتماد عدم إجراء الطالب الاختبار بنجاح.');

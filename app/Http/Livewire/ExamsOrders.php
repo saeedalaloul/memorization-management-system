@@ -68,15 +68,38 @@ class ExamsOrders extends Component
             return $this->getExamsByGrade(Supervisor::where('id', auth()->id())->first()->grade_id);
         } elseif (auth()->user()->current_role == 'اداري') {
             return $this->getExamsByGrade(LowerSupervisor::where('id', auth()->id())->first()->grade_id);
-        } elseif (auth()->user()->current_role == 'أمير المركز' ||
+        } else if (auth()->user()->current_role == 'مختبر') {
+            return ExamOrder::query()
+                ->search($this->search)
+                ->whereIn('status', [2, -3])
+                ->where('tester_id', auth()->id())
+                ->orderBy($this->sortBy, $this->sortDirection)
+                ->paginate($this->perPage);
+        } else if (auth()->user()->current_role == 'أمير المركز' ||
             auth()->user()->current_role == 'مشرف الإختبارات') {
-            if (empty($this->searchGradeId)) {
+            return $this->getExamsByAdmin();
+        }
+        return [];
+    }
+
+    private function getExamsByAdmin()
+    {
+        if (empty($this->searchGradeId)) {
+            if (auth()->user()->current_role == 'أمير المركز') {
                 return ExamOrder::query()
                     ->search($this->search)
                     ->orderBy($this->sortBy, $this->sortDirection)
                     ->paginate($this->perPage);
             } else {
-                if (empty($this->searchGroupId)) {
+                return ExamOrder::query()
+                    ->whereIn('status', [1, 2, -2, -3])
+                    ->search($this->search)
+                    ->orderBy($this->sortBy, $this->sortDirection)
+                    ->paginate($this->perPage);
+            }
+        } else {
+            if (empty($this->searchGroupId)) {
+                if (auth()->user()->current_role == 'أمير المركز') {
                     return ExamOrder::query()
                         ->search($this->search)
                         ->whereHas('student', function ($q) {
@@ -85,7 +108,18 @@ class ExamsOrders extends Component
                         ->orderBy($this->sortBy, $this->sortDirection)
                         ->paginate($this->perPage);
                 } else {
-                    if (empty($this->searchStudentId)) {
+                    return ExamOrder::query()
+                        ->whereIn('status', [1, 2, -2, -3])
+                        ->search($this->search)
+                        ->whereHas('student', function ($q) {
+                            return $q->where('grade_id', '=', $this->searchGradeId);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }
+            } else {
+                if (empty($this->searchStudentId)) {
+                    if (auth()->user()->current_role == 'أمير المركز') {
                         return ExamOrder::query()
                             ->search($this->search)
                             ->whereHas('student', function ($q) {
@@ -96,6 +130,30 @@ class ExamsOrders extends Component
                             ->paginate($this->perPage);
                     } else {
                         return ExamOrder::query()
+                            ->whereIn('status', [1, 2, -2, -3])
+                            ->search($this->search)
+                            ->whereHas('student', function ($q) {
+                                return $q->where('grade_id', '=', $this->searchGradeId)
+                                    ->where('group_id', '=', $this->searchGroupId);
+                            })
+                            ->orderBy($this->sortBy, $this->sortDirection)
+                            ->paginate($this->perPage);
+                    }
+                } else {
+                    if (auth()->user()->current_role == 'أمير المركز') {
+                        return ExamOrder::query()
+                            ->search($this->search)
+                            ->whereHas('student', function ($q) {
+                                return $q
+                                    ->where('grade_id', '=', $this->searchGradeId)
+                                    ->where('group_id', '=', $this->searchGroupId)
+                                    ->where('id', '=', $this->searchStudentId);
+                            })
+                            ->orderBy($this->sortBy, $this->sortDirection)
+                            ->paginate($this->perPage);
+                    } else {
+                        return ExamOrder::query()
+                            ->whereIn('status', [1, 2, -2, -3])
                             ->search($this->search)
                             ->whereHas('student', function ($q) {
                                 return $q
@@ -108,14 +166,7 @@ class ExamsOrders extends Component
                     }
                 }
             }
-        } else if (auth()->user()->current_role == 'مختبر') {
-            return ExamOrder::query()
-                ->search($this->search)
-                ->where('tester_id', auth()->id())
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
         }
-        return [];
     }
 
     private function getExamsByGrade($grade_id)
