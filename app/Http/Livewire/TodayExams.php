@@ -134,6 +134,43 @@ class TodayExams extends Component
         }
     }
 
+    public function push_notifications($arr_external_user_ids, $message)
+    {
+        $fields = array(
+            'app_id' => env("ONE_SIGNAL_APP_ID"),
+            'include_external_user_ids' => $arr_external_user_ids,
+            'channel_for_external_user_ids' => 'push',
+            'data' => array("foo" => "bar"),
+            'headings' => array(
+                "en" => 'حالة طلب الاختبار',
+                "ar" => 'حالة طلب الاختبار',
+            ),
+            'url' => 'https://memorization-management-system.herokuapp.com/manage_exams_orders',
+            'contents' => array(
+                "en" => $message,
+                "ar" => $message,
+            )
+        );
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
+            'Authorization: Basic ' . env('ONE_SIGNAL_AUTHORIZE')));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
+
     public
     function examQuestionsNumberApproval()
     {
