@@ -35,8 +35,8 @@ if (auth()->id() != null && \App\Models\UserSubscribeNotification::where('id', a
     OneSignal.push(function () {
         OneSignal.init({
             appId: "c99992cc-e40f-46d1-8f7c-a5e4efd99c88",
-            external_user_id: {{strval(auth()->id())}},
-            player_id: {{strval($player_id)}},
+            external_user_id: "{{auth()->id()}}",
+            player_id: "{{$player_id}}",
             autoResubscribe: true,
             notifyButton: {
                 enable: true,
