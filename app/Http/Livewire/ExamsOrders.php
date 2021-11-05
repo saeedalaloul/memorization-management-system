@@ -378,7 +378,10 @@ class ExamsOrders extends Component
                     $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف المرحلة برفض طلب اختبار";
                 }
             }
-            $this->push_notifications($arr_external_user_ids, $message);
+            $response = $this->push_notifications($arr_external_user_ids, $message);
+            $return["allresponses"] = $response;
+            $return = json_encode($return);
+            dd($return);
         }
     }
 
