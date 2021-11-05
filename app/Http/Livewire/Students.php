@@ -671,6 +671,7 @@ class Students extends Component
             if (auth()->user()->current_role != 'محفظ') {
                 array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
             }
+            $message = "";
             if (auth()->user()->current_role == 'أمير المركز') {
                 $message = "لقد قام أمير المركز بطلب اختبار: " . $examOrder->quranPart->name . " للطالب: " . $examOrder->student->user->name;
             } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
