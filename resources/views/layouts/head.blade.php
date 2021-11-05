@@ -56,10 +56,12 @@ if (auth()->id() != null && \App\Models\UserSubscribeNotification::where('id', a
             });
         });
 
-      {{--//  OneSignal.setExternalUserId({{strval(auth()->id())}});--}}
 
-        // OneSignal.getExternalUserId().then(function (id) {
-        // });
+        OneSignal.getExternalUserId().then(function (id) {
+            if (id == null || id !== "{{auth()->id()}}") {
+                OneSignal.setExternalUserId("{{auth()->id()}}");
+            }
+        });
 
     });
 </script>
