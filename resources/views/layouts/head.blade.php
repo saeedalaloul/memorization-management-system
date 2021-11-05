@@ -54,7 +54,7 @@
 
         OneSignal.getExternalUserId().then(function (id) {
             console.log(id);
-            if (id == null || id != "{{auth()->id()}}") {
+            if (id == null || id !== "{{auth()->id()}}") {
                 OneSignal.setExternalUserId("{{auth()->id()}}");
             }
         });
