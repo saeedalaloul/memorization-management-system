@@ -306,7 +306,7 @@ class ExamsOrders extends Component
                         'notes' => null,
                         'readable' => $array,
                     ]);
-
+                    // push notification
                     $arr_external_user_ids = [];
 
                     $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
@@ -341,11 +341,33 @@ class ExamsOrders extends Component
                             'readable' => $array,
                             'notes' => null,
                         ]);
+                        // push notification
+                        $arr_external_user_ids = [];
+
+                        if (auth()->user()->current_role != 'مشرف الإختبارات') {
+                            $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
+                            if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
+                                && $user_role_supervisor_exams->users[0] != null) {
+                                array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
+                            }
+                        }
+
+                        array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
+
+                        $this->process_notification($arr_external_user_ids, 2, $examOrder->student->user->name, $examOrder->quranPart->name);
+
+                        // push notification to tester
+                        if (auth()->user()->current_role == 'أمير المركز') {
+                            $message = "لقد قام أمير المركز بتعيينك مختبر طلب اختبار " . $examOrder->quranPart->name . " للطالب: " . $examOrder->student->user->name . " يرجى مراجعة الموعد المحدد للطلب ...";
+                        } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
+                            $message = "لقد قام مشرف الإختبارات بتعيينك مختبر طلب اختبار " . $examOrder->quranPart->name . " للطالب: " . $examOrder->student->user->name . " يرجى مراجعة الموعد المحدد للطلب ...";
+                        }
+                        $response = $this->push_notifications([$examOrder->tester_id], $message);
+                        $return["allresponses"] = $response;
+                        $return = json_encode($return);
                         session()->flash('success_message', 'تمت عملية اعتماد طلب الإختبار بنجاح.');
-                        // $return["allresponses"] = $response;
                         $this->emit('approval-exam');
                         $this->clearForm();
-                        //  dd(json_encode($return));
                     }
                 }
             }
@@ -358,31 +380,30 @@ class ExamsOrders extends Component
             $message = "";
             if (auth()->user()->current_role == 'أمير المركز') {
                 if ($status == 1) {
-                    $message = "لقد قام أمير المركز بقبول طلب اختبار " . $part_name . " للطالب : " . $student_name . " يرجى مراجعة طلب الاختبار ...";
+                    $message = "لقد قام أمير المركز بقبول طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
                 } else if ($status == -1) {
-                    $message = "لقد قام أمير المركز برفض طلب اختبار " . $part_name . " للطالب : " . $student_name . " يرجى مراجعة طلب الاختبار ...";
+                    $message = "لقد قام أمير المركز برفض طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
                 } else if ($status == 2) {
-                    $message = "لقد قام أمير المركز بقبول اعتماد طلب اختبار " . $part_name . " للطالب : " . $student_name . " يرجى مراجعة طلب الاختبار ...";
+                    $message = "لقد قام أمير المركز بحجز طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة الموعد المحدد للطلب ...";
                 } elseif ($status == -2) {
-                    $message = "لقد قام أمير المركز برفض اعتماد طلب اختبار " . $part_name . " للطالب : " . $student_name . " يرجى مراجعة طلب الاختبار ...";
+                    $message = "لقد قام أمير المركز برفض حجز طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
                 }
             } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
                 if ($status == 2) {
-                    $message = "لقد قام مشرف الإختبارات بقبول اعتماد طلب اختبار " . $part_name . " للطالب : " . $student_name . " يرجى مراجعة طلب الاختبار ...";
+                    $message = "لقد قام مشرف الإختبارات بحجز طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة الموعد المحدد للطلب ...";
                 } elseif ($status == -2) {
-                    $message = "لقد قام مشرف الإختبارات برفض اعتماد طلب اختبار " . $part_name . " للطالب : " . $student_name . " يرجى مراجعة طلب الاختبار ...";
+                    $message = "لقد قام مشرف الإختبارات برفض حجز طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
                 }
             } else if (auth()->user()->current_role == 'مشرف') {
                 if ($status == 1) {
-                    $message = "لقد قام مشرف المرحلة بقبول طلب اختبار " . $part_name . " للطالب : " . $student_name . " يرجى مراجعة طلب الاختبار ...";
+                    $message = "لقد قام مشرف المرحلة بقبول طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
                 } else if ($status == -1) {
-                    $message = "لقد قام مشرف المرحلة برفض طلب اختبار " . $part_name . " للطالب : " . $student_name . " يرجى مراجعة طلب الاختبار ...";
+                    $message = "لقد قام مشرف المرحلة برفض طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
                 }
             }
             $response = $this->push_notifications($arr_external_user_ids, $message);
             $return["allresponses"] = $response;
             $return = json_encode($return);
-            dd($return);
         }
     }
 
@@ -440,6 +461,7 @@ class ExamsOrders extends Component
         $examOrder = ExamOrder::where('id', $id)->first();
         $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
             "isReadableTester" => false, "isReadableSupervisorExams" => false];
+
         if ($examOrder) {
             if ($examOrder->status == 0) {
                 $this->validate(['notes' => 'required|string',]);
@@ -449,6 +471,7 @@ class ExamsOrders extends Component
                     $this->emit('refusal-exam');
                     session()->flash('failure_message', 'تمت عملية رفض طلب الإختبار بنجاح.');
                     $this->clearForm();
+                    $this->process_notification([$examOrder->teacher_id], -1, $examOrder->student->user->name, $examOrder->quranPart->name);
                 }
             } elseif ($examOrder->status == 2) {
                 $this->validate(['notes' => 'required|string',]);
@@ -464,6 +487,7 @@ class ExamsOrders extends Component
                     $this->emit('refusal-exam');
                     session()->flash('failure_message', 'تمت عملية رفض طلب الإختبار بنجاح.');
                     $this->clearForm();
+                    $this->process_notification([$examOrder->teacher_id], -2, $examOrder->student->user->name, $examOrder->quranPart->name);
                 }
             } elseif ($examOrder->status == 1) {
                 $this->validate(['notes' => 'required|string',]);
@@ -473,12 +497,14 @@ class ExamsOrders extends Component
                         'notes' => $this->notes,
                         'readable' => $array,
                     ]);
+                    $this->process_notification([$examOrder->teacher_id], -2, $examOrder->student->user->name, $examOrder->quranPart->name);
                 } elseif (auth()->user()->current_role == 'مشرف') {
                     $examOrder->update([
                         'status' => -1,
                         'notes' => $this->notes,
                         'readable' => $array,
                     ]);
+                    $this->process_notification([$examOrder->teacher_id], -1, $examOrder->student->user->name, $examOrder->quranPart->name);
                 }
                 $this->emit('refusal-exam');
                 session()->flash('failure_message', 'تمت عملية رفض طلب الإختبار بنجاح.');

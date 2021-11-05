@@ -649,7 +649,7 @@ class Students extends Component
         $readable = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
             "isReadableTester" => false, "isReadableSupervisorExams" => false];
 
-        ExamOrder::create([
+        $examOrder = ExamOrder::create([
             'status' => 0,
             'quran_part_id' => $this->quran_part_id,
             'student_id' => $this->student_id,
@@ -661,7 +661,62 @@ class Students extends Component
 
         session()->flash('message', 'تمت عملية طلب الإختبار بنجاح.');
         $this->clearForm();
+
+        // push notification
+        if ($examOrder != null) {
+            $arr_external_user_ids = [];
+            $user_role_supervisor_id = Supervisor::where('grade_id', $examOrder->student->grade_id)->first()->id;
+            array_push($arr_external_user_ids, "" . $user_role_supervisor_id);
+
+            if (auth()->user()->current_role != 'محفظ') {
+                array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
+            }
+            if (auth()->user()->current_role == 'أمير المركز') {
+                $message = "لقد قام أمير المركز بطلب اختبار: " . $examOrder->quranPart->name . " للطالب: " . $examOrder->student->user->name;
+            } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
+                $message = "لقد قام المحفظ: " . $examOrder->teacher->name . " بطلب اختبار: " . $examOrder->quranPart->name . " للطالب : " . $examOrder->student->user->name;
+            }
+
+            $this->push_notifications($arr_external_user_ids, $message);
+        }
     }
+
+    public function push_notifications($arr_external_user_ids, $message)
+    {
+        $fields = array(
+            'app_id' => env("ONE_SIGNAL_APP_ID"),
+            'include_external_user_ids' => $arr_external_user_ids,
+            'channel_for_external_user_ids' => 'push',
+            'data' => array("foo" => "bar"),
+            'headings' => array(
+                "en" => 'حالة طلب الاختبار',
+                "ar" => 'حالة طلب الاختبار',
+            ),
+            'url' => 'https://memorization-management-system.herokuapp.com/manage_exams_orders',
+            'contents' => array(
+                "en" => $message,
+                "ar" => $message,
+            )
+        );
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
+            'Authorization: Basic ' . env('ONE_SIGNAL_AUTHORIZE')));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
 
     public function getStudent($id)
     {

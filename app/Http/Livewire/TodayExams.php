@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Spatie\Permission\Models\Role;
 
 class TodayExams extends Component
 {
@@ -112,6 +113,22 @@ class TodayExams extends Component
                     $this->emit('refusal-exam');
                     session()->flash('success_message', 'تمت عملية اعتماد عدم إجراء الطالب الاختبار بنجاح.');
                     $this->clearForm();
+
+                    // push notifications
+                    $arr_external_user_ids = [];
+                    if (auth()->user()->current_role != 'مشرف الإختبارات') {
+                        $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
+                        if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
+                            && $user_role_supervisor_exams->users[0] != null) {
+                            array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
+                        }
+                    }
+
+                    array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
+
+                    $message = "لقد قام المختبر: " . $examOrder->tester->name . " باعتماد عدم إجراء الطالب: " . $examOrder->student->user->name . " في اختبار: " . $examOrder->quranPart->name;
+
+                    $this->push_notifications($arr_external_user_ids, $message);
                 }
             }
         }
