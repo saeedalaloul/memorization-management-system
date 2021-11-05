@@ -131,8 +131,7 @@
                                                     </button>
                                                 @endif
                                             @elseif($exam_order->status == 1)
-                                                @if (auth()->user()->current_role == 'مشرف' ||
-                                                     auth()->user()->current_role == 'أمير المركز' ||
+                                                @if (auth()->user()->current_role == 'أمير المركز' ||
                                                      auth()->user()->current_role == 'مشرف الإختبارات')
                                                     <button class="btn btn-outline-success btn-sm"
                                                             data-toggle="modal"
