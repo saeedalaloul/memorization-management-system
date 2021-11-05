@@ -358,25 +358,25 @@ class ExamsOrders extends Component
             $message = "";
             if (auth()->user()->current_role == 'أمير المركز') {
                 if ($status == 1) {
-                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام أمير المركز بقبول طلب اختبار";
+                    $message = "لقد قام أمير المركز بقبول طلب اختبار" . $student_name . "للطالب : " . $part_name . "يرجى مراجعة طلب الاختبار ...";
                 } else if ($status == -1) {
-                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام أمير المركز برفض طلب اختبار";
+                    $message = "لقد قام أمير المركز برفض طلب اختبار" . $student_name . "للطالب : " . $part_name . "يرجى مراجعة طلب الاختبار ...";
                 } else if ($status == 2) {
-                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام أمير المركز بقبول اعتماد طلب اختبار";
+                    $message = "لقد قام أمير المركز بقبول اعتماد طلب اختبار" . $student_name . "للطالب : " . $part_name . "يرجى مراجعة طلب الاختبار ...";
                 } elseif ($status == -2) {
-                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام أمير المركز برفض اعتماد طلب اختبار";
+                    $message = "لقد قام أمير المركز برفض اعتماد طلب اختبار" . $student_name . "للطالب : " . $part_name . "يرجى مراجعة طلب الاختبار ...";
                 }
             } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
                 if ($status == 2) {
-                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف الإختبارات بقبول اعتماد طلب اختبار";
+                    $message = "لقد قام مشرف الإختبارات بقبول اعتماد طلب اختبار" . $student_name . "للطالب : " . $part_name . "يرجى مراجعة طلب الاختبار ...";
                 } elseif ($status == -2) {
-                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف الإختبارات برفض اعتماد طلب اختبار";
+                    $message = "لقد قام مشرف الإختبارات برفض اعتماد طلب اختبار" . $student_name . "للطالب : " . $part_name . "يرجى مراجعة طلب الاختبار ...";
                 }
             } else if (auth()->user()->current_role == 'مشرف') {
                 if ($status == 1) {
-                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف المرحلة بقبول طلب اختبار";
+                    $message = "لقد قام مشرف المرحلة بقبول طلب اختبار" . $student_name . "للطالب : " . $part_name . "يرجى مراجعة طلب الاختبار ...";
                 } else if ($status == -1) {
-                    $message = "يرجى مراجعة طلب الاختبار ..." . $student_name . "للطالب : " . $part_name . "لقد قام مشرف المرحلة برفض طلب اختبار";
+                    $message = "لقد قام مشرف المرحلة برفض طلب اختبار" . $student_name . "للطالب : " . $part_name . "يرجى مراجعة طلب الاختبار ...";
                 }
             }
             $response = $this->push_notifications($arr_external_user_ids, $message);
