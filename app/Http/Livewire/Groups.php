@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Grade;
 use App\Models\Group;
 use App\Models\LowerSupervisor;
+use App\Models\Student;
 use App\Models\Supervisor;
 use App\Models\Teacher;
 use Exception;
@@ -145,21 +146,29 @@ class Groups extends Component
             $this->teacher_id = null;
         } else {
             $isUpdated = true;
-            if ($this->retGroup->grade_id != $this->grade_id) {
-                if ($this->retGroup->students->count() > 0) {
-                    $isUpdated = false;
-                }
-            }
-            if ($isUpdated) {
-                $Group = Group::where('id', $this->modalId)->first();
-                $Group->update($this->modelData());
-                $this->modalFormReset();
-                $this->show_table = true;
-                session()->flash('message', 'تم تحديث معلومات الحلقة بنجاح.');
-            } else {
-                $messageBag = new MessageBag;
-                $messageBag->add('grade_id', 'عذرا لم يتم تحديث الحلقة بسبب وجود طلاب داخل الحلقة');
+            $student_found = Student::find($this->teacher_id);
+            $messageBag = new MessageBag;
+            if ($student_found != null && $student_found->group != null
+                && $student_found->group->id == $this->retGroup->id) {
+                $messageBag->add('teacher_id', 'عذرا, لا يمكن اختيار الحلقة للمحفظ لأنه طالب في نفس الحلقة');
                 $this->setErrorBag($messageBag);
+            } else {
+                if ($this->retGroup->grade_id != $this->grade_id) {
+                    if ($this->retGroup->students->count() > 0) {
+                        $isUpdated = false;
+                    }
+                }
+                if ($isUpdated) {
+                    $Group = Group::where('id', $this->modalId)->first();
+                    $Group->update($this->modelData());
+                    $this->modalFormReset();
+                    $this->show_table = true;
+                    session()->flash('message', 'تم تحديث معلومات الحلقة بنجاح.');
+                } else {
+                    $messageBag = new MessageBag;
+                    $messageBag->add('grade_id', 'عذرا لم يتم تحديث الحلقة بسبب وجود طلاب داخل الحلقة');
+                    $this->setErrorBag($messageBag);
+                }
             }
         }
     }

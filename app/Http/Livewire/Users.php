@@ -20,7 +20,6 @@ use Illuminate\Support\MessageBag;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use Maatwebsite\Excel\Excel;
 use Spatie\Permission\Models\Role;
 
 class Users extends Component
@@ -89,6 +88,9 @@ class Users extends Component
                         if ($this->father_name == null) {
                             $this->father_name = $student->father->user->name;
                         }
+                        if ($this->father_identification_number == null) {
+                            $this->father_identification_number = $student->father->user->identification_number;
+                        }
                     }
                 }
             }
@@ -131,11 +133,12 @@ class Users extends Component
                         $supervisor = Supervisor::find($this->modalId);
                         if ($supervisor == null) {
                             Supervisor::create(['id' => $this->modalId, 'grade_id' => $this->grade_id]);
+                            session()->flash('message', 'تمت عملية تعيين دور مشرف إلى المستخدم بنجاح.');
                         } else {
                             $supervisor->update(['grade_id' => $this->grade_id]);
+                            session()->flash('message', 'تمت عملية تحديث دور مشرف إلى المستخدم بنجاح.');
                         }
                         $user->assignRole([$this->role_id]);
-                        session()->flash('message', 'تمت عملية تعيين دور مشرف إلى المستخدم بنجاح.');
                         $this->modalFormReset();
                         $this->show_table = true;
                     }
@@ -145,11 +148,12 @@ class Users extends Component
                         $lowerSupervisor = LowerSupervisor::find($this->modalId);
                         if ($lowerSupervisor == null) {
                             LowerSupervisor::create(['id' => $this->modalId, 'grade_id' => $this->grade_id]);
+                            session()->flash('message', 'تمت عملية تعيين دور إداري إلى المستخدم بنجاح.');
                         } else {
                             $lowerSupervisor->update(['grade_id' => $this->grade_id]);
+                            session()->flash('message', 'تمت عملية تحديث دور إداري إلى المستخدم بنجاح.');
                         }
                         $user->assignRole([$this->role_id]);
-                        session()->flash('message', 'تمت عملية تعيين دور إداري إلى المستخدم بنجاح.');
                         $this->modalFormReset();
                         $this->show_table = true;
                     }
@@ -169,13 +173,13 @@ class Users extends Component
                             } else {
                                 $teacher->update(['grade_id' => $this->grade_id]);
                                 $teacher->user->assignRole([$this->role_id]);
-                                session()->flash('message', 'تمت عملية تعيين دور محفظ إلى المستخدم بنجاح.');
+                                session()->flash('message', 'تمت عملية تحديث دور محفظ إلى المستخدم بنجاح.');
                                 $this->modalFormReset();
                                 $this->show_table = true;
                             }
                         } else {
                             $teacher->user->assignRole([$this->role_id]);
-                            session()->flash('message', 'تمت عملية تعيين دور محفظ إلى المستخدم بنجاح.');
+                            session()->flash('message', 'تمت عملية تحديث دور محفظ إلى المستخدم بنجاح.');
                             $this->modalFormReset();
                             $this->show_table = true;
                         }
@@ -189,6 +193,67 @@ class Users extends Component
                     }
 
                 } else if ($role_name == "طالب") {
+                    $this->validate(
+                        [
+                            'grade_id' => 'required',
+                            'group_id' => 'required',
+                            'father_identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9',
+                            'father_id' => 'required',
+                        ]);
+
+                    $messageBag = new MessageBag;
+                    $student = Student::find($this->modalId);
+                    if ($student != null) {
+                        if ($this->group_id != $student->group_id) {
+                            $teacher_found = Teacher::find($this->modalId);
+                            if ($teacher_found != null && $teacher_found->group != null
+                                && $teacher_found->group->id == $this->group_id) {
+                                $messageBag->add('group_id', 'عذرا, لا يمكن تغيير الحلقة للطالب لأنه محفظ في نفس الحلقة');
+                                $this->setErrorBag($messageBag);
+                            } else {
+                                if ($student->exam_order->count() > 0) {
+                                    $messageBag->add('group_id', 'عذرا, لا يمكن تغيير الحلقة للطالب بسبب وجود طلبات اختبارات يجب إجرائها أو حذفها');
+                                    $this->setErrorBag($messageBag);
+                                } else {
+                                    $student->update(['grade_id' => $this->grade_id, 'group_id' => $this->group_id, 'father_id' => $this->father_id,]);
+                                    $student->user->assignRole([$this->role_id]);
+                                    session()->flash('message', 'تمت عملية تحديث دور طالب إلى المستخدم بنجاح.');
+                                    $this->modalFormReset();
+                                    $this->show_table = true;
+                                }
+                            }
+                        } else {
+                            if ($student->group->grade_id == $this->grade_id) {
+                                $student->update(['grade_id' => $this->grade_id, 'group_id' => $this->group_id, 'father_id' => $this->father_id,]);
+                                $student->user->assignRole([$this->role_id]);
+                                session()->flash('message', 'تمت عملية تحديث دور طالب إلى المستخدم بنجاح.');
+                                $this->modalFormReset();
+                                $this->show_table = true;
+                            } else {
+                                $messageBag->add('grade_id', 'عذرا, لا يمكن تغيير المرحلة لأن الحلقة ليست في نفس المرحلة');
+                                $this->setErrorBag($messageBag);
+                            }
+                        }
+                    } else {
+                        $teacher_found = Teacher::find($this->modalId);
+                        if ($teacher_found != null && $teacher_found->group != null
+                            && $teacher_found->group->id == $this->group_id) {
+                            $messageBag->add('group_id', 'عذرا, لا يمكن اختيار الحلقة للطالب لأنه محفظ في نفس الحلقة');
+                            $this->setErrorBag($messageBag);
+                        } else {
+                            Student::create([
+                                'id' => $this->modalId,
+                                'grade_id' => $this->grade_id,
+                                'group_id' => $this->group_id,
+                                'father_id' => $this->father_id,
+                            ]);
+                            $user = User::find($this->modalId);
+                            $user->assignRole([$this->role_id]);
+                            session()->flash('message', 'تمت عملية تعيين دور طالب إلى المستخدم بنجاح.');
+                            $this->modalFormReset();
+                            $this->show_table = true;
+                        }
+                    }
                 }
             }
         }
@@ -239,6 +304,7 @@ class Users extends Component
                 } else if ($role_name == "محفظ") {
                     $this->pullTeacherRole();
                 } else if ($role_name == "طالب") {
+                    $this->pullStudentRole();
                 }
             }
         }
@@ -286,6 +352,39 @@ class Users extends Component
         }
     }
 
+    public function pullStudentRole()
+    {
+        $messageBag = new MessageBag();
+        $student = Student::find($this->modalId);
+        if ($student->exam_order->count() > 0) {
+            $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور الطالب بسبب وجود طلبات اختبارات يجب إجرائها أو حذفها');
+            $this->setErrorBag($messageBag);
+        } else {
+            if ($student->exam->count() > 0) {
+                $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور الطالب إطلاقا بسبب وجود اختبارات قرآنية مسجلة باسمه');
+                $this->setErrorBag($messageBag);
+            } else {
+                if ($student->attendance->count() > 0) {
+                    $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور الطالب بسبب وجود سجل حضور وغياب لديه');
+                    $this->setErrorBag($messageBag);
+                } else {
+                    if ($student->daily_preservation->count() > 0) {
+                        $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور الطالب بسبب وجود سجل متابعة الحفظ والمراجعة مسجل باسمه');
+                        $this->setErrorBag($messageBag);
+                    } else {
+                        $user = User::find($this->modalId);
+                        $user?->removeRole($this->role_id);
+                        Student::destroy($this->modalId);
+                        session()->flash('message', 'تمت عملية سحب دور طالب من المستخدم بنجاح.');
+                        $this->modalFormReset();
+                        $this->show_table = true;
+                    }
+                }
+            }
+        }
+    }
+
+
     public function resetMessage()
     {
         $this->successMessage = null;
@@ -305,9 +404,13 @@ class Users extends Component
                     $this->father_name = $father->user->name;
                     $this->successMessage = 'لقد تم العثور على رقم هوية ولي الأمر بنجاح...';
                 } else {
+                    $this->father_id =null;
+                    $this->father_name = null;
                     $this->successMessage = null;
                 }
             } else {
+                $this->father_id =null;
+                $this->father_name = null;
                 $this->successMessage = null;
             }
         }
@@ -323,11 +426,13 @@ class Users extends Component
             'name' => 'required|string|unique:users,name,' . $this->modalId,
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
             'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
+            'father_identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9',
             'dob' => 'required|date|date_format:Y-m-d',
             'address' => 'required',
             'photo' => 'image|mimes:jpeg,png,jpg|max:2048',
             'grade_id' => 'required',
             'group_id' => 'required',
+            'father_id' => 'required',
         ]);
     }
 
@@ -360,6 +465,11 @@ class Users extends Component
             'dob.date_format' => 'حقل تاريخ الميلاد يجب أن يكون من نوع تاريخ',
             'grade_id.required' => 'اسم المرحلة مطلوب',
             'group_id.required' => 'اسم الحلقة مطلوب',
+            'father_id.required' => 'اسم ولي أمر الطالب مطلوب',
+            'father_identification_number.required' => 'حقل رقم الهوية مطلوب',
+            'father_identification_number.regex' => 'حقل رقم الهوية يجب أن يكون رقم',
+            'father_identification_number.min' => 'يجب أن لا يقل طول رقم الهوية عن 9 أرقام',
+            'father_identification_number.max' => 'يجب أن لا يزيد طول رقم الهوية عن 9 أرقام',
             'address.required' => 'حقل العنوان مطلوب',
             'photo.image' => 'حقل الصورة يجب أن يحتوي على صورة',
             'photo.mimes' => 'يجب أن تكون صيغة الصورة إما jpeg أو png أو jpg',

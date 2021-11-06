@@ -109,8 +109,8 @@ login-->
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="section-field mb-20">
-                                <label class="mb-10" for="name">البريدالالكتروني* </label>
-                                <input id="email" type="email"
+                                <label class="mb-10" for="name">البريدالالكتروني أو رقم الجوال* </label>
+                                <input id="email" type="text"
                                        class="form-control @error('email') is-invalid @enderror" name="email"
                                        value="{{ old('email') }}" required autocomplete="email" autofocus>
                                 @error('email')
@@ -133,9 +133,9 @@ login-->
                             </div>
                             <div class="section-field">
                                 <div class="remember-checkbox mb-30">
-                                    <input type="checkbox" class="form-control" name="remember_token"
-                                           id="remember_token">
-                                    <label for="remember_token"> تذكرني</label>
+                                    <input type="checkbox" class="form-control" name="remember"
+                                           id="remember">
+                                    <label for="remember"> تذكرني</label>
                                     <a href="{{route('password.request')}}" class="float-sm-end d-block mt-1 mt-sm-0">هل
                                         نسيت كلمةالمرور ؟</a>
                                 </div>

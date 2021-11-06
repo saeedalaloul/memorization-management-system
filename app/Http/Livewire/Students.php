@@ -438,7 +438,7 @@ class Students extends Component
 
             if (is_null($retFather)) {
                 if (!is_null($userFather)) {
-                    Father::create(['id' => $userFather->id]);
+                    $retFather = Father::create(['id' => $userFather->id]);
                 }
             }
 
@@ -455,7 +455,11 @@ class Students extends Component
             $userStudent->assignRole([$roleId]);
 
             $roleId = Role::select('*')->where('name', '=', 'ولي أمر الطالب')->get();
-            $userFather->assignRole([$roleId]);
+            if ($userFather != null) {
+                $userFather->assignRole([$roleId]);
+            } else {
+                $retFather->user->assignRole([$roleId]);
+            }
 
             if (!empty($this->photo)) {
                 $this->photo->storeAs($this->student_identification_number, $this->photo->getClientOriginalName(), $disk = 'students_images');
@@ -505,6 +509,8 @@ class Students extends Component
         // clear inputs submit exam request
         $this->student_id = null;
         $this->quran_part_id = null;
+        $this->catchError = null;
+        $this->successMessage = null;
         $this->resetValidation();
     }
 

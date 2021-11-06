@@ -17,7 +17,7 @@ class CreateGroupsTable extends Migration
             $table->id();
             $table->string('name')->index()->unique();
             $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('teacher_id')->unique()->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('teacher_id')->nullable()->unique()->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

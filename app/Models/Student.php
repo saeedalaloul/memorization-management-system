@@ -45,10 +45,27 @@ class Student extends Model
     {
         return $this->belongsTo('App\Models\Group', 'group_id');
     }
+    // علاقة بين جدول الطلاب وجدول الحضور والغياب
+    public function daily_preservation()
+    {
+        return $this->hasMany('App\Models\StudentDailyPreservation', 'student_id');
+    }
 
     // علاقة بين جدول الطلاب وجدول الحضور والغياب
     public function attendance()
     {
         return $this->hasMany('App\Models\StudentAttendance', 'student_id');
+    }
+
+    // علاقة بين جدول الطلاب وجدول طلبات الإختبارات
+    public function exam_order()
+    {
+        return $this->hasMany('App\Models\ExamOrder', 'student_id');
+    }
+
+    // علاقة بين جدول الطلاب وجدول الإختبارات القرآنية
+    public function exam()
+    {
+        return $this->hasMany('App\Models\Exam', 'student_id');
     }
 }
