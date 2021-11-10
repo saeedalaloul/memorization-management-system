@@ -18,8 +18,8 @@
                         </div>
                         <div class="col-md-12">
                             <label class="control-label">علامة أحكام الطالب*</label>
-                            <input type="number" wire:model="mark_another" max="10" min="5" class="form-control">
-                            @error('mark_another')
+                            <input type="number" wire:model="another_mark" max="10" min="5" class="form-control">
+                            @error('another_mark')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
                         </div>

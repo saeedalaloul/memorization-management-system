@@ -30,6 +30,11 @@ class Tester extends Model
 
     // علاقة بين المختبرين وجدول الإختبارات لجلب عدد الإختبارات في جدول المختبرين
     public function exams(){
-        return $this->hasMany('App\Models\Exam');
+        return $this->hasMany('App\Models\Exam','tester_id','id');
+    }
+
+    // علاقة بين المختبرين وجدول طلبات الإختبارات لجلب عدد طلبات الإختبارات في جدول المختبرين
+    public function exams_orders(){
+        return $this->hasMany('App\Models\ExamOrder','tester_id','id');
     }
 }

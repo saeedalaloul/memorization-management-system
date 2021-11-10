@@ -33,11 +33,11 @@ class Users extends Component
     public $address;
     public $photo;
     public $roles, $ret_Roles, $grades, $groups;
-    public $role_id;
+    public $role_id, $searchRoleId;
     public $grade_id, $group_id, $father_id, $father_name, $father_identification_number;
     public $show_table = true, $catchError, $successMessage;
     public $modalId, $name, $password, $password_confirm, $process_type;
-    public $sortBy = 'id', $sortDirection = 'asc', $perPage = 10, $search = '';
+    public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
     protected $paginationTheme = 'bootstrap';
 
     public function render()
@@ -404,12 +404,12 @@ class Users extends Component
                     $this->father_name = $father->user->name;
                     $this->successMessage = 'لقد تم العثور على رقم هوية ولي الأمر بنجاح...';
                 } else {
-                    $this->father_id =null;
+                    $this->father_id = null;
                     $this->father_name = null;
                     $this->successMessage = null;
                 }
             } else {
-                $this->father_id =null;
+                $this->father_id = null;
                 $this->father_name = null;
                 $this->successMessage = null;
             }
@@ -583,19 +583,44 @@ class Users extends Component
     function mount()
     {
         $this->all_Grades();
+        $this->all_Roles(-1);
     }
 
     public function activeEmail($id)
     {
         $user = User::find($id);
         if ($user != null) {
-            if (!$user->hasVerifiedEmail()) {
-                $user->markEmailAsVerified();
-                event(new Verified($user));
-                session()->flash('success_message', 'تمت عملية تفعيل البريد الإلكتروني بنجاح.');
+            if ($user->roles != null && $user->roles->where('name', 'أمير المركز')->first() != null
+                && $id == auth()->id()) {
+                $this->catchError = 'عذرا لا يمكن لأمير المركز تعطيل التحقق من بريده الإلكتروني';
             } else {
-                $user->update(['email_verified_at' => null]);
-                session()->flash('success_message', 'تمت عملية إلغاء تفعيل البريد الإلكتروني بنجاح.');
+                if ($user->hasVerifiedEmail()) {
+                    $user->update(['email_verified_at' => null]);
+                    session()->flash('success_message', 'تمت عملية إلغاء تفعيل البريد الإلكتروني بنجاح.');
+                } else {
+                    $user->markEmailAsVerified();
+                    event(new Verified($user));
+                    session()->flash('success_message', 'تمت عملية تفعيل البريد الإلكتروني بنجاح.');
+                }
+            }
+        }
+    }
+
+    public function activeAccount($id)
+    {
+        $user = User::find($id);
+        if ($user != null) {
+            if ($user->roles != null && $user->roles->where('name', 'أمير المركز')->first() != null
+                && $id == auth()->id()) {
+                $this->catchError = 'عذرا لا يمكن لأمير المركز تعطيل حسابه في النظام';
+            } else {
+                if ($user->status) {
+                    $user->update(['status' => 0]);
+                    session()->flash('success_message', 'تمت عملية تعليق الحساب بنجاح.');
+                } else {
+                    $user->update(['status' => 1]);
+                    session()->flash('success_message', 'تمت عملية تفعيل الحساب بنجاح.');
+                }
             }
         }
     }
@@ -717,10 +742,18 @@ class Users extends Component
     public
     function all_Users()
     {
-        return User::query()
-            ->search($this->search)
-            ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate($this->perPage);
+        if ($this->searchRoleId) {
+            return User::query()
+                ->whereRelation('roles', 'id', '=', $this->searchRoleId)
+                ->search($this->search)
+                ->orderBy($this->sortBy, $this->sortDirection)
+                ->paginate($this->perPage);
+        } else {
+            return User::query()
+                ->search($this->search)
+                ->orderBy($this->sortBy, $this->sortDirection)
+                ->paginate($this->perPage);
+        }
     }
 
     public
@@ -737,15 +770,16 @@ class Users extends Component
         }
     }
 
-    public
-    function all_Roles($status)
+    public function all_Roles($status)
     {
         if ($status == 0) {
             $this->roles = Role::query()->whereNotIn('name', ['طالب', 'ولي أمر الطالب'])->get();
+        } else if ($status == 1) {
+            $this->roles = Role::query()->whereNotIn('name', ['ولي أمر الطالب'])->get();
         } else if ($status == 2) {
             $this->roles = Role::query()->whereIn('name', ['طالب', 'محفظ'])->get();
         } else {
-            $this->roles = Role::query()->whereNotIn('name', ['ولي أمر الطالب'])->get();
+            $this->roles = Role::all();
         }
     }
 }

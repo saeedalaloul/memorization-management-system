@@ -2,7 +2,10 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\Exam;
 use App\Models\Grade;
+use App\Models\Group;
+use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\Tester;
 use App\Models\User;
@@ -17,25 +20,31 @@ class Testers extends Component
     use WithPagination;
 
     public $grade_id;
-    public $teacher_id;
+    public $teacher_id, $group_id;
     public $modalId;
-    public $grades;
+    public $grades, $groups, $students;
     public $teachers;
-    public $catchError;
+    public $catchError, $show_table = true, $show_exams = false, $tester_id;
     public $sortBy = 'id';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
     public $perPage = 10;
     public $search = '';
+    public $searchGradeId, $searchGroupId, $searchStudentId;
     protected $paginationTheme = 'bootstrap';
 
     public function render()
     {
-        $this->grades = $this->all_Grades();
+        $this->all_Groups();
+        $this->all_Students();
         if (!empty($this->grade_id)) {
             $this->teachers = Teacher::where("grade_id", $this->grade_id)->get();
         }
+        return view('livewire.testers', ['testers' => $this->all_Testers(), 'exams' => $this->getExamsByTester()]);
+    }
 
-        return view('livewire.testers', ['testers' => $this->all_Testers()]);
+    public function mount()
+    {
+        $this->grades = $this->all_Grades();
     }
 
     public function sortBy($field)
@@ -49,19 +58,76 @@ class Testers extends Component
         return $this->sortBy = $field;
     }
 
+    public function showformadd($isShow)
+    {
+        $this->show_table = $isShow;
+    }
+
+    public function show_exams_table($id)
+    {
+        $this->show_exams = true;
+        $this->show_table = false;
+        $this->tester_id = $id;
+    }
+
+    public function getExamsByTester()
+    {
+        if ($this->show_exams == true) {
+            if (auth()->user()->current_role == 'أمير المركز' ||
+                auth()->user()->current_role == 'مشرف الإختبارات') {
+                if (empty($this->searchGradeId)) {
+                    return Exam::query()
+                        ->where('tester_id', $this->tester_id)
+                        ->search($this->search)
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                } else {
+                    if (empty($this->searchGroupId)) {
+                        return Exam::query()
+                            ->where('tester_id', $this->tester_id)
+                            ->search($this->search)
+                            ->whereHas('student', function ($q) {
+                                return $q->where('grade_id', '=', $this->searchGradeId);
+                            })
+                            ->orderBy($this->sortBy, $this->sortDirection)
+                            ->paginate($this->perPage);
+                    } else {
+                        if (empty($this->searchStudentId)) {
+                            return Exam::query()
+                                ->where('tester_id', $this->tester_id)
+                                ->search($this->search)
+                                ->whereHas('student', function ($q) {
+                                    return $q->where('grade_id', '=', $this->searchGradeId)
+                                        ->where('group_id', '=', $this->searchGroupId);
+                                })
+                                ->orderBy($this->sortBy, $this->sortDirection)
+                                ->paginate($this->perPage);
+                        } else {
+                            return Exam::query()
+                                ->where('tester_id', $this->tester_id)
+                                ->search($this->search)
+                                ->whereHas('student', function ($q) {
+                                    return $q
+                                        ->where('grade_id', '=', $this->searchGradeId)
+                                        ->where('group_id', '=', $this->searchGroupId)
+                                        ->where('id', '=', $this->searchStudentId);
+                                })
+                                ->orderBy($this->sortBy, $this->sortDirection)
+                                ->paginate($this->perPage);
+                        }
+                    }
+                }
+            }
+        }
+        return [];
+    }
+
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName, [
             'grade_id' => 'required',
             'teacher_id' => 'required|unique:testers,id,' . $this->modalId,
         ]);
-    }
-
-    public function loadModalData($id)
-    {
-        $this->modalFormReset();
-        $data = Tester::where('id', $id)->first();
-        $this->modalId = $data->id;
     }
 
     public function modelData()
@@ -112,8 +178,10 @@ class Testers extends Component
                 $user->assignRole([$roleId]);
                 $this->modalFormReset();
                 $this->emit('add_tester');
-                session()->flash('message', 'تم اضافة المختبر بنجاح.');
+                session()->flash('message', 'تم إضافة المختبر بنجاح.');
             }
+            $this->show_table = true;
+            $this->modalFormReset();
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -121,26 +189,24 @@ class Testers extends Component
         }
     }
 
-    public function update()
-    {
-        $this->validate();
-        $teacher = Teacher::where('id', $this->teacher_id)->where('grade_id', $this->grade_id)->first();
-        if (is_null($teacher)) {
-            $this->teacher_id = null;
-        } else {
-            $tester = Tester::where('id', $this->modalId)->first();
-            $tester->update($this->modelData());
-            $this->modalFormReset();
-            //$this->emit('groupEdited');
-            session()->flash('message', 'تم تحديث المختبر بنجاح.');
-        }
-    }
-
     public function destroy($id)
     {
-        Tester::where('id', $id)->delete();
-        $this->emit('delete_tester');
-        session()->flash('message', 'تم حذف المختبر بنجاح.');
+        $tester = Tester::find($id);
+        if ($tester != null) {
+            $this->emit('delete_tester');
+            if ($tester->exams->count() > 0) {
+                $this->catchError = "عذرا لا يمكن حذف المختبر بسبب وجود اختبارات مسجلة باسم المختبر";
+            } else {
+                if ($tester->exams_orders->count() > 0) {
+                    $this->catchError = "عذرا لا يمكن حذف المختبر بسبب وجود طلبات اختبارات لديه يرجى إجرائها أو حذفها";
+                } else {
+                    $roleId = Role::select('*')->where('name', '=', 'مختبر')->first();
+                    $tester->user->removeRole($roleId);
+                    $tester->delete();
+                    session()->flash('message', 'تم حذف المختبر بنجاح.');
+                }
+            }
+        }
     }
 
     public function all_Testers()
@@ -155,4 +221,29 @@ class Testers extends Component
     {
         return Grade::all();
     }
+
+    public function all_Groups()
+    {
+        if (auth()->user()->current_role == 'أمير المركز' ||
+            auth()->user()->current_role == 'مشرف الإختبارات') {
+            if ($this->grade_id) {
+                $this->groups = Group::query()->where('grade_id', $this->grade_id)->get();
+            } else if ($this->searchGradeId) {
+                $this->groups = Group::query()->where('grade_id', $this->searchGradeId)->get();
+            }
+        }
+    }
+
+    public function all_Students()
+    {
+        if (auth()->user()->current_role == 'أمير المركز' ||
+            auth()->user()->current_role == 'مشرف الإختبارات') {
+            if ($this->group_id) {
+                $this->students = Student::query()->where('group_id', $this->group_id)->get();
+            } else if ($this->searchGroupId) {
+                $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
+            }
+        }
+    }
+
 }

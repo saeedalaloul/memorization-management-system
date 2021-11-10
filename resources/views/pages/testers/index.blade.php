@@ -2,13 +2,13 @@
 @section('css')
     @toastr_css
 @section('title')
-    إضافة مختبر
+    إدارة المختبرين
 @stop
 @endsection
 @section('page-header')
     <!-- breadcrumb -->
 @section('PageTitle')
-    إضافة مختبر
+    إدارة المختبرين
 @stop
 <!-- breadcrumb -->
 @endsection
@@ -27,8 +27,8 @@
     @toastr_js
     @toastr_render
     <script>
-        window.livewire.on('add_tester', () => {
-            $('#add_tester').modal('hide');
+        window.livewire.on('delete_tester', () => {
+            $('#testerDeleted').modal('hide');
         });
     </script>
 @endsection

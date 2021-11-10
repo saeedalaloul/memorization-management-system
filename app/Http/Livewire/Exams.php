@@ -14,12 +14,14 @@ use App\Models\Student;
 use App\Models\Supervisor;
 use App\Models\Teacher;
 use App\Models\Tester;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\MessageBag;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Spatie\Permission\Models\Role;
 
 class Exams extends Component
 {
@@ -29,9 +31,9 @@ class Exams extends Component
     public $grades, $groups, $students, $testers, $quran_parts, $grade_id, $group_id, $student_id;
     public $quran_part_id, $tester_id, $catchError, $success_mark, $exam_questions_count;
     public $marks_questions = [], $signs_questions = [], $exam_questions_min, $exam_questions_max, $exam_date;
-    public $focus_id, $final_exam_score, $exam_mark = 95, $exam_notes;
+    public $focus_id, $final_exam_score, $exam_mark = 100, $another_mark = 10, $exam_notes;
     public $sortBy = 'id';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
     public $perPage = 10;
     public $search = '';
     public $searchGradeId, $searchGroupId, $searchStudentId;
@@ -39,16 +41,24 @@ class Exams extends Component
 
     public function render()
     {
-        $this->all_Grades();
-        $this->all_Testers();
         $this->all_Groups();
         $this->all_Students();
         $this->checkLastExamStatus();
         $this->all_questions_exam();
-        $this->read_All_Exams();
+
+        if ($this->isExamOfStart && $this->another_mark) {
+            $this->calcAverage();
+        }
 
         return view('livewire.exams', [
             'exams' => $this->all_Exam(),]);
+    }
+
+    public function mount()
+    {
+        $this->all_Grades();
+        $this->all_Testers();
+        $this->read_All_Exams();
     }
 
 
@@ -311,7 +321,7 @@ class Exams extends Component
                 for ($i = 1; $i <= count($exam->marks_questions); $i++) {
                     $sum += $exam->marks_questions[$i];
                 }
-                $exam_mark = $sum / count($exam->marks_questions);
+                $exam_mark = round(100 - $sum) - (10 - $exam->another_mark);
                 if ($exam_mark >= $exam->examSuccessMark->mark) {
                     $this->all_Quran_Parst($exam->quran_part_id, true);
                 } else {
@@ -325,16 +335,18 @@ class Exams extends Component
                         $this->all_Quran_Parst($exam->quran_part_id, false);
                     } else {
                         if (abs($days) == 0) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب يوم حتى تتمكن من طلب اختبار جديد';
+                            $this->catchError = 'عذرا متبقي لهذا الطالب يوم حتى تتمكن من إضافة اختبار جديد';
                         } else if (abs($days) == 1) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب يومان حتى تتمكن من طلب اختبار جديد';
+                            $this->catchError = 'عذرا متبقي لهذا الطالب يومان حتى تتمكن من إضافة اختبار جديد';
                         } else if (abs($days) == 2) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب ثلاث أيام حتى تتمكن من طلب اختبار جديد';
+                            $this->catchError = 'عذرا متبقي لهذا الطالب ثلاث أيام حتى تتمكن من إضافة اختبار جديد';
                         } else if (in_array(abs($days), range(3, 10))) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب ' . abs($days) . ' أيام حتى تتمكن من طلب اختبار جديد';
+                            $this->catchError = 'عذرا متبقي لهذا الطالب ' . abs($days) . ' أيام حتى تتمكن من إضافة اختبار جديد';
                         } else if (in_array(abs($days), range(11, 15))) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب ' . abs($days) . ' يوم حتى تتمكن من طلب اختبار جديد';
+                            $this->catchError = 'عذرا متبقي لهذا الطالب ' . abs($days) . ' يوم حتى تتمكن من إضافة اختبار جديد';
                         }
+                        $this->exam_questions_count = null;
+                        $this->quran_part_id = null;
                     }
                 }
             } else {
@@ -412,7 +424,7 @@ class Exams extends Component
     {
         if ($this->exam_questions_count > 0) {
             for ($i = 1; $i <= $this->exam_questions_count; $i++) {
-                $this->marks_questions[$i] = 95;
+                $this->marks_questions[$i] = 0;
             }
 
             for ($i = 1; $i <= $this->exam_questions_count; $i++) {
@@ -447,21 +459,15 @@ class Exams extends Component
         }
     }
 
-    public function minus_5()
+    public function minus_1()
     {
         if ($this->focus_id != null) {
             if (isset($this->signs_questions[$this->focus_id])) {
-                if ($this->marks_questions[$this->focus_id] > 62.5) {
-                    $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '/';
-                }
+                $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '/';
             } else {
-                if ($this->marks_questions[$this->focus_id] > 62.5) {
-                    $this->signs_questions[$this->focus_id] = '/';
-                }
+                $this->signs_questions[$this->focus_id] = '/';
             }
-            if ($this->marks_questions[$this->focus_id] > 62.5) {
-                $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 5;
-            }
+            $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 1;
             $this->calcAverage();
         }
     }
@@ -472,9 +478,9 @@ class Exams extends Component
             $length = strlen($this->signs_questions[$this->focus_id]);
             if (isset($this->signs_questions[$this->focus_id][$length - 1])) {
                 if ($this->signs_questions[$this->focus_id][$length - 1] == '/') {
-                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 5;
+                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 1;
                 } else {
-                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 2.5;
+                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 0.5;
                 }
                 $this->signs_questions[$this->focus_id] = substr($this->signs_questions[$this->focus_id], 0, -1);
                 $this->calcAverage();
@@ -482,21 +488,15 @@ class Exams extends Component
         }
     }
 
-    public function minus_2()
+    public function minus_0_5()
     {
         if ($this->focus_id != null) {
             if (isset($this->signs_questions[$this->focus_id])) {
-                if ($this->marks_questions[$this->focus_id] > 60) {
-                    $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '-';
-                }
+                $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '-';
             } else {
-                if ($this->marks_questions[$this->focus_id] > 60) {
-                    $this->signs_questions[$this->focus_id] = '-';
-                }
+                $this->signs_questions[$this->focus_id] = '-';
             }
-            if ($this->marks_questions[$this->focus_id] > 60) {
-                $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 2.5;
-            }
+            $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 0.5;
             $this->calcAverage();
         }
     }
@@ -507,7 +507,7 @@ class Exams extends Component
         for ($i = 1; $i <= $this->exam_questions_count; $i++) {
             $sum += $this->marks_questions[$i];
         }
-        $this->exam_mark = round($sum / $this->exam_questions_count);
+        $this->exam_mark = round(100 - $sum) - (10 - $this->another_mark);
         if ($this->exam_mark >= $this->success_mark) {
             $this->final_exam_score = 'درجة الطالب : (' . $this->exam_mark . ')' . ' اجتاز الطالب الإختبار بنجاح.';
         } else {
@@ -531,6 +531,7 @@ class Exams extends Component
                 'readable' => $array,
                 'signs_questions' => $this->signs_questions,
                 'marks_questions' => $this->marks_questions,
+                'another_mark' => $this->another_mark,
                 'quran_part_id' => $this->quran_part_id,
                 'student_id' => $this->student_id,
                 'teacher_id' => $this->groups->firstWhere('id', $this->group_id)->teacher_id,
@@ -540,16 +541,94 @@ class Exams extends Component
                 'notes' => $this->exam_notes != null ? $this->exam_notes : null,
             ]);
 
+            // push notifications
+            $arr_external_user_ids = [];
+            if (auth()->user()->current_role != 'مشرف الإختبارات') {
+                $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
+                if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
+                    && $user_role_supervisor_exams->users[0] != null) {
+                    array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
+                }
+            }
+
+            array_push($arr_external_user_ids, "" . $this->groups->firstWhere('id', $this->group_id)->teacher_id);
+            $quran_part_name = QuranPart::find($this->quran_part_id, ['name'])->name;
+            $student_name = User::find($this->student_id, ['name'])->name;
+            $message = "لقد تم اعتماد درجة: " . $this->exam_mark . "%" . " في اختبار: " . $quran_part_name . " للطالب: " . $student_name;
+            $url = 'https://memorization-management-system.herokuapp.com/manage_exams';
+
+            $this->push_notifications($arr_external_user_ids, $message, "حالة اختبار الطالب", $url);
             $this->emit('approval-exam');
-            DB::commit();
-            $this->isAddExam = false;
             session()->flash('success_message', 'تمت عملية اعتماد اختبار الطالب بنجاح.');
-            $this->reset();
-            $this->resetValidation();
+            DB::commit();
+            $this->clearForm();
         } catch (Exception $e) {
             DB::rollback();
             session()->flash('failure_message', $e->getMessage());
         }
+    }
+
+    public function push_notifications($arr_external_user_ids, $message, $title, $url)
+    {
+        $fields = array(
+            'app_id' => env("ONE_SIGNAL_APP_ID"),
+            'include_external_user_ids' => $arr_external_user_ids,
+            'channel_for_external_user_ids' => 'push',
+            'data' => array("foo" => "bar"),
+            'headings' => array(
+                "en" => $title,
+                "ar" => $title,
+            ),
+            'url' => $url,
+            'contents' => array(
+                "en" => $message,
+                "ar" => $message,
+            )
+        );
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
+            'Authorization: Basic ' . env('ONE_SIGNAL_AUTHORIZE')));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
+    public function clearForm()
+    {
+        $this->isAddExam = false;
+        $this->isExamOfStart = false;
+        $this->groups = null;
+        $this->students = null;
+        $this->quran_parts = null;
+        $this->grade_id = null;
+        $this->group_id = null;
+        $this->student_id = null;
+        $this->quran_part_id = null;
+        $this->tester_id = null;
+        $this->catchError = null;
+        $this->success_mark = null;
+        $this->exam_questions_count = null;
+        $this->exam_questions_max = null;
+        $this->exam_questions_min = null;
+        $this->signs_questions = [];
+        $this->marks_questions = [];
+        $this->exam_date = null;
+        $this->focus_id = null;
+        $this->final_exam_score = null;
+        $this->exam_mark = 100;
+        $this->another_mark = 10;
+        $this->exam_notes = null;
     }
 
 

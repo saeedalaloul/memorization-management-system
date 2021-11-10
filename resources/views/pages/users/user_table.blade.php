@@ -12,19 +12,20 @@
         @can('إدارة المستخدمين')
             <div class="row">
                 @if (auth()->user()->current_role == 'أمير المركز')
-                    @if (isset($grades))
+                    @if (isset($roles))
                         <div>
-                            <label>
+                            <label style="font-size: 15px; color: #1e7e34">دور المستخدم*</label>
+                            <div>
                                 <select class="selectpicker" data-style="btn-info"
-                                        wire:model="searchGradeId">
-                                    <option value="" selected>بحث بواسطة المرحلة
+                                        wire:model="searchRoleId">
+                                    <option value="" selected>جميع الأدوار
                                     </option>
-                                    @foreach ($grades as $grade)
+                                    @foreach ($roles as $role)
                                         <option
-                                            value="{{ $grade->id }}">{{ $grade->name}}</option>
+                                            value="{{ $role->id }}">{{ $role->name}}</option>
                                     @endforeach
                                 </select>
-                            </label>
+                            </div>
                         </div>
                     @endif
                 @endif
@@ -49,6 +50,8 @@
                         <th>رقم الجوال</th>
                         <th>نوع المستخدم</th>
                         <th>حالة البريد الإلكتروني</th>
+                        <th>حالة الحساب</th>
+                        <th>أخر ظهور</th>
                         <th>العمليات</th>
                     </tr>
                     </thead>
@@ -79,6 +82,31 @@
                                     </button>
                                 @endif
                             </td>
+                            <td>
+                                @if($user->status == true)
+                                    @csrf
+                                    <button wire:click="activeAccount({{$user->id}});"
+                                            class="btn btn-outline-success btn-sm">مفعل
+                                    </button>
+                                @else
+                                    <button wire:click="activeAccount({{$user->id}});"
+                                            class="btn btn-outline-danger btn-sm">معلق
+                                    </button>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($user->last_seen != null)
+                                    @if(Cache::has('user-is-online-' . $user->id))
+                                        <label class="badge bg-success">نشط الآن</label>
+                                    @else
+                                        <label
+                                            class="badge bg-danger">{{ Carbon\Carbon::parse($user->last_seen)->diffForHumans() }}
+                                        </label>
+                                    @endif
+                                @else
+                                    <label class="badge bg-danger">لا ظهور</label>
+                                @endif
+                            </td>
                             <td class="embed-responsive-item">
                                 <div class="btn-group mb-1 embed-responsive-item">
                                     <button type="button" class="btn btn-success">العمليات</button>
@@ -96,15 +124,17 @@
                                         </button>
                                         <button class="dropdown-item"
                                                 wire:click.prevent="loadModalData({{$user->id}},'edit')"><i
-                                                style="color:green" class="fas fa-user-edit"></i> تعديل بيانات المستخدم
+                                                style="color:green" class="fas fa-user-edit"></i> تعديل بيانات
+                                            المستخدم
                                         </button>
                                         <button class="dropdown-item"
                                                 wire:click.prevent="loadModalData({{$user->id}},'edit_roles')"><i
-                                                style="color:green" class="fa fa-edit"></i> تعديل الصلاحيات
+                                                style="color:green" class="fa fa-edit"></i> تعديل الأدوار
                                         </button>
                                         <button class="dropdown-item"
                                                 wire:click.prevent="loadModalData({{$user->id}},'reset')"><i
-                                                style="color:green" class="fa fa-recycle"></i> إعادة تعيين كلمة المرور
+                                                style="color:green" class="fa fa-recycle"></i> إعادة تعيين كلمة
+                                            المرور
                                         </button>
                                     </div>
                                 </div>
@@ -125,6 +155,8 @@
                         <th>رقم الجوال</th>
                         <th>نوع المستخدم</th>
                         <th>حالة البريد الإلكتروني</th>
+                        <th>حالة الحساب</th>
+                        <th>أخر ظهور</th>
                         <th>العمليات</th>
                     </tr>
                     </tfoot>

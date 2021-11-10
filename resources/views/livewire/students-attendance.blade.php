@@ -20,16 +20,18 @@
                         @if (auth()->user()->current_role == 'أمير المركز')
                             @if (isset($grades))
                                 <div>
-                                    <label>
+                                    <label style="font-size: 15px; color: #1e7e34">المراحل*</label>
+                                    <div>
                                         <select class="selectpicker" data-style="btn-info"
                                                 wire:model="searchGradeId">
-                                            <option value="" selected>بحث بواسطة المرحلة</option>
+                                            <option value="" selected>جميع المراحل
+                                            </option>
                                             @foreach ($grades as $grade)
                                                 <option
                                                     value="{{ $grade->id }}">{{ $grade->name}}</option>
                                             @endforeach
                                         </select>
-                                    </label>
+                                    </div>
                                 </div>
                             @endif
                         @endif
@@ -37,21 +39,23 @@
                              || auth()->user()->current_role == 'أمير المركز')
                             @if (isset($groups))
                                 <div style="padding-right: 10px;">
-                                    <label>
+                                    <label style="font-size: 15px; color: #1e7e34">المحفظين*</label>
+                                    <div>
                                         <select class="selectpicker" data-style="btn-info"
                                                 wire:model="searchGroupId">
-                                            <option value="" selected>بحث بواسطة المحفظ
+                                            <option value="" selected>جميع المحفظين
                                             </option>
                                             @foreach ($groups as $group)
                                                 <option
                                                     value="{{ $group->id }}">{{ $group->teacher->user->name}}</option>
                                             @endforeach
                                         </select>
-                                    </label>
+                                    </div>
                                 </div>
                             @endif
                         @endif
                     </div>
+                    <br>
                     @include('livewire.search')
                     <div class="table-responsive mt-15">
                         <table class="table center-aligned-table mb-0">

@@ -48,7 +48,7 @@
                                    data-bs-toggle="tab" role="tab"
                                    wire:click="showformadd(false);" href="#"
                                    aria-controls="add_user-05" aria-selected="false"><i
-                                        class="fas fa-edit"></i> تعديل الصلاحيات</a>
+                                        class="fas fa-edit"></i> تعديل الأدوار</a>
                             @else
                                 <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
                                    data-bs-toggle="tab" role="tab"

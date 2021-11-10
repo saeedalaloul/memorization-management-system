@@ -13,7 +13,7 @@ class Grades extends Component
     public $name;
     public $modalId;
     public $sortBy = 'name';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
     public $perPage = 10;
     public $search = '';
     protected $paginationTheme = 'bootstrap';

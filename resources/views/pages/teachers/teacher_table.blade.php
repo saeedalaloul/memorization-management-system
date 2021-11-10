@@ -7,26 +7,28 @@
                 @if (auth()->user()->current_role == 'أمير المركز')
                     @if (isset($grades))
                         <div>
-                            <label>
+                            <label style="font-size: 15px; color: #1e7e34">المراحل*</label>
+                            <div>
                                 <select class="selectpicker" data-style="btn-info"
                                         wire:model="searchGradeId">
-                                    <option value="" selected>بحث بواسطة المرحلة
+                                    <option value="" selected>جميع المراحل
                                     </option>
                                     @foreach ($grades as $grade)
                                         <option
                                             value="{{ $grade->id }}">{{ $grade->name}}</option>
                                     @endforeach
                                 </select>
-                            </label>
+                            </div>
                         </div>
                     @endif
                 @endif
             </div>
+            <br>
             @include('livewire.search')
             <div class="table-responsive mt-15">
                 <table class="table center-aligned-table mb-0">
-                <thead>
-                <tr class="text-dark table-success">
+                    <thead>
+                    <tr class="text-dark table-success">
                         <th wire:click="sortBy('id')" style="cursor: pointer;">#
                             @include('livewire._sort-icon',['field'=>'id'])
                         </th>

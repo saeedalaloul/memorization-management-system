@@ -10,10 +10,17 @@ class Exam extends Model
     use HasFactory;
 
     protected $fillable = [
-        'readable', 'signs_questions',
-        'marks_questions', 'quran_part_id',
-        'student_id', 'teacher_id', 'tester_id',
-        'exam_success_mark_id', 'exam_date', 'notes',
+        'readable',
+        'signs_questions',
+        'marks_questions',
+        'another_mark',
+        'quran_part_id',
+        'student_id',
+        'teacher_id',
+        'tester_id',
+        'exam_success_mark_id',
+        'exam_date',
+        'notes',
     ];
 
     public $timestamps = false;
@@ -81,7 +88,7 @@ class Exam extends Model
         for ($i = 1; $i <= count($this->marks_questions); $i++) {
             $sum += $this->marks_questions[$i];
         }
-        return round($sum / count($this->marks_questions));
+        return round(100 - $sum) - (10 - $this->another_mark);
     }
 
     // علاقة بين الإختبارات والمحفظين لجلب اسم المحفظ في جدول الإختبارات

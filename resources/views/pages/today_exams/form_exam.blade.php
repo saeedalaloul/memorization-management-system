@@ -16,19 +16,19 @@
                            wire:model="signs_questions.{{$i}}" style="width: 100px;" max="10"
                            class="form-control">
                     @if (isset($signs_questions[$i]))
-                        @if ($marks_questions[$i] >= 90 && $marks_questions[$i] <= 94)
+                        @if ($marks_questions[$i] >= 1 && $marks_questions[$i] <= 4)
                             <div style="width: 100px;" class="badge-success">
                                 {{strlen($signs_questions[$i])}}
                             </div>
-                        @elseif($marks_questions[$i] >= 80 && $marks_questions[$i] <= 90)
+                        @elseif($marks_questions[$i] >= 5 && $marks_questions[$i] <= 8)
                             <div style="width: 100px;" class="badge-info">
                                 {{strlen($signs_questions[$i])}}
                             </div>
-                        @elseif($marks_questions[$i] >= 70 && $marks_questions[$i] <= 80)
+                        @elseif($marks_questions[$i] >= 9 && $marks_questions[$i] <= 12)
                             <div style="width: 100px;" class="badge-warning">
                                 {{strlen($signs_questions[$i])}}
                             </div>
-                        @elseif($marks_questions[$i] >= 60 && $marks_questions[$i] <= 70)
+                        @elseif($marks_questions[$i] >= 13 && $marks_questions[$i] <= 18)
                             <div style="width: 100px;" class="badge-danger">
                                 {{strlen($signs_questions[$i])}}
                             </div>

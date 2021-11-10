@@ -104,6 +104,11 @@ login-->
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 bg-white">
+                    @if (session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
                     <div class="login-fancy pb-40 clearfix">
                         <h3 class="mb-30">تسجيل الدخول إلى لوحة التحكم</h3>
                         <form method="POST" action="{{ route('login') }}">

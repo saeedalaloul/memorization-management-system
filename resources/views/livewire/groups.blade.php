@@ -55,18 +55,25 @@
                                 <div class="card-body">
                                     @can('إدارة المجموعات')
                                         @if(auth()->user()->current_role == 'أمير المركز')
-                                            <form>
-                                                <label>
-                                                    <select class="selectpicker" data-style="btn-info"
-                                                            wire:model="searchGradeId">
-                                                        <option value="" selected>بحث بواسطة المرحلة</option>
-                                                        @foreach ($grades as $grade)
-                                                            <option
-                                                                value="{{ $grade->id }}">{{ $grade->name}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </label>
-                                            </form>
+                                            <div class="row">
+                                                @if (isset($grades))
+                                                    <div>
+                                                        <label style="font-size: 15px; color: #1e7e34">المراحل*</label>
+                                                        <div>
+                                                            <select class="selectpicker" data-style="btn-info"
+                                                                    wire:model="searchGradeId">
+                                                                <option value="" selected>جميع المراحل
+                                                                </option>
+                                                                @foreach ($grades as $grade)
+                                                                    <option
+                                                                        value="{{ $grade->id }}">{{ $grade->name}}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <br>
                                         @endif
                                         @include('livewire.search')
                                         <div class="table-responsive mt-15">

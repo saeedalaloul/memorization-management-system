@@ -20,7 +20,7 @@ class ExamsOrders extends Component
     use WithPagination;
 
     public $sortBy = 'id';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
     public $perPage = 10;
     public $search = '';
     public $grades, $groups, $students;

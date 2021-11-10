@@ -32,7 +32,7 @@ class Students extends Component
     public $catchError, $updateMode = false, $isFoundFather = false,
         $photo, $show_table = true, $quran_parts, $groups, $grades;
 
-    public $sortBy = 'id', $sortDirection = 'asc', $perPage = 10, $search = '';
+    public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
 
     public $currentStep = 1, $father_id, $student_id, $quran_part_id,
 
@@ -303,7 +303,7 @@ class Students extends Component
             for ($i = 1; $i <= count($exam->marks_questions); $i++) {
                 $sum += $exam->marks_questions[$i];
             }
-            $exam_mark = $sum / count($exam->marks_questions);
+            $exam_mark = round(100 - $sum) - (10 - $exam->another_mark);
             if ($exam_mark >= $exam->examSuccessMark->mark) {
                 $this->all_Quran_Parst($exam->quran_part_id, true);
                 $this->emit('showDialogExamRequest');
@@ -585,51 +585,64 @@ class Students extends Component
 
     public function submitForm_edit()
     {
-        if ($this->father_id) {
-            $father = Father::find($this->father_id);
-            $father->user->update([
-                'name' => $this->father_name,
-                'email' => $this->father_email,
-                'phone' => $this->father_phone,
-                'identification_number' => $this->father_identification_number,
-                'dob' => $this->father_dob,
-                'address' => $this->father_address,
-            ]);
-
-            $roleId = Role::select('*')->where('name', '=', 'ولي أمر الطالب')->get();
-            $father->user->assignRole([$roleId]);
-        }
-
+        $isUpdated = false;
         if ($this->student_id) {
             $student = Student::find($this->student_id);
-            $student->user->update([
-                'name' => $this->student_name,
-                'phone' => $this->student_phone,
-                'email' => $this->student_email,
-                'identification_number' => $this->student_identification_number,
-                'dob' => $this->dob,
-                'address' => $this->student_address,
-            ]);
-            $student->update([
-                'grade_id' => $this->grade_id,
-                'group_id' => $this->group_id,
-            ]);
+            if ($student->group_id != $this->group_id) {
+                if ($student->exam_order->count() > 0) {
+                    $this->catchError = "عذرا يوجد طلبات اختبارات لهذا الطالب مسجلة باسم محفظ الحلقة يجب إجرائها أو حذفها حتى تتمكن من تحديث الطالب";
+                } else {
+                    $isUpdated = true;
+                }
+            } else {
+                $isUpdated = true;
+            }
 
-            $roleId = Role::select('*')->where('name', '=', 'طالب')->get();
-            $student->user->assignRole([$roleId]);
+            if ($isUpdated) {
+                $student->user->update([
+                    'name' => $this->student_name,
+                    'phone' => $this->student_phone,
+                    'email' => $this->student_email,
+                    'identification_number' => $this->student_identification_number,
+                    'dob' => $this->dob,
+                    'address' => $this->student_address,
+                ]);
+                $student->update([
+                    'grade_id' => $this->grade_id,
+                    'group_id' => $this->group_id,
+                ]);
+
+                $roleId = Role::select('*')->where('name', '=', 'طالب')->get();
+                $student->user->assignRole([$roleId]);
+
+                if (!empty($this->photo)) {
+                    $this->photo->storeAs($this->student_identification_number, $this->photo->getClientOriginalName(), $disk = 'students_images');
+                    $student->user->update([
+                        'profile_photo_url' => $this->photo->getClientOriginalName(),
+                    ]);
+                }
+
+                if ($this->father_id) {
+                    $father = Father::find($this->father_id);
+                    $father->user->update([
+                        'name' => $this->father_name,
+                        'email' => $this->father_email,
+                        'phone' => $this->father_phone,
+                        'identification_number' => $this->father_identification_number,
+                        'dob' => $this->father_dob,
+                        'address' => $this->father_address,
+                    ]);
+
+                    $roleId = Role::select('*')->where('name', '=', 'ولي أمر الطالب')->get();
+                    $father->user->assignRole([$roleId]);
+                }
+
+                session()->flash('message', 'تم تحديث معلومات الطالب بنجاح.');
+                $this->clearForm();
+                $this->show_table = true;
+                $this->updateMode = false;
+            }
         }
-
-        if (!empty($this->photo)) {
-            $this->photo->storeAs($this->student_identification_number, $this->photo->getClientOriginalName(), $disk = 'students_images');
-            $student->user->update([
-                'profile_photo_url' => $this->photo->getClientOriginalName(),
-            ]);
-        }
-
-        session()->flash('message', 'تم تحديث معلومات الطالب بنجاح.');
-        $this->clearForm();
-        $this->show_table = true;
-        $this->updateMode = false;
     }
 
     public function delete($id)

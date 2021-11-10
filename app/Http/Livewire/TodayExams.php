@@ -20,11 +20,11 @@ class TodayExams extends Component
     use WithPagination;
 
     public $sortBy = 'id';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
     public $perPage = 10;
     public $search = '';
     public $modalId, $notes, $student_name, $teacher_name, $tester_name, $quran_part, $numberOfReplays = 0;
-    public $exam_date, $exam_mark = 100, $exam_questions_count, $focus_id, $success_mark, $mark_another = 10;
+    public $exam_date, $exam_mark = 100, $exam_questions_count, $focus_id, $success_mark, $another_mark = 10;
     public $final_exam_score, $exam_notes, $quran_part_id, $student_id, $teacher_id, $tester_id;
     public $isExamOfStart = false, $signs_questions = [], $marks_questions = [];
     public $exam_questions_min, $exam_questions_max, $examOrder;
@@ -38,13 +38,17 @@ class TodayExams extends Component
 
     public function render()
     {
-        $this->read_All_Exams_Today_Orders();
-        if ($this->isExamOfStart && $this->modalId && $this->mark_another) {
+        if ($this->isExamOfStart && $this->modalId && $this->another_mark) {
             $this->calcAverage();
         }
         return view('livewire.today-exams', [
             'exams_today' => $this->all_Exams_Today(),
         ]);
+    }
+
+    public function mount()
+    {
+        $this->read_All_Exams_Today_Orders();
     }
 
     public function sortBy($field)
@@ -62,21 +66,19 @@ class TodayExams extends Component
     {
         $this->validateOnly($propertyName, [
             'notes' => 'required|string|max:50',
-            'mark_another' => 'required|numeric|between:5,10',
+            'another_mark' => 'required|numeric|between:5,10',
             'exam_mark' => 'required|numeric|between:60,100',
         ]);
     }
 
-    public
-    function rules()
+    public function rules()
     {
         return [
             'notes' => 'required|string|max:50',
         ];
     }
 
-    public
-    function messages()
+    public function messages()
     {
         return [
             'notes.required' => 'حقل الملاحظات مطلوب',
@@ -85,17 +87,16 @@ class TodayExams extends Component
             'exam_notes.max' => 'حقل الملاحظات يجب أن لا يزيد عن 50 حرف',
             'exam_questions_count.required' => 'حقل عدد أسئلة الإختبار مطلوب',
             'exam_questions_count.numeric' => 'حقل عدد أسئلة الإختبار يجب أن يحتوي على رقم',
-            'mark_another.required' => 'علامة أحكام الطالب مطلوبة',
-            'mark_another.numeric' => 'يجب أن يكون رقم',
-            'mark_another.between' => 'يجب أن تكون علامة أحكام الطالب بين 5 أو 10',
+            'another_mark.required' => 'علامة أحكام الطالب مطلوبة',
+            'another_mark.numeric' => 'يجب أن يكون رقم',
+            'another_mark.between' => 'يجب أن تكون علامة أحكام الطالب بين 5 أو 10',
             'exam_mark.required' => 'علامة الاختبار مطلوبة',
             'exam_mark.numeric' => 'يجب أن يكون رقم',
             'exam_mark.between' => 'يجب أن تكون علامة الاختبار بين 60 أو 100',
         ];
     }
 
-    public
-    function examOrderRefusal()
+    public function examOrderRefusal()
     {
         $this->validate();
         $examOrder = ExamOrder::where('id', $this->modalId)->first();
@@ -126,14 +127,14 @@ class TodayExams extends Component
                     array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
 
                     $message = "لقد قام المختبر: " . $examOrder->tester->name . " باعتماد عدم إجراء الطالب: " . $examOrder->student->user->name . " في اختبار: " . $examOrder->quranPart->name;
-
-                    $this->push_notifications($arr_external_user_ids, $message);
+                    $url = 'https://memorization-management-system.herokuapp.com/manage_exams_orders';
+                    $this->push_notifications($arr_external_user_ids, $message, 'حالة طلب الاختبار', $url);
                 }
             }
         }
     }
 
-    public function push_notifications($arr_external_user_ids, $message)
+    public function push_notifications($arr_external_user_ids, $message, $title, $url)
     {
         $fields = array(
             'app_id' => env("ONE_SIGNAL_APP_ID"),
@@ -141,10 +142,10 @@ class TodayExams extends Component
             'channel_for_external_user_ids' => 'push',
             'data' => array("foo" => "bar"),
             'headings' => array(
-                "en" => 'حالة طلب الاختبار',
-                "ar" => 'حالة طلب الاختبار',
+                "en" => $title,
+                "ar" => $title,
             ),
-            'url' => 'https://memorization-management-system.herokuapp.com/manage_exams_orders',
+            'url' => $url,
             'contents' => array(
                 "en" => $message,
                 "ar" => $message,
@@ -178,8 +179,7 @@ class TodayExams extends Component
         $this->emit('exam-question-count-select');
     }
 
-    public
-    function examOfStart($id)
+    public function examOfStart($id)
     {
         $this->examOrder = ExamOrder::where('id', $id)->first();
         if ($this->examOrder) {
@@ -206,8 +206,7 @@ class TodayExams extends Component
         }
     }
 
-    private
-    function initializeExamStartInputs($count)
+    private function initializeExamStartInputs($count)
     {
         $this->isExamOfStart = true;
         $this->modalId = $this->examOrder->id;
@@ -240,7 +239,7 @@ class TodayExams extends Component
                 for ($j = 1; $j <= count($exams[$i]->marks_questions); $j++) {
                     $sum += $exams[$i]->marks_questions[$j];
                 }
-                $exam_mark = round(100 - $sum);
+                $exam_mark = round(100 - $sum) - (10 - $exams[$i]->another_mark);
                 if ($exam_mark < $exams[$i]->examSuccessMark->mark) {
                     $this->numberOfReplays++;
                 }
@@ -248,10 +247,9 @@ class TodayExams extends Component
         }
     }
 
-    public
-    function examApproval()
+    public function examApproval()
     {
-        $this->validate(['mark_another' => 'required|numeric|between:5,10',
+        $this->validate(['another_mark' => 'required|numeric|between:5,10',
             'exam_mark' => 'required|numeric|between:60,100']);
 
         $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
@@ -267,6 +265,7 @@ class TodayExams extends Component
                 'readable' => $array,
                 'signs_questions' => $this->signs_questions,
                 'marks_questions' => $this->marks_questions,
+                'another_mark' => $this->another_mark,
                 'quran_part_id' => $this->quran_part_id,
                 'student_id' => $this->student_id,
                 'teacher_id' => $this->teacher_id,
@@ -281,6 +280,24 @@ class TodayExams extends Component
             $this->isExamOfStart = false;
             ExamOrder::find($this->modalId)->delete();
             session()->flash('success_message', 'تمت عملية اعتماد اختبار الطالب بنجاح.');
+
+            // push notifications
+            $arr_external_user_ids = [];
+            if (auth()->user()->current_role != 'مشرف الإختبارات') {
+                $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
+                if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
+                    && $user_role_supervisor_exams->users[0] != null) {
+                    array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
+                }
+            }
+
+            array_push($arr_external_user_ids, "" . $this->teacher_id);
+
+            $message = "لقد تم اعتماد درجة: " . $this->exam_mark . "%" . " في اختبار: " . $this->quran_part . " للطالب: " . $this->student_name;
+            $url = 'https://memorization-management-system.herokuapp.com/manage_exams';
+
+            $this->push_notifications($arr_external_user_ids, $message, "حالة اختبار الطالب", $url);
+
             $this->reset();
             $this->resetValidation();
         } catch (Exception $e) {
@@ -289,16 +306,14 @@ class TodayExams extends Component
         }
     }
 
-    public
-    function getFocusId($id)
+    public function getFocusId($id)
     {
         if (in_array($id, range(1, $this->exam_questions_count))) {
             $this->focus_id = $id;
         }
     }
 
-    public
-    function minus_1()
+    public function minus_1()
     {
         if ($this->focus_id != null) {
             if (isset($this->signs_questions[$this->focus_id])) {
@@ -311,8 +326,7 @@ class TodayExams extends Component
         }
     }
 
-    public
-    function remove()
+    public function remove()
     {
         if ($this->focus_id != null && isset($this->signs_questions[$this->focus_id])) {
             $length = strlen($this->signs_questions[$this->focus_id]);
@@ -328,8 +342,7 @@ class TodayExams extends Component
         }
     }
 
-    public
-    function minus_0_5()
+    public function minus_0_5()
     {
         if ($this->focus_id != null) {
             if (isset($this->signs_questions[$this->focus_id])) {
@@ -342,14 +355,13 @@ class TodayExams extends Component
         }
     }
 
-    private
-    function calcAverage()
+    private function calcAverage()
     {
         $sum = 0;
         for ($i = 1; $i <= $this->exam_questions_count; $i++) {
             $sum += $this->marks_questions[$i];
         }
-        $this->exam_mark = round(100 - $sum) - (10 - $this->mark_another);
+        $this->exam_mark = round(100 - $sum) - (10 - $this->another_mark);
         if ($this->exam_mark >= $this->success_mark) {
             $this->final_exam_score = 'درجة الطالب : (' . $this->exam_mark . ')' . ' اجتاز الطالب الإختبار بنجاح.';
         } else {
@@ -358,8 +370,7 @@ class TodayExams extends Component
     }
 
 
-    public
-    function getExamOrder($id)
+    public function getExamOrder($id)
     {
         $this->clearForm();
         $examOrder = ExamOrder::where('id', $id)->first();
@@ -370,8 +381,7 @@ class TodayExams extends Component
         }
     }
 
-    public
-    function clearForm()
+    public function clearForm()
     {
         $this->modalId = null;
         $this->student_name = null;
@@ -380,8 +390,7 @@ class TodayExams extends Component
         $this->resetValidation();
     }
 
-    public
-    function all_Exams_Today()
+    public function all_Exams_Today()
     {
         if (auth()->user()->current_role == 'محفظ') {
             return ExamOrder::query()
@@ -411,8 +420,7 @@ class TodayExams extends Component
         return [];
     }
 
-    private
-    function read_All_Exams_Today_Orders()
+    private function read_All_Exams_Today_Orders()
     {
         $exams_orders = $this->all_Exams_Today();
 

@@ -27,7 +27,7 @@ class Groups extends Component
     public $grades;
     public $teachers;
     public $sortBy = 'name';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
     public $perPage = 10;
     public $search = '';
     public $show_table = true;

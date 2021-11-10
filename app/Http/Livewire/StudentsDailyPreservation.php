@@ -23,7 +23,7 @@ class StudentsDailyPreservation extends Component
     public $successMessage = '';
 
     public $catchError, $groups, $grades, $suras_from, $suras_to, $evaluations, $types, $ayas_from, $ayas_to;
-    public $sortBy = 'id', $sortDirection = 'asc', $perPage = 10, $search = '';
+    public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
 
     public $type_name, $sura_from_name, $sura_to_name, $aya_from_name, $aya_to_name, $evaluation_name;
 

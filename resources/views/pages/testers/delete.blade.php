@@ -1,5 +1,5 @@
-<!-- delete_modal_Group -->
-<div class="modal fade" id="groupDeleted" tabindex="-1" role="dialog"
+<!-- delete_modal_Tester -->
+<div class="modal fade" id="testerDeleted" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

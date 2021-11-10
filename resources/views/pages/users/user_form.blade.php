@@ -76,7 +76,7 @@
                             <div class="col">
                                 <label style="font-size: 15px; color: #1e7e34">صورة المستخدم</label>
                                 <div class="form-group">
-                                    <input type="file" wire:model="photo" accept="image/*">
+                                    <input class="form-control-file" type="file" wire:model="photo" accept="image/*">
                                 </div>
                                 <br>
                             </div>
