@@ -12,7 +12,7 @@
         "fruitcake/laravel-cors": "^v2.0.4",
         "guzzlehttp/guzzle": "^7.4.0",
         "ladumor/one-signal": "0.4.1",
-        "laravel/framework": "^v8.69.0",
+        "laravel/framework": "^v8.70.2",
         "laravel/jetstream": "^v2.4.3",
         "laravel/sanctum": "^v2.12.0",
         "laravel/tinker": "^v2.6.2",
@@ -23,9 +23,10 @@
         "ext-curl": "*"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^v3.6.4",
         "facade/ignition": "^2.15.0",
         "fakerphp/faker": "^v1.16.0",
-        "laravel/sail": "^v1.12.0",
+        "laravel/sail": "^v1.12.4",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^v5.10.0",
         "phpunit/phpunit": "^9.5.10"

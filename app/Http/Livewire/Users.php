@@ -53,6 +53,7 @@ class Users extends Component
             if ($this->roles->firstWhere('id', $this->role_id)) {
                 $role_name = $this->roles->firstWhere('id', $this->role_id)->name;
                 if ($role_name == "مشرف") {
+                    toastr()->success('ejiorejo');
                     $supervisor = Supervisor::find($this->modalId);
                     if ($supervisor) {
                         if ($this->grade_id == null) {
@@ -596,11 +597,13 @@ class Users extends Component
             } else {
                 if ($user->hasVerifiedEmail()) {
                     $user->update(['email_verified_at' => null]);
-                    session()->flash('success_message', 'تمت عملية إلغاء تفعيل البريد الإلكتروني بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'error', 'message' => 'تمت عملية إلغاء تفعيل البريد الإلكتروني بنجاح.']);
                 } else {
                     $user->markEmailAsVerified();
                     event(new Verified($user));
-                    session()->flash('success_message', 'تمت عملية تفعيل البريد الإلكتروني بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية تفعيل البريد الإلكتروني بنجاح.']);
                 }
             }
         }
