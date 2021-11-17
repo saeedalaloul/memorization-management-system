@@ -1,5 +1,6 @@
 <div>
-    @if (!empty($successMessage))
+    <x-loading-indicator/>
+@if (!empty($successMessage))
         <div class="alert alert-success" id="success-alert">
             <button type="button" class="close" data-dismiss="alert">x</button>
             {{ $successMessage }}
