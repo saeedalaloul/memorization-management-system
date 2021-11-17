@@ -179,7 +179,6 @@ return [
         App\Providers\JetstreamServiceProvider::class,
         Yoeunes\Toastr\ToastrServiceProvider::class,
         Ladumor\OneSignal\OneSignalServiceProvider::class,
-        Barryvdh\Debugbar\ServiceProvider::class,
     ],
 
     /*
