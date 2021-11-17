@@ -42,7 +42,8 @@
                             </div>
 
                             <div class="col">
-                                <label for="identification_number" style="font-size: 15px; color: #1e7e34">رقم الهوية*</label>
+                                <label for="identification_number" style="font-size: 15px; color: #1e7e34">رقم
+                                    الهوية*</label>
                                 <input type="number" name="identification_number" class="form-control"
                                        wire:model="identification_number" required>
                                 @error('identification_number')
@@ -81,7 +82,6 @@
                                 <br>
                             </div>
                         </div>
-
                         @if (!empty($modalId))
                             <button wire:click.prevent="update()"
                                     class="btn btn-success btn-sm nextBtn btn-lg pull-right"

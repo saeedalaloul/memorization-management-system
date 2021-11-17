@@ -35,7 +35,7 @@ class Users extends Component
     public $roles, $ret_Roles, $grades, $groups;
     public $role_id, $searchRoleId;
     public $grade_id, $group_id, $father_id, $father_name, $father_identification_number;
-    public $show_table = true, $isLoading = false, $catchError, $successMessage;
+    public $show_table = true, $catchError, $successMessage;
     public $modalId, $name, $password, $password_confirm, $process_type;
     public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
     protected $paginationTheme = 'bootstrap';
@@ -708,7 +708,7 @@ class Users extends Component
                 'dob' => 'required|date|date_format:Y-m-d',
             ]
         );
-        $this->isLoading = true;
+
         DB::beginTransaction();
         try {
             $user = User::where('id', $this->modalId)->first();
@@ -723,11 +723,9 @@ class Users extends Component
             $this->show_table = true;
             session()->flash('message', 'تم تحديث معلومات المستخدم بنجاح.');
             DB::commit();
-            $this->isLoading = false;
         } catch (Exception $e) {
             DB::rollback();
             $this->catchError = $e->getMessage();
-            $this->isLoading = false;
         }
     }
 
