@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFathersTable extends Migration
+class CreateSettingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class CreateFathersTable extends Migration
      */
     public function up()
     {
-        Schema::create('fathers', function (Blueprint $table) {
-            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+        Schema::create('settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('key');
+            $table->string('value');
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ class CreateFathersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fathers');
+        Schema::dropIfExists('settings');
     }
 }

@@ -178,7 +178,8 @@ class Testers extends Component
                 $user->assignRole([$roleId]);
                 $this->modalFormReset();
                 $this->emit('add_tester');
-                session()->flash('message', 'تم إضافة المختبر بنجاح.');
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تم إضافة المختبر بنجاح.']);
             }
             $this->show_table = true;
             $this->modalFormReset();
@@ -203,7 +204,8 @@ class Testers extends Component
                     $roleId = Role::select('*')->where('name', '=', 'مختبر')->first();
                     $tester->user->removeRole($roleId);
                     $tester->delete();
-                    session()->flash('message', 'تم حذف المختبر بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'error', 'message' => 'تم حذف المختبر بنجاح.']);
                 }
             }
         }

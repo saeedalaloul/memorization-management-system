@@ -35,16 +35,22 @@ return [
             'root' => storage_path('app'),
         ],
 
+        'upload_attachments' => [
+            'driver' => 'local',
+            'root' => public_path('/'),
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+        ],
         'users_images' => [
             'driver' => 'local',
             'root' => storage_path('app/public/users_images'),
-            'url' => env('APP_URL').'/storage/users_images',
+            'url' => env('APP_URL') . '/storage/users_images',
             'visibility' => 'public',
         ],
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 

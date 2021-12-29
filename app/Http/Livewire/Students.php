@@ -319,15 +319,20 @@ class Students extends Component
                     $this->emit('showDialogExamRequest');
                 } else {
                     if (abs($days) == 0) {
-                        session()->flash('failure_message', 'عذرا متبقي لهذا الطالب يوم حتى تتمكن من طلب اختبار جديد');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب يوم حتى تتمكن من طلب اختبار جديد.']);
                     } else if (abs($days) == 1) {
-                        session()->flash('failure_message', 'عذرا متبقي لهذا الطالب يومان حتى تتمكن من طلب اختبار جديد');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب يومان حتى تتمكن من طلب اختبار جديد.']);
                     } else if (abs($days) == 2) {
-                        session()->flash('failure_message', 'عذرا متبقي لهذا الطالب ثلاث أيام حتى تتمكن من طلب اختبار جديد');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب ثلاث أيام حتى تتمكن من طلب اختبار جديد.']);
                     } else if (in_array(abs($days), range(3, 10))) {
-                        session()->flash('failure_message', 'عذرا متبقي لهذا الطالب ' . abs($days) . ' أيام حتى تتمكن من طلب اختبار جديد');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب ' . abs($days) . ' أيام حتى تتمكن من طلب اختبار جديد']);
                     } else if (in_array(abs($days), range(11, 15))) {
-                        session()->flash('failure_message', 'عذرا متبقي لهذا الطالب ' . abs($days) . ' يوم حتى تتمكن من طلب اختبار جديد');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب ' . abs($days) . ' يوم حتى تتمكن من طلب اختبار جديد']);
                     }
                 }
             }
@@ -469,7 +474,8 @@ class Students extends Component
             }
 
             DB::commit();
-            session()->flash('message', 'تم حفظ معلومات الطالب بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم حفظ معلومات الطالب بنجاح.']);
             $this->clearForm();
             $this->currentStep = 1;
         } catch (Exception $e) {
@@ -636,8 +642,8 @@ class Students extends Component
                     $roleId = Role::select('*')->where('name', '=', 'ولي أمر الطالب')->get();
                     $father->user->assignRole([$roleId]);
                 }
-
-                session()->flash('message', 'تم تحديث معلومات الطالب بنجاح.');
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تم تحديث معلومات الطالب بنجاح.']);
                 $this->clearForm();
                 $this->show_table = true;
                 $this->updateMode = false;
@@ -648,7 +654,8 @@ class Students extends Component
     public function delete($id)
     {
         Father::findOrFail($id)->delete();
-        session()->flash('message', 'تم حذف معلومات الطالب بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'error', 'message' => 'تم حذف معلومات الطالب بنجاح.']);
         $this->show_table = true;
         $this->updateMode = false;
     }
@@ -678,7 +685,8 @@ class Students extends Component
 
         $this->emit('add-exam');
 
-        session()->flash('message', 'تمت عملية طلب الإختبار بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'success', 'message' => 'تمت عملية طلب الإختبار بنجاح.']);
         $this->clearForm();
 
         // push notification

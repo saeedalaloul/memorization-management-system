@@ -1,5 +1,4 @@
 <div class="row">
-    <x-loading-indicator/>
     <div>
         @if(Session::has('success_message'))
             <script>
@@ -69,21 +68,21 @@
                                 </div>
                             </div>
                         @endif
-                            @if (isset($types))
-                                <div style="padding-right: 10px;">
-                                    <label style="font-size: 15px; color: #1e7e34">النوع*</label>
-                                    <div>
-                                        <select class="selectpicker" data-style="btn-info" wire:model="searchReportTypeId">
-                                            <option value="" selected>جميع الأنواع
-                                            </option>
-                                            @foreach ($types as $type)
-                                                <option
-                                                    value="{{ $type->id }}">{{ $type->name}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                        @if (isset($types))
+                            <div style="padding-right: 10px;">
+                                <label style="font-size: 15px; color: #1e7e34">النوع*</label>
+                                <div>
+                                    <select class="selectpicker" data-style="btn-info" wire:model="searchReportTypeId">
+                                        <option value="" selected>جميع الأنواع
+                                        </option>
+                                        @foreach ($types as $type)
+                                            <option
+                                                value="{{ $type->id }}">{{ $type->name}}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @endif
+                            </div>
+                        @endif
                         <div style="padding-right: 10px;">
                             <label style="font-size: 15px; color: #1e7e34">من تاريخ*</label>
                             <div class='input-group date'>
@@ -197,4 +196,5 @@
 
     </div>
     @endif
+    <x-loading-indicator/>
 </div>

@@ -150,7 +150,8 @@ class StudentsAttendance extends Component
                 'attendance_date' => date('Y-m-d'),
                 'attendance_status' => $this->selectedStudents[$i]['status']
             ]);
-            session()->flash('success_message', 'تمت عملية اعتماد حضور وغياب الطلاب بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية اعتماد حضور وغياب الطلاب بنجاح.']);
         }
         $this->isSelectedRadioBtn0 = false;
         $this->isSelectedRadioBtn1 = false;

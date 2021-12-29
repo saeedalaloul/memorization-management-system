@@ -111,7 +111,8 @@ class TodayExams extends Component
                         'readable' => $array,
                     ]);
                     $this->emit('refusal-exam');
-                    session()->flash('success_message', 'تمت عملية اعتماد عدم إجراء الطالب الاختبار بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية اعتماد عدم إجراء الطالب الاختبار بنجاح.']);
                     $this->clearForm();
 
                     // push notifications
@@ -171,8 +172,7 @@ class TodayExams extends Component
     }
 
 
-    public
-    function examQuestionsNumberApproval()
+    public function examQuestionsNumberApproval()
     {
         $this->validate(['exam_questions_count' => 'required|numeric']);
         $this->initializeExamStartInputs(null);
@@ -279,7 +279,8 @@ class TodayExams extends Component
             DB::commit();
             $this->isExamOfStart = false;
             ExamOrder::find($this->modalId)->delete();
-            session()->flash('success_message', 'تمت عملية اعتماد اختبار الطالب بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية اعتماد اختبار الطالب بنجاح.']);
 
             // push notifications
             $arr_external_user_ids = [];

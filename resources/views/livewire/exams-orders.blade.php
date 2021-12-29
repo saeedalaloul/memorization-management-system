@@ -1,22 +1,4 @@
 <div class="row">
-    <x-loading-indicator/>
-    <div>
-        @if(Session::has('success_message'))
-            <script>
-                $(function () {
-                    toastr.success("{{ Session::get('success_message') }}");
-                })
-            </script>
-        @endif
-
-        @if(Session::has('failure_message'))
-            <script>
-                $(function () {
-                    toastr.error("{{ Session::get('failure_message') }}");
-                })
-            </script>
-        @endif
-    </div>
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
             <div class="card-body">
@@ -258,4 +240,5 @@
             </div>
         </div>
     </div>
+    <x-loading-indicator/>
 </div>

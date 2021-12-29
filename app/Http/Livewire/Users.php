@@ -2,7 +2,7 @@
 
 namespace App\Http\Livewire;
 
-use App\Exports\Export;
+use App\Exports\UsersExport;
 use App\Models\Father;
 use App\Models\Grade;
 use App\Models\Group;
@@ -20,6 +20,7 @@ use Illuminate\Support\MessageBag;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Excel;
 use Spatie\Permission\Models\Role;
 
 class Users extends Component
@@ -107,7 +108,8 @@ class Users extends Component
                     $user = User::find($this->modalId);
                     if ($user) {
                         $user->assignRole([$this->role_id]);
-                        session()->flash('message', 'تمت عملية تعيين دور أمير المركز إلى المستخدم بنجاح.');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية تعيين دور أمير المركز إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
                         $this->show_table = true;
                     }
@@ -115,7 +117,8 @@ class Users extends Component
                     $user = User::find($this->modalId);
                     if ($user) {
                         $user->assignRole([$this->role_id]);
-                        session()->flash('message', 'تمت عملية تعيين دور مشرف الإختبارات إلى المستخدم بنجاح.');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف الإختبارات إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
                         $this->show_table = true;
                     }
@@ -124,7 +127,8 @@ class Users extends Component
                     if ($user) {
                         Tester::updateOrCreate(['id' => $this->modalId]);
                         $user->assignRole([$this->role_id]);
-                        session()->flash('message', 'تمت عملية تعيين دور مختبر إلى المستخدم بنجاح.');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية تعيين دور مختبر إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
                         $this->show_table = true;
                     }
@@ -134,10 +138,12 @@ class Users extends Component
                         $supervisor = Supervisor::find($this->modalId);
                         if ($supervisor == null) {
                             Supervisor::create(['id' => $this->modalId, 'grade_id' => $this->grade_id]);
-                            session()->flash('message', 'تمت عملية تعيين دور مشرف إلى المستخدم بنجاح.');
+                            $this->dispatchBrowserEvent('alert',
+                                ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف إلى المستخدم بنجاح.']);
                         } else {
                             $supervisor->update(['grade_id' => $this->grade_id]);
-                            session()->flash('message', 'تمت عملية تحديث دور مشرف إلى المستخدم بنجاح.');
+                            $this->dispatchBrowserEvent('alert',
+                                ['type' => 'success', 'message' => 'تمت عملية تحديث دور مشرف إلى المستخدم بنجاح.']);
                         }
                         $user->assignRole([$this->role_id]);
                         $this->modalFormReset();
@@ -149,10 +155,12 @@ class Users extends Component
                         $lowerSupervisor = LowerSupervisor::find($this->modalId);
                         if ($lowerSupervisor == null) {
                             LowerSupervisor::create(['id' => $this->modalId, 'grade_id' => $this->grade_id]);
-                            session()->flash('message', 'تمت عملية تعيين دور إداري إلى المستخدم بنجاح.');
+                            $this->dispatchBrowserEvent('alert',
+                                ['type' => 'success', 'message' => 'تمت عملية تعيين دور إداري إلى المستخدم بنجاح.']);
                         } else {
                             $lowerSupervisor->update(['grade_id' => $this->grade_id]);
-                            session()->flash('message', 'تمت عملية تحديث دور إداري إلى المستخدم بنجاح.');
+                            $this->dispatchBrowserEvent('alert',
+                                ['type' => 'success', 'message' => 'تمت عملية تحديث دور إداري إلى المستخدم بنجاح.']);
                         }
                         $user->assignRole([$this->role_id]);
                         $this->modalFormReset();
@@ -174,13 +182,15 @@ class Users extends Component
                             } else {
                                 $teacher->update(['grade_id' => $this->grade_id]);
                                 $teacher->user->assignRole([$this->role_id]);
-                                session()->flash('message', 'تمت عملية تحديث دور محفظ إلى المستخدم بنجاح.');
+                                $this->dispatchBrowserEvent('alert',
+                                    ['type' => 'success', 'message' => 'تمت عملية تحديث دور محفظ إلى المستخدم بنجاح.']);
                                 $this->modalFormReset();
                                 $this->show_table = true;
                             }
                         } else {
                             $teacher->user->assignRole([$this->role_id]);
-                            session()->flash('message', 'تمت عملية تحديث دور محفظ إلى المستخدم بنجاح.');
+                            $this->dispatchBrowserEvent('alert',
+                                ['type' => 'success', 'message' => 'تمت عملية تحديث دور محفظ إلى المستخدم بنجاح.']);
                             $this->modalFormReset();
                             $this->show_table = true;
                         }
@@ -188,7 +198,8 @@ class Users extends Component
                         Teacher::create(['id' => $this->modalId, 'grade_id' => $this->grade_id]);
                         $user = User::find($this->modalId);
                         $user->assignRole([$this->role_id]);
-                        session()->flash('message', 'تمت عملية تعيين دور محفظ إلى المستخدم بنجاح.');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية تعيين دور محفظ إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
                         $this->show_table = true;
                     }
@@ -218,7 +229,8 @@ class Users extends Component
                                 } else {
                                     $student->update(['grade_id' => $this->grade_id, 'group_id' => $this->group_id, 'father_id' => $this->father_id,]);
                                     $student->user->assignRole([$this->role_id]);
-                                    session()->flash('message', 'تمت عملية تحديث دور طالب إلى المستخدم بنجاح.');
+                                    $this->dispatchBrowserEvent('alert',
+                                        ['type' => 'success', 'message' => 'تمت عملية تحديث دور طالب إلى المستخدم بنجاح.']);
                                     $this->modalFormReset();
                                     $this->show_table = true;
                                 }
@@ -227,7 +239,8 @@ class Users extends Component
                             if ($student->group->grade_id == $this->grade_id) {
                                 $student->update(['grade_id' => $this->grade_id, 'group_id' => $this->group_id, 'father_id' => $this->father_id,]);
                                 $student->user->assignRole([$this->role_id]);
-                                session()->flash('message', 'تمت عملية تحديث دور طالب إلى المستخدم بنجاح.');
+                                $this->dispatchBrowserEvent('alert',
+                                    ['type' => 'success', 'message' => 'تمت عملية تحديث دور طالب إلى المستخدم بنجاح.']);
                                 $this->modalFormReset();
                                 $this->show_table = true;
                             } else {
@@ -250,7 +263,8 @@ class Users extends Component
                             ]);
                             $user = User::find($this->modalId);
                             $user->assignRole([$this->role_id]);
-                            session()->flash('message', 'تمت عملية تعيين دور طالب إلى المستخدم بنجاح.');
+                            $this->dispatchBrowserEvent('alert',
+                                ['type' => 'success', 'message' => 'تمت عملية تعيين دور طالب إلى المستخدم بنجاح.']);
                             $this->modalFormReset();
                             $this->show_table = true;
                         }
@@ -269,7 +283,8 @@ class Users extends Component
                     if (auth()->id() != $this->modalId) {
                         $user = User::find($this->modalId);
                         $user?->removeRole($this->role_id);
-                        session()->flash('message', 'تمت عملية سحب دور أمير المركز من المستخدم بنجاح.');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية سحب دور أمير المركز من المستخدم بنجاح.']);
                         $this->modalFormReset();
                         $this->show_table = true;
                     } else {
@@ -278,28 +293,32 @@ class Users extends Component
                 } else if ($role_name == "مشرف الإختبارات") {
                     $user = User::find($this->modalId);
                     $user?->removeRole($this->role_id);
-                    session()->flash('message', 'تمت عملية سحب دور مشرف الإختبارات من المستخدم بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الإختبارات من المستخدم بنجاح.']);
                     $this->modalFormReset();
                     $this->show_table = true;
                 } else if ($role_name == "مختبر") {
                     $user = User::find($this->modalId);
                     $user?->removeRole($this->role_id);
                     Tester::destroy($this->modalId);
-                    session()->flash('message', 'تمت عملية سحب دور مختبر من المستخدم بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية سحب دور مختبر من المستخدم بنجاح.']);
                     $this->modalFormReset();
                     $this->show_table = true;
                 } else if ($role_name == "مشرف") {
                     $user = User::find($this->modalId);
                     $user?->removeRole($this->role_id);
                     Supervisor::destroy($this->modalId);
-                    session()->flash('message', 'تمت عملية سحب دور مشرف من المستخدم بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف من المستخدم بنجاح.']);
                     $this->modalFormReset();
                     $this->show_table = true;
                 } else if ($role_name == "إداري") {
                     $user = User::find($this->modalId);
                     $user?->removeRole($this->role_id);
                     LowerSupervisor::destroy($this->modalId);
-                    session()->flash('message', 'تمت عملية سحب دور إداري من المستخدم بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية سحب دور إداري من المستخدم بنجاح.']);
                     $this->modalFormReset();
                     $this->show_table = true;
                 } else if ($role_name == "محفظ") {
@@ -342,7 +361,8 @@ class Users extends Component
                                 $user = User::find($this->modalId);
                                 $user?->removeRole($this->role_id);
                                 Teacher::destroy($this->modalId);
-                                session()->flash('message', 'تمت عملية سحب دور محفظ من المستخدم بنجاح.');
+                                $this->dispatchBrowserEvent('alert',
+                                    ['type' => 'success', 'message' => 'تمت عملية سحب دور محفظ من المستخدم بنجاح.']);
                                 $this->modalFormReset();
                                 $this->show_table = true;
                             }
@@ -376,7 +396,8 @@ class Users extends Component
                         $user = User::find($this->modalId);
                         $user?->removeRole($this->role_id);
                         Student::destroy($this->modalId);
-                        session()->flash('message', 'تمت عملية سحب دور طالب من المستخدم بنجاح.');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية سحب دور طالب من المستخدم بنجاح.']);
                         $this->modalFormReset();
                         $this->show_table = true;
                     }
@@ -498,7 +519,8 @@ class Users extends Component
             ]);
             $this->modalFormReset();
             $this->show_table = true;
-            session()->flash('message', 'تمت عملية إعادة تعيين كلمة المرور بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية إعادة تعيين كلمة المرور بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -531,10 +553,22 @@ class Users extends Component
         }
     }
 
-    public
-    function export()
+    public function export()
     {
-        return (new Export())->download('users.xlsx', Excel::XLSX);
+        $users = [];
+        foreach ($this->all_Users()->toArray()['data'] as $key => $item) {
+            $user = ['id' => $key + 1, 'name' => $item['name']
+                , 'email' => $item['email'], 'phone' => intval($item['phone'])
+                , 'identification_number' => intval($item['identification_number']), 'address' => $item['address']
+                , 'dob' => $item['dob']];
+            $users[$key] = $user;
+//            if ($item['status'] == 0) {
+//                $users[$key]['status'] = "معلق";
+//            } else {
+//                $users[$key]['status'] = "مفعل";
+//            }
+        }
+        return (new UsersExport($users))->download('users.xlsx', Excel::XLSX);
     }
 
 
@@ -619,10 +653,12 @@ class Users extends Component
             } else {
                 if ($user->status) {
                     $user->update(['status' => 0]);
-                    session()->flash('success_message', 'تمت عملية تعليق الحساب بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'error', 'message' => 'تمت عملية تعليق الحساب بنجاح.']);
                 } else {
                     $user->update(['status' => 1]);
-                    session()->flash('success_message', 'تمت عملية تفعيل الحساب بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية تفعيل الحساب بنجاح.']);
                 }
             }
         }
@@ -687,7 +723,8 @@ class Users extends Component
                 ]);
             }
             $this->modalFormReset();
-            session()->flash('message', 'تم حفظ معلومات المستخدم بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'error', 'message' => 'تم حفظ معلومات المستخدم بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -721,7 +758,8 @@ class Users extends Component
             }
             $this->modalFormReset();
             $this->show_table = true;
-            session()->flash('message', 'تم تحديث معلومات المستخدم بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'error', 'message' => 'تم تحديث معلومات المستخدم بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();

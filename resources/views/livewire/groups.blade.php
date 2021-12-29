@@ -1,5 +1,4 @@
 <div class="row">
-    <x-loading-indicator/>
     <div>
         @if(Session::has('message'))
             <script>
@@ -201,4 +200,5 @@
             </div>
         </div>
     </div>
+    <x-loading-indicator/>
 </div>

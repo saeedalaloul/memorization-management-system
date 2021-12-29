@@ -179,6 +179,7 @@ return [
         App\Providers\JetstreamServiceProvider::class,
         Yoeunes\Toastr\ToastrServiceProvider::class,
         Ladumor\OneSignal\OneSignalServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -233,6 +234,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'OneSignal' => \Ladumor\OneSignal\OneSignal::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

@@ -92,7 +92,8 @@ class Grades extends Component
 
         $this->modalFormReset();
         $this->emit('gradeAdded');
-        session()->flash('message', 'تم حفظ معلومات المرحلة بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'success', 'message' => 'تم حفظ معلومات المرحلة بنجاح.']);
     }
 
     public function update()
@@ -102,14 +103,16 @@ class Grades extends Component
         $Grade->update($this->modelData());
         $this->modalFormReset();
         $this->emit('gradeEdited');
-        session()->flash('message', 'تم تحديث معلومات المرحلة بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'success', 'message' => 'تم تحديث معلومات المرحلة بنجاح.']);
     }
 
     public function destroy($id)
     {
         Grade::where('id', $id)->delete();
         $this->emit('gradeDeleted');
-        session()->flash('message', 'تم حذف المرحلة بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'error', 'message' => 'تم حذف المرحلة بنجاح.']);
     }
 
     public function all_Grades()

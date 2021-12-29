@@ -135,7 +135,8 @@ class TeachersAttendance extends Component
                 'attendance_date' => date('Y-m-d'),
                 'attendance_status' => $this->selectedTeachers[$i]['status']
             ]);
-            session()->flash('success_message', 'تمت عملية اعتماد حضور وغياب المحفظين بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية اعتماد حضور وغياب المحفظين بنجاح.']);
         }
         $this->isSelectedRadioBtn0 = false;
         $this->isSelectedRadioBtn1 = false;

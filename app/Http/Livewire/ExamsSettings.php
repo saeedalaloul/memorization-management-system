@@ -87,7 +87,8 @@ class ExamsSettings extends Component
                     'exam_success_rate' => $this->exam_success_rate,
                 ]);
             }
-            session()->flash('success_message', 'تمت عملية حفظ اعدادات الإختبارات القرأنية بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية حفظ اعدادات الإختبارات القرأنية بنجاح.']);
         }
     }
 
@@ -157,7 +158,8 @@ class ExamsSettings extends Component
         try {
             ExamCustomQuestion::create(['quran_part_id' => $this->quran_part_id, 'exam_question_count' => $this->exam_question_count]);
             $this->resetInputFields();
-            session()->flash('success_message', 'تمت عملية حفظ البيانات بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية حفظ البيانات بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -170,7 +172,8 @@ class ExamsSettings extends Component
         $examCustomQuestion = ExamCustomQuestion::find($id);
         if ($examCustomQuestion) {
             $examCustomQuestion->delete();
-            session()->flash('failure_message', 'تمت عملية حذف البيانات بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'error', 'message' => 'تمت عملية حذف البيانات بنجاح.']);
         }
     }
 
@@ -189,7 +192,8 @@ class ExamsSettings extends Component
         $examCustomQuestion = ExamCustomQuestion::find($this->modalId);
         if ($examCustomQuestion) {
             $examCustomQuestion->update(['exam_question_count' => $this->exam_question_count_update]);
-            session()->flash('success_message', 'تمت عملية تحديث البيانات بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية تحديث البيانات بنجاح.']);
             $this->resetInputFieldsUpdated();
         }
     }

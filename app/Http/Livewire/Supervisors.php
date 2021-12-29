@@ -185,7 +185,8 @@ class Supervisors extends Component
                 ]);
             }
             $this->modalFormReset();
-            session()->flash('message', 'تم حفظ معلومات المشرف بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم حفظ معلومات المشرف بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -235,7 +236,8 @@ class Supervisors extends Component
             }
             $this->modalFormReset();
             $this->show_table = true;
-            session()->flash('message', 'تم تحديث معلومات المشرف بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم تحديث معلومات المشرف بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -248,7 +250,8 @@ class Supervisors extends Component
         $supervisor = Supervisor::find($id);
         $supervisor->delete();
         $this->emit('delete_Supervisor');
-        session()->flash('message', 'تم حذف المشرف بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'error', 'message' => 'تم حذف المشرف بنجاح.']);
     }
 
     public function all_Supervisors()

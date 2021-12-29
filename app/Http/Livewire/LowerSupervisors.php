@@ -186,7 +186,8 @@ class LowerSupervisors extends Component
                 ]);
             }
             $this->modalFormReset();
-            session()->flash('message', 'تم حفظ معلومات الإداري بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم حفظ معلومات الإداري بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -236,7 +237,8 @@ class LowerSupervisors extends Component
             }
             $this->modalFormReset();
             $this->show_table = true;
-            session()->flash('message', 'تم تحديث معلومات الإداري بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم تحديث معلومات الإداري بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -249,7 +251,8 @@ class LowerSupervisors extends Component
         $lower_supervisor = LowerSupervisor::find($id);
         $lower_supervisor->delete();
         $this->emit('delete_LowerSupervisor');
-        session()->flash('message', 'تم حذف الإداري بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'error', 'message' => 'تم حذف الإداري بنجاح.']);
     }
 
     public function all_LowerSupervisors()

@@ -18,6 +18,7 @@ class CreateStudentsTable extends Migration
             $table->foreignId('father_id')->index()->references('id')->on('fathers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('group_id')->index()->references('id')->on('groups')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->timestamps();
         });
     }
 

@@ -52,7 +52,8 @@
                                 <li><a href="{{url('manage_teacher',null,true)}}">إدارة المحفظين</a></li>
                             @endcan
                             @can('إدارة حضور وغياب المحفظين')
-                                <li><a href="{{url('manage_teachers_attendance',null,true)}}">حضور وغياب المحفظين</a></li>
+                                <li><a href="{{url('manage_teachers_attendance',null,true)}}">حضور وغياب المحفظين</a>
+                                </li>
                             @endcan
                         </ul>
                     </li>
@@ -73,11 +74,13 @@
                                 <li><a href="{{url('manage_students_attendance',null,true)}}">حضور وغياب الطلاب</a></li>
                             @endcan
                             @can('إدارة متابعة الحفظ والمراجعة')
-                                <li><a href="{{url('manage_students_daily_preservation',null,true)}}">متابعة الحفظ والمراجعة</a>
+                                <li><a href="{{url('manage_students_daily_preservation',null,true)}}">متابعة الحفظ
+                                        والمراجعة</a>
                                 </li>
                             @endcan
                             @can('إدارة تقرير الحفظ والمراجعة')
-                                <li><a href="{{url('manage_report_daily_preservation',null,true)}}">تقرير الحفظ والمراجعة</a>
+                                <li><a href="{{url('manage_report_daily_preservation',null,true)}}">تقرير الحفظ
+                                        والمراجعة</a>
                                 </li>
                             @endcan
                         </ul>
@@ -125,7 +128,8 @@
                                 <li><a href="{{url('manage_testers',null,true)}}">المختبرين</a></li>
                             @endcan
                             @can('إعدادات الإختبارات')
-                                <li><a href="{{url('manage_exams_settings',null,true)}}">إعدادات الإختبارات القرآنية</a></li>
+                                <li><a href="{{url('manage_exams_settings',null,true)}}">إعدادات الإختبارات القرآنية</a>
+                                </li>
                             @endcan
                         </ul>
                     </li>
@@ -143,6 +147,12 @@
                                 <li><a href="{{route('roles.index')}}">أدوار المستخدمين</a></li>
                                 <li><a href="{{url('manage_users',null,true)}}">المستخدمين</a></li>
                             </ul>
+                        </li>
+
+                        <!-- Settings-->
+                        <li>
+                            <a href="{{url('manage_settings',null,true)}}"><i class="fas fa-cogs"></i><span
+                                    class="right-nav-text">الإعدادات</span></a>
                         </li>
                     @endcan
                 </ul>

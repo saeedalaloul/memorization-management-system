@@ -160,9 +160,11 @@ class StudentsDailyPreservation extends Component
         ]);
         $this->emit('hideDialogAddDailyPreservation');
         if ($this->type_id == 1) {
-            session()->flash('success_message', 'تمت عملية إضافة متابعة حفظ الطالب بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية إضافة متابعة حفظ الطالب بنجاح.']);
         } else {
-            session()->flash('success_message', 'تمت عملية إضافة متابعة مراجعة الطالب بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية إضافة متابعة مراجعة الطالب بنجاح.']);
         }
         $this->modalFormReset();
     }

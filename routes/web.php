@@ -100,6 +100,9 @@ Route::group(
     //==============================Users============================
     Route::view('manage_users', 'pages.users.index');
 
+    //==============================Settings============================
+    Route::view('manage_settings', 'pages.settings.index');
+
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
 });

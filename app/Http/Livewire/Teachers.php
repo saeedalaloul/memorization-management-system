@@ -240,7 +240,8 @@ class Teachers extends Component
                 }
                 $this->modalFormReset();
                 $this->show_table = true;
-                session()->flash('message', 'تم تحديث معلومات المحفظ بنجاح.');
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تم تحديث معلومات المحفظ بنجاح.']);
                 DB::commit();
             } else {
                 $messageBag = new MessageBag;
@@ -258,7 +259,8 @@ class Teachers extends Component
         $teacher = Teacher::find($teacher_id);
         $teacher->delete();
         $this->emit('delete_Teacher');
-        session()->flash('message', 'تم حذف المحفظ بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'success', 'message' => 'تم حذف المحفظ بنجاح.']);
     }
 
     public function all_Teachers()

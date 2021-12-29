@@ -19,5 +19,6 @@ class DatabaseSeeder extends Seeder
         $this->call(QuranSurasSeeder::class);
         $this->call(DailyPreservationEvaluationSeeder::class);
         $this->call(DailyPreservationTypeSeeder::class);
+        $this->call(SettingsTableSeeder::class);
     }
 }

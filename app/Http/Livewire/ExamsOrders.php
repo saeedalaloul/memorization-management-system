@@ -374,7 +374,8 @@ class ExamsOrders extends Component
                     }
 
                     $this->process_notification($arr_external_user_ids, 1, $examOrder->student->user->name, $examOrder->quranPart->name);
-                    session()->flash('success_message', 'تمت عملية قبول طلب الإختبار بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية قبول طلب الإختبار بنجاح.']);
                 }
             } elseif ($examOrder->status == 1 || $examOrder->status == 2 || $examOrder->status == -2) {
                 $this->validate();
@@ -416,7 +417,8 @@ class ExamsOrders extends Component
                         $response = $this->push_notifications([$examOrder->tester_id], $message);
                         $return["allresponses"] = $response;
                         $return = json_encode($return);
-                        session()->flash('success_message', 'تمت عملية اعتماد طلب الإختبار بنجاح.');
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية اعتماد طلب الإختبار بنجاح.']);
                         $this->emit('approval-exam');
                         $this->clearForm();
                     }
@@ -520,7 +522,8 @@ class ExamsOrders extends Component
                     auth()->user()->current_role == 'أمير المركز') {
                     $examOrder->update(['status' => -1, 'notes' => $this->notes, 'readable' => $array,]);
                     $this->emit('refusal-exam');
-                    session()->flash('failure_message', 'تمت عملية رفض طلب الإختبار بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'error', 'message' => 'تمت عملية رفض طلب الإختبار بنجاح.']);
                     $this->clearForm();
                     $this->process_notification([$examOrder->teacher_id], -1, $examOrder->student->user->name, $examOrder->quranPart->name);
                 }
@@ -536,7 +539,8 @@ class ExamsOrders extends Component
                         'readable' => $array,
                     ]);
                     $this->emit('refusal-exam');
-                    session()->flash('failure_message', 'تمت عملية رفض طلب الإختبار بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'error', 'message' => 'تمت عملية رفض طلب الإختبار بنجاح.']);
                     $this->clearForm();
                     $this->process_notification([$examOrder->teacher_id], -2, $examOrder->student->user->name, $examOrder->quranPart->name);
                 }
@@ -558,7 +562,8 @@ class ExamsOrders extends Component
                     $this->process_notification([$examOrder->teacher_id], -1, $examOrder->student->user->name, $examOrder->quranPart->name);
                 }
                 $this->emit('refusal-exam');
-                session()->flash('failure_message', 'تمت عملية رفض طلب الإختبار بنجاح.');
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'error', 'message' => 'تمت عملية رفض طلب الإختبار بنجاح.']);
                 $this->clearForm();
             }
         }
@@ -589,7 +594,8 @@ class ExamsOrders extends Component
             $exam_order->status == -3) {
             $exam_order->delete();
             $this->emit('delete-exam-order');
-            session()->flash('failure_message', 'تم حذف طلب الإختبار بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'error', 'message' => 'تم حذف طلب الإختبار بنجاح.']);
         }
     }
 }

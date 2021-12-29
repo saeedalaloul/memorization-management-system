@@ -559,7 +559,8 @@ class Exams extends Component
 
             $this->push_notifications($arr_external_user_ids, $message, "حالة اختبار الطالب", $url);
             $this->emit('approval-exam');
-            session()->flash('success_message', 'تمت عملية اعتماد اختبار الطالب بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية اعتماد اختبار الطالب بنجاح.']);
             DB::commit();
             $this->clearForm();
         } catch (Exception $e) {

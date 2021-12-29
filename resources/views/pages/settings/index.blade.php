@@ -2,19 +2,19 @@
 @section('css')
     @toastr_css
 @section('title')
-    إدارة المستخدمين
+    الإعدادات
 @stop
 @endsection
 @section('page-header')
     <!-- breadcrumb -->
 @section('PageTitle')
-    إدارة المستخدمين
+    الإعدادات
 @stop
 <!-- breadcrumb -->
 @endsection
 @section('content')
     <!-- row -->
-    <livewire:users/>
+    <livewire:settings/>
     <!-- row closed -->
 @endsection
 @section('js')

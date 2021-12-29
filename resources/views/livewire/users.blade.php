@@ -1,5 +1,4 @@
 <div>
-    <x-loading-indicator/>
     @if (!empty($successMessage))
         <div class="alert alert-success" id="success-alert">
             <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
@@ -82,4 +81,5 @@
             </div>
         </div>
     </div>
+        <x-loading-indicator/>
 </div>

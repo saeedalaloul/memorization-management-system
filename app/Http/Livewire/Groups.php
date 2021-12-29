@@ -134,7 +134,8 @@ class Groups extends Component
 
             $this->modalFormReset();
             $this->show_table = true;
-            session()->flash('message', 'تم حفظ معلومات الحلقة بنجاح.');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم حفظ معلومات الحلقة بنجاح.']);
         }
     }
 
@@ -163,7 +164,8 @@ class Groups extends Component
                     $Group->update($this->modelData());
                     $this->modalFormReset();
                     $this->show_table = true;
-                    session()->flash('message', 'تم تحديث معلومات الحلقة بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تم تحديث معلومات الحلقة بنجاح.']);
                 } else {
                     $messageBag = new MessageBag;
                     $messageBag->add('grade_id', 'عذرا لم يتم تحديث الحلقة بسبب وجود طلاب داخل الحلقة');
@@ -186,11 +188,12 @@ class Groups extends Component
                 $this->emit('groupMoveClose');
                 $this->modalFormReset();
                 $this->show_table = true;
-                session()->flash('message', 'تم نقل الحلقة إلى مرحلة جديدة بنجاح.');
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تم نقل الحلقة إلى مرحلة جديدة بنجاح.']);
                 DB::commit();
             } catch (Exception $e) {
                 DB::rollback();
-                // $this->catchError = $e->getMessage();
+                $this->catchError = $e->getMessage();
             }
         }
     }
@@ -206,7 +209,8 @@ class Groups extends Component
                 $group = Group::find($id);
                 if ($group->teacher_id != null) {
                     $group->update(['teacher_id' => null]);
-                    session()->flash('message', 'تم سحب المحفظ من الحلقة بنجاح.');
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'error', 'message' => 'تم سحب المحفظ من الحلقة بنجاح.']);
                 } else {
                     $this->catchError = "عذرا لا يوجد محفظ في المجموعة";
                 }
@@ -239,7 +243,8 @@ class Groups extends Component
     {
         Group::where('id', $id)->delete();
         $this->emit('groupDeleted');
-        session()->flash('message', 'تم حذف الحلقة بنجاح.');
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'success', 'message' => 'تم حذف الحلقة بنجاح.']);
     }
 
     public function all_Groups()
