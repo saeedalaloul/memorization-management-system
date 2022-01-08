@@ -8,15 +8,15 @@
         <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.3.1/main.min.js'></script>
 
         <script>
-            document.addEventListener('livewire:load', function() {
+            document.addEventListener('livewire:load', function () {
                 var Calendar = FullCalendar.Calendar;
                 var Draggable = FullCalendar.Draggable;
                 var calendarEl = document.getElementById('calendar');
                 var checkbox = document.getElementById('drop-remove');
-                var data =   @this.events;
+                var data = @this.events;
                 var calendar = new Calendar(calendarEl, {
                     events: JSON.parse(data),
-                    dateClick(info)  {
+                    dateClick(info) {
                         // var title = prompt('ادخل عنوان الحدث ');
                         // var date = new Date(info.dateStr + 'T00:00:00');
                         // if(title != null && title != ''){
@@ -34,9 +34,14 @@
                     },
                     editable: true,
                     selectable: true,
-                    displayEventTime: true,
+                    headers: {
+                        left:'prev,next,today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay'
+                    },
+                    displayEventTime: false,
                     droppable: true, // this allows things to be dropped onto the calendar
-                    drop: function(info) {
+                    drop: function (info) {
                         // is the "remove after drop" checkbox checked?
                         if (checkbox.checked) {
                             // if so, remove the element from the "Draggable Events" list
@@ -44,10 +49,10 @@
                         }
                     },
                     eventDrop: info => @this.eventDrop(info.event, info.oldEvent),
-                    loading: function(isLoading) {
+                    loading: function (isLoading) {
                         if (!isLoading) {
                             // Reset custom events
-                            this.getEvents().forEach(function(e){
+                            this.getEvents().forEach(function (e) {
                                 if (e.source === null) {
                                     e.remove();
                                 }
@@ -61,6 +66,6 @@
             });
             });
         </script>
-        <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.3.1/main.min.css' rel='stylesheet' />
+        <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.3.1/main.min.css' rel='stylesheet'/>
     @endpush
 </div>

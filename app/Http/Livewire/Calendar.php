@@ -77,6 +77,7 @@ class Calendar extends Component
                 $events[$key]['id'] = $exam->id;
                 $events[$key]['start'] = $exam->start;
                 $events[$key]['title'] = $exam->quranPart->name . " للطالب: " . $exam->student->user['name'];
+                $events[$key]['description'] = "ekpoe";
             }
         }
         $this->events = json_encode($events);

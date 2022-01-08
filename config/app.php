@@ -180,6 +180,7 @@ return [
         Yoeunes\Toastr\ToastrServiceProvider::class,
         Ladumor\OneSignal\OneSignalServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        Spatie\Backup\BackupServiceProvider::class,
     ],
 
     /*

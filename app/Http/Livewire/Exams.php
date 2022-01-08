@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\AyaDetails;
 use App\Models\Exam;
 use App\Models\ExamCustomQuestion;
 use App\Models\ExamSettings;
