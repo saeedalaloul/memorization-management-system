@@ -9,6 +9,7 @@ use App\Models\LowerSupervisor;
 use App\Models\Student;
 use App\Models\StudentDailyPreservation;
 use App\Models\Supervisor;
+use Illuminate\Support\Facades\Date;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -33,6 +34,8 @@ class ReportDailyPreservation extends Component
 
     public function mount()
     {
+        $this->searchDateFrom = date('Y-m-1');
+        $this->searchDateTo = date('Y-m-d');
         $this->all_Grades();
         $this->all_Report_Types();
     }
@@ -63,7 +66,7 @@ class ReportDailyPreservation extends Component
             if ($this->searchGradeId) {
                 $this->groups = Group::query()->where('grade_id', $this->searchGradeId)->get();
             }
-        }elseif (auth()->user()->current_role == 'محفظ') {
+        } elseif (auth()->user()->current_role == 'محفظ') {
             $this->searchGroupId = Group::query()->where('teacher_id', auth()->id())->first()->id;
         }
     }
