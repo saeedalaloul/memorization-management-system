@@ -26,4 +26,13 @@
             $('#delete_Teacher').modal('hide');
         });
     </script>
+
+    <script>
+        window.addEventListener('alert', event => {
+            toastr[event.detail.type](event.detail.message,
+                event.detail.title ?? ''), toastr.options = {
+                "progressBar": true,
+            }
+        });
+    </script>
 @endsection

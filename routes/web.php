@@ -49,7 +49,7 @@ Route::group(
 
     //==============================dashboard============================
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-    Route::post('current_role_update', [HomeController::class, 'storeCurrentRole']);
+    Route::get('switch_account/{current_role}', [HomeController::class, 'switchAccountUser']);
     Route::post('check_user_subscribe_notifications', [HomeController::class, 'checkUserSubscribeNotifications']);
 
     //==============================Grades============================

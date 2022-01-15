@@ -42,13 +42,14 @@ class HomeController extends Controller
         }
     }
 
-    public function storeCurrentRole(Request $request)
+    public function switchAccountUser(Request $request)
     {
         if ($request->current_role) {
             auth()->user()->update(['current_role' => $request->current_role]);
-            return response()->json(['success' => 'Ajax request submitted successfully']);
+            toastSuccess('', 'تمت عملية تبديل الحساب إلى ' . $request->current_role . ' بنجاح.');
+            return redirect()->back();
         }
-        return response()->json(['error' => 'Ajax request error']);
+        return redirect()->back();
     }
 
     public function checkUserSubscribeNotifications(Request $request)

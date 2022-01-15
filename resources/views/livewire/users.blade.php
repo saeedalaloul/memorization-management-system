@@ -48,7 +48,13 @@
                                    data-bs-toggle="tab" role="tab"
                                    wire:click="showformadd(false);" href="#"
                                    aria-controls="add_user-05" aria-selected="false"><i
-                                        class="fas fa-edit"></i> تعديل الأدوار</a>
+                                        class="fas fa-user-edit"></i> تعديل الأدوار</a>
+                            @elseif($process_type == 'edit_permission')
+                                <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
+                                   data-bs-toggle="tab" role="tab"
+                                   wire:click="showformadd(false);" href="#"
+                                   aria-controls="add_user-05" aria-selected="false"><i
+                                        class="fas fa-edit"></i> تعديل الصلاحيات</a>
                             @else
                                 <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_user-05-tab"
                                    data-bs-toggle="tab" role="tab"
@@ -72,6 +78,8 @@
                                 @include('pages.users.reset_password_user')
                             @elseif($process_type == 'edit_roles')
                                 @include('pages.users.user_roles_edit')
+                            @elseif($process_type == 'edit_permission')
+                                @include('pages.users.user_permission_edit')
                             @else
                                 @include('pages.users.user_form')
                             @endif
@@ -81,5 +89,5 @@
             </div>
         </div>
     </div>
-        <x-loading-indicator/>
+    <x-loading-indicator/>
 </div>

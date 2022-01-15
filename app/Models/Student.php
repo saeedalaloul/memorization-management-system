@@ -64,7 +64,7 @@ class Student extends Model
     }
 
     // علاقة بين جدول الطلاب وجدول الإختبارات القرآنية
-    public function exam()
+    public function exams()
     {
         return $this->hasMany('App\Models\Exam', 'student_id');
     }

@@ -29,8 +29,8 @@ class Students extends Component
 
     public $successMessage = '';
 
-    public $catchError, $updateMode = false, $isFoundFather = false,
-        $photo, $show_table = true, $quran_parts, $groups, $grades;
+    public $catchError, $updateMode = false, $isFoundFather = false,$tab_id,
+        $photo, $show_table = true, $process_type, $quran_parts, $groups, $grades;
 
     public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
 
@@ -48,6 +48,11 @@ class Students extends Component
 
     public $searchGradeId, $searchGroupId;
     protected $paginationTheme = 'bootstrap';
+
+    public function mount()
+    {
+        $this->tab_id = "profile-08";
+    }
 
     public function updated($propertyName)
     {
@@ -517,16 +522,25 @@ class Students extends Component
         $this->quran_part_id = null;
         $this->catchError = null;
         $this->successMessage = null;
+        $this->tab_id = "profile-08";
         $this->resetValidation();
     }
 
-
-    //clearForm
+    public function process_data($id, $process_type)
+    {
+        $this->process_type = $process_type;
+        if ($process_type == 'edit') {
+            $this->edit($id);
+        } else {
+            $this->resetValidation();
+            $this->show_table = false;
+            $this->student_id = $id;
+        }
+    }
 
     public function edit($id)
     {
         $this->resetValidation();
-        $this->reset();
         $this->show_table = false;
         $this->updateMode = true;
         $student = Student::where('id', $id)->first();
@@ -752,6 +766,11 @@ class Students extends Component
         $student = Student::where('id', $id)->first();
         $this->student_id = $student->id;
         $this->student_name = $student->user->name;
+    }
+
+    public function update_index_tab($id)
+    {
+        $this->tab_id = $id;
     }
 
 }

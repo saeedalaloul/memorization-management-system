@@ -46,9 +46,18 @@
                             <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_student-05-tab"
                                data-bs-toggle="tab" role="tab"
                                wire:click="showformadd(false);" href="#"
-                               aria-controls="add_student-05" aria-selected="false"><i
-                                    class="fas {{!empty($updateMode) ? 'fa-user-edit' : 'fa-user-plus'}}"></i>
-                                {{!empty($updateMode) ? ' تحديث طالب' : ' إضافة طالب'}}</a>
+                               aria-controls="add_student-05" aria-selected="false">
+                                @if ($process_type == "edit")
+                                    <i class="fas fa-user-edit"></i>
+                                    تحديث طالب
+                                @elseif($process_type == "show")
+                                    <i class="fas fa-user-circle"></i>
+                                    عرض طالب
+                                @else
+                                    <i class="fas fa-user-plus"></i>
+                                    إضافة طالب
+                                @endif
+                            </a>
                         </li>
                     </ul>
                     <div class="tab-content">
@@ -60,32 +69,38 @@
                         <div class="tab-pane fade {{$show_table == false ? 'active show':''}}" id="add_student-05"
                              role="tabpanel"
                              aria-labelledby="add_student-05-tab">
-                            <div class="stepwizard">
-                                <div class="stepwizard-row setup-panel">
-                                    <div class="stepwizard-step">
-                                        <a href="#step-1" type="button"
-                                           class="btn btn-circle {{ $currentStep != 1 ? 'btn-default' : 'btn-success' }}">1</a>
-                                        <p>معلومات الأب</p>
-                                    </div>
-                                    <div class="stepwizard-step">
-                                        <a href="#step-2" type="button"
-                                           class="btn btn-circle {{ $currentStep != 2 ? 'btn-default' : 'btn-success' }}">2</a>
-                                        <p>معلومات الطالب</p>
-                                    </div>
-                                    <div class="stepwizard-step">
-                                        <a href="#step-3" type="button"
-                                           class="btn btn-circle {{ $currentStep != 3 ? 'btn-default' : 'btn-success' }}"
-                                           disabled="disabled">3</a>
-                                        <p>تأكيد المعلومات</p>
+
+                            @if($process_type == "show")
+                                @include('pages.students.show_student')
+                            @else
+                                <div class="stepwizard">
+                                    <div class="stepwizard-row setup-panel">
+                                        <div class="stepwizard-step">
+                                            <a href="#step-1" type="button"
+                                               class="btn btn-circle {{ $currentStep != 1 ? 'btn-default' : 'btn-success' }}">1</a>
+                                            <p>معلومات الأب</p>
+                                        </div>
+                                        <div class="stepwizard-step">
+                                            <a href="#step-2" type="button"
+                                               class="btn btn-circle {{ $currentStep != 2 ? 'btn-default' : 'btn-success' }}">2</a>
+                                            <p>معلومات الطالب</p>
+                                        </div>
+                                        <div class="stepwizard-step">
+                                            <a href="#step-3" type="button"
+                                               class="btn btn-circle {{ $currentStep != 3 ? 'btn-default' : 'btn-success' }}"
+                                               disabled="disabled">3</a>
+                                            <p>تأكيد المعلومات</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            @include('pages.students.Father_Form')
+                                @include('pages.students.Father_Form')
 
-                            @include('pages.students.Student_Form')
+                                @include('pages.students.Student_Form')
 
-                            @include('pages.students.Student_Last_Form')
+                                @include('pages.students.Student_Last_Form')
+                            @endif
+
                         </div>
                     </div>
                 </div>

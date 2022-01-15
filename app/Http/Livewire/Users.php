@@ -33,10 +33,11 @@ class Users extends Component
     public $dob;
     public $address;
     public $photo;
+    public $user_permissions;
     public $roles, $ret_Roles, $grades, $groups;
     public $role_id, $searchRoleId;
     public $grade_id, $group_id, $father_id, $father_name, $father_identification_number;
-    public $show_table = true, $catchError, $successMessage;
+    public $show_table = true, $catchError, $successMessage, $tab_id;
     public $modalId, $name, $password, $password_confirm, $process_type;
     public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
     protected $paginationTheme = 'bootstrap';
@@ -46,6 +47,22 @@ class Users extends Component
         $this->getDataByRoleUser();
         $this->all_Groups();
         return view('livewire.users', ['users' => $this->all_Users()]);
+    }
+
+
+    public function update_permission($permission)
+    {
+        $user = User::find($this->modalId);
+        if ($user->hasDirectPermission($permission)) {
+            $user->revokePermissionTo($permission);
+        } else {
+            $user->givePermissionTo($permission);
+        }
+    }
+
+    public function update_index_tab($id)
+    {
+        $this->tab_id = $id;
     }
 
     public function getDataByRoleUser()
@@ -413,8 +430,7 @@ class Users extends Component
         $this->catchError = null;
     }
 
-    public
-    function findStudentFather()
+    public function findStudentFather()
     {
         if ($this->father_identification_number) {
             if (strlen($this->father_identification_number) == 9) {
@@ -438,8 +454,7 @@ class Users extends Component
         }
     }
 
-    public
-    function updated($propertyName)
+    public function updated($propertyName)
     {
         $this->validateOnly($propertyName, [
             'password' => 'required|min:8|max:10',
@@ -458,8 +473,7 @@ class Users extends Component
         ]);
     }
 
-    public
-    function messages()
+    public function messages()
     {
         return [
             'password.required' => 'حقل كلمة المرور مطلوب',
@@ -499,8 +513,7 @@ class Users extends Component
         ];
     }
 
-    public
-    function rules()
+    public function rules()
     {
         return [
             'password' => 'required|min:8|max:10',
@@ -508,8 +521,7 @@ class Users extends Component
         ];
     }
 
-    public
-    function resetPasswordUser()
+    public function resetPasswordUser()
     {
         $this->validate();
         DB::beginTransaction();
@@ -528,8 +540,7 @@ class Users extends Component
         }
     }
 
-    public
-    function modelUser()
+    public function modelUser()
     {
         if ($this->modalId == null) {
             return [
@@ -572,8 +583,7 @@ class Users extends Component
     }
 
 
-    public
-    function loadModalData($id, $process_type)
+    public function loadModalData($id, $process_type)
     {
         $this->modalFormReset();
         $this->process_type = $process_type;
@@ -587,6 +597,8 @@ class Users extends Component
             $this->identification_number = $data->identification_number;
             $this->address = $data->address;
             $this->dob = $data->dob;
+        } else if ($process_type == 'edit_permission') {
+            $this->user_permissions = $data->getDirectPermissions()->toArray();
         } else {
             if ($data->roles->count() == 1) {
                 if ($data->roles[0]->name != "ولي أمر الطالب") {
@@ -614,11 +626,11 @@ class Users extends Component
         }
     }
 
-    public
-    function mount()
+    public function mount()
     {
         $this->all_Grades();
         $this->all_Roles(-1);
+        $this->tab_id = "grade-02";
     }
 
     public function activeEmail($id)
@@ -670,6 +682,8 @@ class Users extends Component
         $this->resetValidation();
         $this->roles = null;
         $this->ret_Roles = null;
+        $this->user_permissions = null;
+        $this->tab_id = "grade-02";
         $this->modalId = null;
         $this->name = null;
         $this->email = null;

@@ -37,21 +37,3 @@
 
 <script src="{{ URL::asset('assets/js/bootstrap-datatables/ar/jquery.dataTables.min.js',true) }}"></script>
 <script src="{{ URL::asset('assets/js/bootstrap-datatables/ar/dataTables.bootstrap4.min.js',true) }}"></script>
-
-
-<script>
-    $(document).ready(function () {
-        $('select[name="current_role"]').on('change', function () {
-            $.ajax({
-                type: "POST",
-                url: "/current_role_update",
-                data: {
-                    current_role: $(this).val(), _token: "{{csrf_token()}}",
-                },
-                success: function () {
-                    location.href = 'dashboard';
-                }
-            });
-        });
-    });
-</script>

@@ -81,8 +81,9 @@
                                     </button>
                                     <div class="dropdown-menu embed-responsive-item" x-placement="top-end"
                                          style="position: absolute; transform: translate3d(0px, 32px, 0px); top: 0px; left: 0px; will-change: transform;">
-                                        <button class="dropdown-item"><i style="color: #ffc107"
-                                                                         class="fa fa-eye"></i>&nbsp; عرض
+                                        <button class="dropdown-item" wire:click="process_data({{ $student->id }},'show')"><i
+                                                style="color: #ffc107"
+                                                class="fa fa-eye"></i>&nbsp; عرض
                                             بيانات الطالب
                                         </button>
                                         @can('إجراء طلب اختبار')
@@ -95,7 +96,7 @@
                                         @endcan
                                         @can('تعديل طالب')
                                             <a class="dropdown-item" href="#"
-                                               wire:click="edit({{ $student->id }})"><i
+                                               wire:click="process_data({{ $student->id }},'edit')"><i
                                                     style="color:green" class="fa fa-edit"></i> تعديل بيانات
                                                 الطالب</a>
                                         @endcan

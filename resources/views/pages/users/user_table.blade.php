@@ -132,6 +132,10 @@
                                                 style="color:green" class="fa fa-edit"></i> تعديل الأدوار
                                         </button>
                                         <button class="dropdown-item"
+                                                wire:click.prevent="loadModalData({{$user->id}},'edit_permission')"><i
+                                                style="color:green" class="fa fa-edit"></i> تعديل الصلاحيات
+                                        </button>
+                                        <button class="dropdown-item"
                                                 wire:click.prevent="loadModalData({{$user->id}},'reset')"><i
                                                 style="color:green" class="fa fa-recycle"></i> إعادة تعيين كلمة
                                             المرور

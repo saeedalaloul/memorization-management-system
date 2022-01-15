@@ -88,7 +88,7 @@ preloader -->
     <!--=================================
 login-->
     <section class="height-100vh d-flex align-items-center page-section-ptb login"
-             style="background-image: url({{URL::asset('assets/images/login-bg.jpg',true)}});">
+             style="background-image: url('{{ asset('assets/images/sativa.png')}}');">
         <div class="container">
             <div class="row justify-content-center g-0 vertical-align">
                 <div class="col-lg-4 col-md-6 login-fancy-bg bg"
@@ -114,7 +114,7 @@ login-->
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="section-field mb-20">
-                                <label class="mb-10" for="name">البريدالالكتروني أو رقم الجوال* </label>
+                                <label class="mb-10" for="name">البريدالالكتروني أو رقم الجوال أو رقم الهوبة* </label>
                                 <input id="email" type="text"
                                        class="form-control @error('email') is-invalid @enderror" name="email"
                                        value="{{ old('email') }}" required autocomplete="email" autofocus>

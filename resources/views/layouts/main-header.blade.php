@@ -27,16 +27,40 @@
     <!-- top bar right -->
     <ul class="nav navbar-nav ml-auto">
         @if (count(auth()->user()->roles) > 1)
-            <li class="nav-item">
-                <select class="form-select form-select mb-3" name="current_role">
-                    <option disabled selected>تبديل الحساب</option>
+            <div class="btn-group mb-1">
+                <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    @if (auth()->user()->current_role != null)
+                        @if (auth()->user()->current_role == 'أمير المركز')
+                            {{'أمير المركز' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}" alt="">
+                        @elseif(auth()->user()->current_role == 'مشرف')
+                            {{'مشرف' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}" alt="">
+                        @elseif(auth()->user()->current_role == 'إداري')
+                            {{'إداري' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}" alt="">
+                        @elseif(auth()->user()->current_role == 'مشرف الإختبارات')
+                            {{'مشرف الإختبارات' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}" alt="">
+                        @elseif(auth()->user()->current_role == 'مختبر')
+                            {{'مختبر' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}" alt="">
+                        @elseif(auth()->user()->current_role == 'محفظ')
+                            {{'محفظ' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}" alt="">
+                        @endif
+                    @endif
+                </button>
+                <div class="dropdown-menu">
                     @for ($i = 0; $i < count(auth()->user()->roles); $i++)
-                        <option
-                            {{auth()->user()->current_role != null && auth()->user()->current_role == auth()->user()->roles[$i]->name? 'selected':''}} value="{{auth()->user()->roles[$i]->name}}">{{auth()->user()->roles[$i]->name}}</option>
+                        <a class="dropdown-item" rel="alternate"
+                           href="{{url('switch_account',auth()->user()->roles[$i]->name,true)}}">{{auth()->user()->roles[$i]->name}}</a>
                     @endfor
-                </select>
-            </li>
+                </div>
+            </div>
         @endif
+
         <li class="nav-item fullscreen">
             <a id="btnFullscreen" href="#" class="nav-link"><i class="ti-fullscreen"></i></a>
         </li>
