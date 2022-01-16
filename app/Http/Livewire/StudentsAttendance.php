@@ -160,8 +160,7 @@ class StudentsAttendance extends Component
     }
 
 
-    public
-    function studentStatusChange($id, $status)
+    public function studentStatusChange($id, $status)
     {
         $student = $this->all_Students()->firstWhere('id', $id);
         if (count($this->selectedStudents) > 0) {

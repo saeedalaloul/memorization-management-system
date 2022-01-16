@@ -12,7 +12,7 @@
                 <div class="row">
                     <div class="col-md-12" style="display: flex;justify-content: center;">
                         <label class="control-label badge badge-success"
-                               style="padding: 7px 10px;">النوع</label>
+                               style="padding: 7px 10px;">العملية</label>
                     </div>
                 </div>
 

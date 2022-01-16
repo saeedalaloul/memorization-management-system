@@ -11,7 +11,7 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <label class="control-label">النوع</label>
+                        <label class="control-label" style="display: flex;justify-content: center;">العملية</label>
                         <select wire:model="type_id" class="form-control form-white" style="padding: 10px;">
                             @foreach($types as $type)
                                 <option value="{{$type->id}}">{{$type->name}}</option>

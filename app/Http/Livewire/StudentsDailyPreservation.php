@@ -9,6 +9,7 @@ use App\Models\Group;
 use App\Models\LowerSupervisor;
 use App\Models\QuranSuras;
 use App\Models\Student;
+use App\Models\StudentAttendance;
 use App\Models\StudentDailyPreservation;
 use App\Models\Supervisor;
 use Carbon\Carbon;
@@ -258,8 +259,7 @@ class StudentsDailyPreservation extends Component
     }
 
 
-    public
-    function modalFormReset()
+    public function modalFormReset()
     {
         $this->resetValidation();
         $this->retStudent = null;
@@ -281,8 +281,7 @@ class StudentsDailyPreservation extends Component
         $this->isFoundModal = false;
     }
 
-    public
-    function all_QuranSuras()
+    public function all_QuranSuras()
     {
         if ($this->sura_to_id == 114) {
             $this->suras_from = QuranSuras::query()
@@ -299,20 +298,17 @@ class StudentsDailyPreservation extends Component
             ->orderByDesc('id')->get();
     }
 
-    public
-    function all_DailyPreservationEvaluation()
+    public function all_DailyPreservationEvaluation()
     {
         $this->evaluations = DailyPreservationEvaluation::all();
     }
 
-    public
-    function all_DailyPreservationType()
+    public function all_DailyPreservationType()
     {
         $this->types = DailyPreservationType::all();
     }
 
-    public
-    function all_total_number_aya()
+    public function all_total_number_aya()
     {
         if ($this->sura_to_id != null) {
             if ($this->sura_to_id == $this->ret_sura_to_id) {
@@ -357,8 +353,7 @@ class StudentsDailyPreservation extends Component
         }
     }
 
-    public
-    function all_Groups()
+    public function all_Groups()
     {
         if (auth()->user()->current_role == 'مشرف' || auth()->user()->current_role == 'اداري') {
             if ($this->searchGradeId) {
@@ -371,8 +366,7 @@ class StudentsDailyPreservation extends Component
         }
     }
 
-    public
-    function all_Students()
+    public function all_Students()
     {
         if (auth()->user()->current_role == 'مشرف') {
             if (!empty($this->searchGroupId)) {
@@ -472,4 +466,20 @@ class StudentsDailyPreservation extends Component
         }
     }
 
+    public function store_Attendance($id,$status)
+    {
+        $student = Student::find($id);
+        if ($student) {
+            StudentAttendance::updateOrCreate([
+                'student_id' => $id,
+                'grade_id' => $student->grade_id,
+                'group_id' =>$student->group_id ,
+                'teacher_id' => $student->group->teacher_id,
+                'attendance_date' => date('Y-m-d'),
+                'attendance_status' => $status,
+            ]);
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية اعتماد حضور وغياب الطالب بنجاح.']);
+        }
+    }
 }
