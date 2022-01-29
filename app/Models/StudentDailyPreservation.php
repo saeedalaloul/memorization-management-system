@@ -60,7 +60,7 @@ class StudentDailyPreservation extends Model
                     ->whereBetween('aya_number', [1, $this->to_aya])
                     ->sum('aya_percent')) / 15;
 
-            return $sura_start;
+            return round($sura_start + $suras_between + $sura_end, 2);
         }
     }
 
