@@ -146,7 +146,7 @@
                                     <td>{{ $report->quranSuraTo->name }}</td>
                                     <td>{{ $report->toaya() }}</td>
                                     <td>{{ $report->dailyPreservationEvaluation->name }}</td>
-                                    {{--                                    <td>{{ $report->calcnumberpages()}}</td>--}}
+                                    <td>{{ $report->calcnumberpages()}}</td>
                                 </tr>
                             @empty
                                 <tr style="text-align: center">
