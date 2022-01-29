@@ -47,6 +47,11 @@ class Testers extends Component
         $this->grades = $this->all_Grades();
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortDirection == 'asc') {

@@ -1,4 +1,4 @@
-@can('إدارة الإختبارات')
+@can('إدارة اختبارات التجميعي')
     <div class="row">
         @if (isset($grades))
             <div>

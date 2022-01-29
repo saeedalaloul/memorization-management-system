@@ -104,6 +104,18 @@
                                     @endif
                                 </li>
                             @endcan
+                            @can('إدارة طلبات اختبارات التجميعي')
+                                <li>
+                                    @if (\App\Models\ExamSummativeOrder::unreadexams() > 0)
+                                        <a href="{{url('manage_exams_summative_orders',null,true)}}">طلبات اختبارات
+                                            التجميعي<span
+                                                class="badge bg-danger float-right mt-1">{{\App\Models\ExamSummativeOrder::unreadexams()}}</span></a>
+                                    @else
+                                        <a href="{{url('manage_exams_summative_orders',null,true)}}">طلبات اختبارات
+                                            التجميعي</a>
+                                    @endif
+                                </li>
+                            @endcan
                             @can('إدارة الإختبارات')
                                 <li>
                                     @if (\App\Models\Exam::unreadexams() > 0)
@@ -114,6 +126,17 @@
                                     @endif
                                 </li>
                             @endcan
+                            @can('إدارة اختبارات التجميعي')
+                                <li>
+                                    @if (\App\Models\SummativeExam::unreadexams() > 0)
+                                        <a href="{{url('manage_exams_summative',null,true)}}">اختبارات التجميعي القرآنية<span
+                                                class="badge bg-danger float-right mt-1">{{\App\Models\SummativeExam::unreadexams()}}</span></a>
+                                    @else
+                                        <a href="{{url('manage_exams_summative',null,true)}}">اختبارات التجميعي
+                                            القرآنية</a>
+                                    @endif
+                                </li>
+                            @endcan
                             @can('إدارة اختبارات اليوم')
                                 <li>
                                     @if (\App\Models\ExamOrder::unreadtodayexams() > 0)
@@ -121,6 +144,16 @@
                                                 class="badge bg-danger float-right mt-1">{{\App\Models\ExamOrder::unreadtodayexams()}}</span></a>
                                     @else
                                         <a href="{{url('manage_today_exams',null,true)}}">اختبارات اليوم</a>
+                                    @endif
+                                </li>
+                            @endcan
+                            @can('إدارة اختبارات التجميعي اليوم')
+                                <li>
+                                    @if (\App\Models\ExamSummativeOrder::unreadtodayexams() > 0)
+                                        <a href="{{url('manage_today_exams_summative',null,true)}}">اختبارات التجميعي اليوم<span
+                                                class="badge bg-danger float-right mt-1">{{\App\Models\ExamSummativeOrder::unreadtodayexams()}}</span></a>
+                                    @else
+                                        <a href="{{url('manage_today_exams_summative',null,true)}}">اختبارات التجميعي اليوم</a>
                                     @endif
                                 </li>
                             @endcan

@@ -37,6 +37,48 @@
         </div>
     </div>
 </div>
+<br>
+<div class="col-md-12">
+    <div class="text-dark form-row">
+        <div class="col">
+            <label for="exam_questions_summative_three_part"> عدد أسئلة
+                اختبار التجميعي (3) أجزاء</label>
+            <input type="number" max="4" wire:model="exam_questions_summative_three_part"
+                   min="3" class="form-control" required>
+            @error('exam_questions_summative_three_part')
+            <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col">
+            <label for="exam_questions_summative_five_part"> عدد أسئلة
+                اختبار التجميعي (5) أجزاء</label>
+            <input type="number" max="6" wire:model="exam_questions_summative_five_part"
+                   min="5" class="form-control" required>
+            @error('exam_questions_summative_five_part')
+            <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col">
+            <label for="exam_questions_summative_ten_part"> عدد أسئلة
+                اختبار التجميعي (10) أجزاء</label>
+            <input type="number" max="8" wire:model="exam_questions_summative_ten_part"
+                   min="7" class="form-control" required>
+            @error('exam_questions_summative_ten_part')
+            <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col">
+            <label for="exam_questions_summative_fifteen_part"> عدد أسئلة
+                اختبار التجميعي (15) أجزاء</label>
+            <input type="number" max="11" wire:model="exam_questions_summative_fifteen_part"
+                   min="10" class="form-control" required>
+            @error('exam_questions_summative_fifteen_part')
+            <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+</div>
+
 <div class="col-md-12">
     <div class="text-dark form-row">
         <div class="col">
@@ -54,7 +96,7 @@
         <div class="col">
             <br>
             <label for="exam_success_rate">نسبة النجاح في
-                الإختبارات</label>
+                الإختبارات (المنفردة)</label>
             <input type="number" name="exam_success_rate"
                    max="90" min="80" wire:model="exam_success_rate"
                    class="form-control" required>
@@ -62,9 +104,19 @@
             <div class="alert alert-danger">{{ $message }}</div>
             @enderror
         </div>
+        <div class="col">
+            <br>
+            <label for="exam_success_rate">نسبة النجاح في
+                الإختبارات (التجميعي)</label>
+            <input type="number" name="exam_success_rate"
+                   max="90" min="80" class="form-control" required>
+            @error('exam_success_rate')
+            <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
     </div>
     <br>
-    <button wire:click.prevent="store()"
+    <button wire:click="store()"
             class="btn btn-success btn-sm nextBtn btn-lg pull-right"
             type="button">حفظ اعدادات الإختبارات
     </button>

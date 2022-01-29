@@ -31,6 +31,11 @@ class TeachersAttendance extends Component
         return view('livewire.teachers-attendance', ['teachers' => $this->all_Teachers(),]);
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function checkAllRadioBtn($type)
     {
         if ($type == 0) {

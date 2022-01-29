@@ -24,6 +24,7 @@ class CreateStudentsDailyPreservationTable extends Migration
             $table->unsignedTinyInteger('to_aya')->index();
             $table->foreignId('evaluation')->index()->references('id')->on('daily_preservation_evaluations')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('daily_preservation_date')->index();
+            $table->timestamps();
         });
     }
 

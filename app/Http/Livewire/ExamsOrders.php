@@ -42,6 +42,11 @@ class ExamsOrders extends Component
         ]);
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function all_Exam_Orders()
     {
         if (auth()->user()->current_role == 'محفظ') {

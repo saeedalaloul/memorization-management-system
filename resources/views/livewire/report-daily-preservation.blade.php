@@ -126,15 +126,15 @@
                             ?>
                             <tbody>
                             @forelse($reports_daily_preservation as $report)
-                                <?php
-                                if (isset($report)) {
-                                    if ($report->type == 1) {
-                                        $numberPagesSaved += $report->calcnumberpages();
-                                    } else {
-                                        $numberPagesReview += $report->calcnumberpages();
-                                    }
-                                }
-                                ?>
+<!--                                --><?php
+//                                if (isset($report)) {
+//                                    if ($report->type == 1) {
+//                                        $numberPagesSaved += $report->calcnumberpages();
+//                                    } else {
+//                                        $numberPagesReview += $report->calcnumberpages();
+//                                    }
+//                                }
+//                                ?>
                                 <tr style="font-size: 15px; color: #1e7e34">
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{\Carbon\Carbon::parse($report->daily_preservation_date)

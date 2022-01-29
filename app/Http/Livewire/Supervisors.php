@@ -37,6 +37,11 @@ class Supervisors extends Component
         return view('livewire.supervisors', ['supervisors' => $this->all_Supervisors()]);
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortDirection == 'asc') {

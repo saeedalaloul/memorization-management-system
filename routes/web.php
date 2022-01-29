@@ -91,6 +91,15 @@ Route::group(
     //==============================Exams Today============================
     Route::view('manage_today_exams', 'pages.today_exams.index');
 
+    //==============================Exam Summative============================
+    Route::view('manage_exams_summative', 'pages.exams_summative.index');
+
+    //==============================Exam Summative Orders============================
+    Route::view('manage_exams_summative_orders', 'pages.exams_summative_orders.index');
+
+    //==============================Exams Summative Today============================
+    Route::view('manage_today_exams_summative', 'pages.today_exams_summative.index');
+
     //==============================Exams Settings============================
     Route::view('manage_exams_settings', 'pages.exams_settings.index');
 

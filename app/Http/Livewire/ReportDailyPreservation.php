@@ -34,10 +34,16 @@ class ReportDailyPreservation extends Component
 
     public function mount()
     {
-        $this->searchDateFrom = date('Y-m-1');
+        $this->searchDateFrom = date('Y-m-d');
         $this->searchDateTo = date('Y-m-d');
+        $this->searchReportTypeId = 1;
         $this->all_Grades();
         $this->all_Report_Types();
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
     public function all_Report_Types()

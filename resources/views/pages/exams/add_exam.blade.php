@@ -131,7 +131,7 @@
                     <div class="col-md-5">
                         <button type="button"
                                 wire:click.prevent="examInformationApproval()"
-                                class="btn btn-outline-success btn-sm">اعتماد معلومات الإختبار
+                                class="btn btn-outline-success btn-sm">اعتماد معلومات اختبار التجميعي
                         </button>
                     </div>
                 @endif

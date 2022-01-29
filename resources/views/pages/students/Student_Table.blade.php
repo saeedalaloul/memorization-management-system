@@ -56,65 +56,145 @@
                         <th>تاريخ الميلاد</th>
                         <th>اسم المرحلة</th>
                         <th>اسم المجموعة</th>
-                        <th>البريد الإلكتروني</th>
+                        <th>حالة الطالب</th>
                         <th>العمليات</th>
                     </tr>
                     </thead>
                     <tbody>
                     @forelse($students as $student)
-                        <tr>
+                        @php
+                            $warning = false;
+                            $block = false;
+                            $student_prevent_status = false;
+                            $selectClass = '';
+                            if (isset($student)) {
+                                $student_prevent_status = $student->student_prevent_status != null ? true : false;
+                                $student_prevent_status == true ? $selectClass = 'text-dark table-danger': $selectClass ='';
+                                if ($student->student_is_block != null) {
+                                          $block = true;
+                                          $selectClass = 'text-dark table-danger';
+                                } else if ($student->student_is_warning != null) {
+                                  $warning = true;
+                                  $selectClass = 'text-dark table-warning';
+                                }}
+                        @endphp
+                        <tr class="{{$selectClass}}">
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $student->user->name }}</td>
                             <td>{{ $student->user->identification_number }}</td>
                             <td>{{ $student->user->dob }}</td>
                             <td>{{ $student->grade->name }}</td>
                             <td>{{ $student->group->name }}</td>
-                            <td>{{ $student->user->email }}</td>
-                            <td class="embed-responsive-item">
-                                <div class="btn-group mb-1 embed-responsive-item">
-                                    <button type="button" class="btn btn-success">العمليات</button>
-                                    <button type="button"
-                                            class="btn btn-success dropdown-toggle dropdown-toggle-split"
-                                            data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                        <span class="sr-only">العمليات</span>
-                                    </button>
-                                    <div class="dropdown-menu embed-responsive-item" x-placement="top-end"
-                                         style="position: absolute; transform: translate3d(0px, 32px, 0px); top: 0px; left: 0px; will-change: transform;">
-                                        <button class="dropdown-item" wire:click="process_data({{ $student->id }},'show')"><i
-                                                style="color: #ffc107"
-                                                class="fa fa-eye"></i>&nbsp; عرض
-                                            بيانات الطالب
+                            <td>
+                                @if($block == true)
+                                    @if(auth()->user()->current_role == 'أمير المركز')
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                data-toggle="modal"
+                                                wire:click="getStudent({{$student->id}})"
+                                                data-target="#block_cancel">
+                                            فك الحظر
                                         </button>
-                                        @can('إجراء طلب اختبار')
+                                    @else
+                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                data-toggle="popover" data-trigger="focus" title="الطالب محظور"
+                                                data-content="تم حظر عمليات الطالب بسبب غيابه المتكرر لأربع أيام,راجع أمير المركز!">
+                                            اضغط هنا
+                                        </button>
+                                    @endif
+                                @elseif($warning == true)
+                                    @if(auth()->user()->current_role == 'أمير المركز' ||
+                                                              auth()->user()->current_role == 'مشرف')
+                                        <button class="btn btn-outline-warning btn-sm"
+                                                data-toggle="modal"
+                                                wire:click="getStudent({{$student->id}})"
+                                                data-target="#warning_cancel">
+                                            إلغاء الإنذار
+                                        </button>
+                                    @else
+                                        <button type="button" class="btn btn-outline-warning btn-sm"
+                                                data-toggle="popover" data-trigger="focus" title="إنذار نهائي"
+                                                data-content="تم إعطاء الطالب إنذار نهائي بسبب غيابه المتكرر لثلاث أيام,راجع مشرف المرحلة حتى لا يتم تجميد عمليات الطالب!">
+                                            اضغط هنا
+                                        </button>
+                                    @endif
+                                @elseif($student_prevent_status == true)
+                                    @if(auth()->user()->current_role == 'أمير المركز')
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                wire:click="activeStudent({{$student->id}});">
+                                            محظور
+                                        </button>
+                                    @else
+                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                data-toggle="popover" data-trigger="focus"
+                                                title="الطالب محظور"
+                                                data-content="تم حظر عمليات الطالب ,راجع أمير المركز!">
+                                            اضغط هنا
+                                        </button>
+                                    @endif
+                                @elseif($student_prevent_status == false)
+                                    @if(auth()->user()->current_role == 'أمير المركز')
+                                        <button class="btn btn-outline-success btn-sm"
+                                                wire:click="activeStudent({{$student->id}});">
+                                            لا حظر
+                                        </button>
+                                    @endif
+                                @endif
+                            </td>
+                            <td class="embed-responsive-item">
+                                @if($block == false && $student_prevent_status == false)
+                                    <div class="btn-group mb-1 embed-responsive-item">
+                                        <button type="button" class="btn btn-success">العمليات</button>
+                                        <button type="button"
+                                                class="btn btn-success dropdown-toggle dropdown-toggle-split"
+                                                data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false">
+                                            <span class="sr-only">العمليات</span>
+                                        </button>
+                                        <div class="dropdown-menu embed-responsive-item" x-placement="top-end"
+                                             style="position: absolute; transform: translate3d(0px, 32px, 0px); top: 0px; left: 0px; will-change: transform;">
                                             <button class="dropdown-item"
-                                                    wire:click="checkLastExamStatus({{$student->id}})">
-                                                <i
-                                                    style="color:#0000cc" class="fa fa-first-order"></i>إجراء
-                                                طلب اختبار
+                                                    wire:click="process_data({{ $student->id }},'show')"><i
+                                                    style="color: #ffc107"
+                                                    class="fa fa-eye"></i>&nbsp; عرض
+                                                بيانات الطالب
                                             </button>
-                                        @endcan
-                                        @can('تعديل طالب')
+                                            @can('إجراء طلب اختبار')
+                                                <button class="dropdown-item"
+                                                        wire:click="requestExamByType({{$student->id}})">
+                                                    <i
+                                                        style="color:#0000cc" class="fa fa-first-order"></i>إجراء
+                                                    طلب اختبار
+                                                </button>
+                                            @endcan
                                             <a class="dropdown-item" href="#"
-                                               wire:click="process_data({{ $student->id }},'edit')"><i
-                                                    style="color:green" class="fa fa-edit"></i> تعديل بيانات
-                                                الطالب</a>
-                                        @endcan
-                                        @can('حذف طالب')
-                                            <button class="dropdown-item" data-toggle="modal"
-                                                    data-target="#delete_student"
-                                                    wire:click.prevent="getStudent({{$student->id}})"><i
-                                                    style="color: red" class="fa fa-trash"></i>&nbsp; حذف
-                                                بيانات
-                                                الطالب
-                                            </button>
-                                        @endcan
+                                               wire:click="process_data({{ $student->id }},'reset')"><i
+                                                    style="color:green" class="fa fa-recycle"></i> تصفير بيانات
+                                                الحفظ والمراجعة</a>
+                                            @can('تعديل طالب')
+                                                <a class="dropdown-item" href="#"
+                                                   wire:click="process_data({{ $student->id }},'edit')"><i
+                                                        style="color:green" class="fa fa-edit"></i> تعديل بيانات
+                                                    الطالب</a>
+                                            @endcan
+                                            @can('حذف طالب')
+                                                <button class="dropdown-item" data-toggle="modal"
+                                                        data-target="#delete_student"
+                                                        wire:click="getStudent({{$student->id}})"><i
+                                                        style="color: red" class="fa fa-trash"></i>&nbsp; حذف
+                                                    بيانات
+                                                    الطالب
+                                                </button>
+                                            @endcan
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             </td>
                         </tr>
                         @include('pages.students.delete')
+                        @include('pages.students.warning_cancel')
+                        @include('pages.students.block_cancel')
                         @include('pages.students.submit_exam_request')
+                        @include('pages.students.reset_data_daily_preservation')
                     @empty
                         <tr style="text-align: center">
                             <td colspan="8">No data available in table</td>
@@ -129,7 +209,7 @@
                         <th>تاريخ الميلاد</th>
                         <th>اسم المرحلة</th>
                         <th>اسم المجموعة</th>
-                        <th>البريد الإلكتروني</th>
+                        <th>حالة الطالب</th>
                         <th>العمليات</th>
                     </tr>
                     </tfoot>

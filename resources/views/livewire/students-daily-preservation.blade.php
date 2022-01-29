@@ -74,7 +74,23 @@
                             </thead>
                             <tbody>
                             @forelse($students as $student)
-                                <tr>
+                                @php
+                                    $warning = false;
+                                    $block = false;
+                                    $student_prevent_status = false;
+                                    $selectClass = '';
+                                    if (isset($student)) {
+                                       $student_prevent_status = $student->student_prevent_status != null ? true : false;
+                                       $student_prevent_status == true ? $selectClass = 'text-dark table-danger': $selectClass ='';
+                                   if ($student->student_is_block != null) {
+                                        $block = true;
+                                        $selectClass = 'text-dark table-danger';
+                                    } else if ($student->student_is_warning != null) {
+                                  $warning = true;
+                                  $selectClass = 'text-dark table-warning';
+                                }}
+                                @endphp
+                                <tr class="{{$selectClass}}">
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $student->user->name }}</td>
                                     <td>{{ $student->grade->name }}</td>
@@ -108,51 +124,57 @@
                                             </label>
 
                                         @else
+                                            @if($block == false && $student_prevent_status == false)
+                                                <label class="block text-gray-500 font-semibold sm:border-r sm:pr-4">
+                                                    <input class="leading-tight"
+                                                           type="radio"
+                                                           name="flexRadioDefault.{{$loop->iteration}}"
+                                                           wire:click="store_Attendance({{$student->id}},true)">
+                                                    <span class="text-success">حضور</span>
+                                                </label>
 
-                                            <label class="block text-gray-500 font-semibold sm:border-r sm:pr-4">
-                                                <input class="leading-tight"
-                                                       type="radio"
-                                                       name="flexRadioDefault.{{$loop->iteration}}"
-                                                       wire:click="store_Attendance({{$student->id}},true)">
-                                                <span class="text-success">حضور</span>
-                                            </label>
+                                                <label class="ml-4 block text-gray-500 font-semibold">
+                                                    <input class="leading-tight"
+                                                           type="radio"
+                                                           name="flexRadioDefault.{{$loop->iteration}}"
+                                                           wire:click="store_Attendance({{$student->id}},2)">
+                                                    <span class="text-success">تأخر</span>
+                                                </label>
 
-                                            <label class="ml-4 block text-gray-500 font-semibold">
-                                                <input class="leading-tight"
-                                                       type="radio"
-                                                       name="flexRadioDefault.{{$loop->iteration}}"
-                                                       wire:click="store_Attendance({{$student->id}},2)">
-                                                <span class="text-success">تأخر</span>
-                                            </label>
-
-                                            <label class="ml-4 block text-gray-500 font-semibold">
-                                                <input class="leading-tight"
-                                                       type="radio"
-                                                       name="flexRadioDefault.{{$loop->iteration}}"
-                                                       wire:click="store_Attendance({{$student->id}},false)">
-                                                <span class="text-danger">غياب</span>
-                                            </label>
-
+                                                <label class="ml-4 block text-gray-500 font-semibold">
+                                                    <input class="leading-tight"
+                                                           type="radio"
+                                                           name="flexRadioDefault.{{$loop->iteration}}"
+                                                           wire:click="store_Attendance({{$student->id}},false)">
+                                                    <span class="text-danger">غياب</span>
+                                                </label>
+                                            @endif
                                         @endif
 
                                     </td>
                                     <td>
-                                        @if(isset($attendance_student->attendance_status))
-                                            @if ($attendance_student->attendance_status == 1 || $attendance_student->attendance_status == 2)
-                                                <button class="btn btn-outline-danger btn-sm"
-                                                        wire:click.prevent="loadModalData({{$student->id}},-1)">إضافة
-                                                </button>
+                                        @if($block == false && $student_prevent_status == false)
+                                            @if(isset($attendance_student->attendance_status))
+                                                @if ($attendance_student->attendance_status == 1 || $attendance_student->attendance_status == 2)
+                                                    <button class="btn btn-outline-danger btn-sm"
+                                                            wire:click="loadModalData({{$student->id}},-1)">
+                                                        إضافة
+                                                    </button>
+                                                @else
+                                                    <button disabled class="btn btn-outline-danger btn-sm">إضافة
+                                                    </button>
+                                                @endif
                                             @else
-                                                <button disabled class="btn btn-outline-danger btn-sm">إضافة</button>
+                                                <button disabled class="btn btn-outline-danger btn-sm"
+                                                        wire:click="">إضافة
+                                                </button>
                                             @endif
-                                        @else
-                                            <button disabled class="btn btn-outline-danger btn-sm">إضافة</button>
                                         @endif
                                         <button class="btn btn-outline-primary btn-sm"
-                                                wire:click.prevent="loadModalData({{$student->id}},1)">أخر حفظ
+                                                wire:click="loadModalData({{$student->id}},1)">أخر حفظ
                                         </button>
                                         <button class="btn btn-outline-success btn-sm"
-                                                wire:click.prevent="loadModalData({{$student->id}},2)">أخر مراجعة
+                                                wire:click="loadModalData({{$student->id}},2)">أخر مراجعة
                                         </button>
                                     </td>
                                 </tr>

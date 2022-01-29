@@ -38,6 +38,11 @@ class LowerSupervisors extends Component
         return view('livewire.lower-supervisors', ['lower_supervisors' => $this->all_LowerSupervisors()]);
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortDirection == 'asc') {

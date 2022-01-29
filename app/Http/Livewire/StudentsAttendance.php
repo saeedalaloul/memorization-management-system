@@ -32,6 +32,11 @@ class StudentsAttendance extends Component
         return view('livewire.students-attendance', ['students' => $this->all_Students(),]);
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function checkAllRadioBtn($type)
     {
         if ($type == 0) {

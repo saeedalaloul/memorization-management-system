@@ -73,32 +73,40 @@
                             @if($process_type == "show")
                                 @include('pages.students.show_student')
                             @else
-                                <div class="stepwizard">
-                                    <div class="stepwizard-row setup-panel">
-                                        <div class="stepwizard-step">
-                                            <a href="#step-1" type="button"
-                                               class="btn btn-circle {{ $currentStep != 1 ? 'btn-default' : 'btn-success' }}">1</a>
-                                            <p>معلومات الأب</p>
-                                        </div>
-                                        <div class="stepwizard-step">
-                                            <a href="#step-2" type="button"
-                                               class="btn btn-circle {{ $currentStep != 2 ? 'btn-default' : 'btn-success' }}">2</a>
-                                            <p>معلومات الطالب</p>
-                                        </div>
-                                        <div class="stepwizard-step">
-                                            <a href="#step-3" type="button"
-                                               class="btn btn-circle {{ $currentStep != 3 ? 'btn-default' : 'btn-success' }}"
-                                               disabled="disabled">3</a>
-                                            <p>تأكيد المعلومات</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                @if (auth()->user()->current_role == 'أمير المركز' ||
+                                     auth()->user()->current_role == 'مشرف' ||
+                                     auth()->user()->current_role == 'اداري' ||
+                                     auth()->user()->current_role == 'محفظ')
 
-                                @include('pages.students.Father_Form')
+                                    @can('إضافة طالب')
+                                        <div class="stepwizard">
+                                            <div class="stepwizard-row setup-panel">
+                                                <div class="stepwizard-step">
+                                                    <a href="#step-1" type="button"
+                                                       class="btn btn-circle {{ $currentStep != 1 ? 'btn-default' : 'btn-success' }}">1</a>
+                                                    <p>معلومات الأب</p>
+                                                </div>
+                                                <div class="stepwizard-step">
+                                                    <a href="#step-2" type="button"
+                                                       class="btn btn-circle {{ $currentStep != 2 ? 'btn-default' : 'btn-success' }}">2</a>
+                                                    <p>معلومات الطالب</p>
+                                                </div>
+                                                <div class="stepwizard-step">
+                                                    <a href="#step-3" type="button"
+                                                       class="btn btn-circle {{ $currentStep != 3 ? 'btn-default' : 'btn-success' }}"
+                                                       disabled="disabled">3</a>
+                                                    <p>تأكيد المعلومات</p>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                @include('pages.students.Student_Form')
+                                        @include('pages.students.Father_Form')
 
-                                @include('pages.students.Student_Last_Form')
+                                        @include('pages.students.Student_Form')
+
+                                        @include('pages.students.Student_Last_Form')
+                                    @endcan
+                                @endif
                             @endif
 
                         </div>

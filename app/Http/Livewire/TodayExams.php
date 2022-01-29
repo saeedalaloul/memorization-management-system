@@ -51,6 +51,11 @@ class TodayExams extends Component
         $this->read_All_Exams_Today_Orders();
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortDirection == 'asc') {

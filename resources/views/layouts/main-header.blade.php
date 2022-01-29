@@ -33,22 +33,28 @@
                     @if (auth()->user()->current_role != null)
                         @if (auth()->user()->current_role == 'أمير المركز')
                             {{'أمير المركز' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}" alt="">
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
                         @elseif(auth()->user()->current_role == 'مشرف')
                             {{'مشرف' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}" alt="">
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
+                                 alt="">
                         @elseif(auth()->user()->current_role == 'إداري')
                             {{'إداري' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}" alt="">
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
+                                 alt="">
                         @elseif(auth()->user()->current_role == 'مشرف الإختبارات')
                             {{'مشرف الإختبارات' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}" alt="">
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
                         @elseif(auth()->user()->current_role == 'مختبر')
                             {{'مختبر' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}" alt="">
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
+                                 alt="">
                         @elseif(auth()->user()->current_role == 'محفظ')
                             {{'محفظ' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}" alt="">
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
+                                 alt="">
                         @endif
                     @endif
                 </button>
@@ -64,28 +70,55 @@
         <li class="nav-item fullscreen">
             <a id="btnFullscreen" href="#" class="nav-link"><i class="ti-fullscreen"></i></a>
         </li>
-        <li class="nav-item dropdown ">
+        @php
+            $count = \App\Models\StudentWarning::UnreadWarnings() + \App\Models\StudentBlock::UnreadBlocks();
+            $studentWarnings = \App\Models\StudentWarning::Warnings();
+            $studentBlocks = \App\Models\StudentBlock::Blocks();
+        @endphp
+        <li class="nav-item dropdown">
             <a class="nav-link top-nav" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                aria-expanded="false">
                 <i class="ti-bell"></i>
-                <span class="badge badge-danger notification-status"> </span>
+                <span class="badge badge-danger notification-status">{{$count == 0? '':' '}}</span>
             </a>
             <div class="dropdown-menu dropdown-menu-right dropdown-big dropdown-notifications">
                 <div class="dropdown-header notifications">
-                    <strong>Notifications</strong>
-                    <span class="badge badge-pill badge-warning">05</span>
+                    <strong>الإشعارات</strong>
+                    <span class="badge badge-pill badge-warning">{{$count}}</span>
                 </div>
                 <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">New registered user <small class="float-right text-muted time">Just
-                        now</small> </a>
-                <a href="#" class="dropdown-item">New invoice received <small class="float-right text-muted time">22
-                        mins</small> </a>
-                <a href="#" class="dropdown-item">Server error report<small class="float-right text-muted time">7
-                        hrs</small> </a>
-                <a href="#" class="dropdown-item">Database report<small class="float-right text-muted time">1
-                        days</small> </a>
-                <a href="#" class="dropdown-item">Order confirmation<small class="float-right text-muted time">2
-                        days</small> </a>
+                @if ($studentWarnings != null)
+                    @foreach($studentWarnings as $key => $value)
+                        @if ($value->warning_expiry_date != null)
+                            <a href="{{url('manage_student',null,true)}}"
+                               class="dropdown-item">{{"لقد تم إلغاء إنذار الطالب ".Str::limit($value->student->user->name,14,'...')}}
+                                <small
+                                    class="float-right text-muted time">{{Carbon\Carbon::parse($value['updated_at'])->diffForHumans()}}</small></a>
+                        @else
+                            <a href="{{url('manage_student',null,true)}}"
+                               class="dropdown-item">{{"لقد تم إنذار الطالب ".Str::limit($value->student->user->name,14,'...')}}
+                                <small
+                                    class="float-right text-muted time">{{Carbon\Carbon::parse($value['updated_at'])->diffForHumans()}}</small></a>
+                        @endif
+                    @endforeach
+                    @if ($studentBlocks != null)
+                        @foreach($studentBlocks as $key => $value)
+                            @if ($value->block_expiry_date != null)
+                                <a href="{{url('manage_student',null,true)}}"
+                                   class="dropdown-item">{{"لقد تم فك حظر الطالب ".Str::limit($value->student->user->name,14,'...')}}
+                                    <small
+                                        class="float-right text-muted time">{{Carbon\Carbon::parse($value['updated_at'])->diffForHumans()}}</small></a>
+                            @else
+                                <a href="{{url('manage_student',null,true)}}"
+                                   class="dropdown-item">{{"لقد تم حظر الطالب ".Str::limit($value->student->user->name,14,'...')}}
+                                    <small
+                                        class="float-right text-muted time">{{Carbon\Carbon::parse($value['updated_at'])->diffForHumans()}}</small></a>
+                            @endif
+                        @endforeach
+                    @endif
+                @else
+                    <p class="text-dark text-center">لا توجد إشعارات</p>
+                @endif
             </div>
         </li>
         <li class="nav-item dropdown ">

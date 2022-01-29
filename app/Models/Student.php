@@ -68,4 +68,34 @@ class Student extends Model
     {
         return $this->hasMany('App\Models\Exam', 'student_id');
     }
+
+    // علاقة بين الإنذارات التي لم يتم إلغائها والطلاب لعرض الإنذار في جدول الطلاب
+    public function student_is_warning()
+    {
+        return $this->hasOne('App\Models\StudentWarning', 'student_id','id')->whereNull('warning_expiry_date');
+    }
+
+    // علاقة بين الإنذارات والطلاب لعرض الإنذار في جدول الطلاب
+    public function student_warning()
+    {
+        return $this->hasOne('App\Models\StudentWarning', 'student_id','id');
+    }
+
+    // علاقة بين الحظر الذي لم يتم إلغائه والطلاب لعرض الحظر في جدول الطلاب
+    public function student_is_block()
+    {
+        return $this->hasOne('App\Models\StudentBlock', 'student_id','id')->whereNull('block_expiry_date');
+    }
+
+    // علاقة بين الحظر والطلاب لعرض الحظر في جدول الطلاب
+    public function student_block()
+    {
+        return $this->hasOne('App\Models\StudentBlock', 'student_id','id');
+    }
+
+    // علاقة بين جدول حالة منع الطالب والطلاب لعرض حالة منع الطالب في جدول الطلاب
+    public function student_prevent_status()
+    {
+        return $this->hasOne('App\Models\PreventStatusStudent', 'student_id','id');
+    }
 }

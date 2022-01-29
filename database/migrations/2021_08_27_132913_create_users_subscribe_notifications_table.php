@@ -16,6 +16,7 @@ class CreateUsersSubscribeNotificationsTable extends Migration
         Schema::create('user_subscribe_notifications', function (Blueprint $table) {
             $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('player_id', 40)->unique()->index();
+            $table->timestamps();
         });
     }
 

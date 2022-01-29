@@ -20,7 +20,7 @@ class CreateStudentsAttendancesTable extends Migration
             $table->foreignId('group_id')->index()->references('id')->on('groups')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('attendance_date')->index();
-            $table->boolean('attendance_status');
+            $table->boolean('attendance_status')->index();
             $table->timestamps();
         });
     }

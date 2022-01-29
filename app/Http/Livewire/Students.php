@@ -5,12 +5,19 @@ namespace App\Http\Livewire;
 use App\Models\Exam;
 use App\Models\ExamOrder;
 use App\Models\ExamSettings;
+use App\Models\ExamSummativeOrder;
 use App\Models\Father;
 use App\Models\Grade;
 use App\Models\Group;
 use App\Models\LowerSupervisor;
+use App\Models\PreventStatusStudent;
 use App\Models\QuranPart;
+use App\Models\QuranSummativePart;
 use App\Models\Student;
+use App\Models\StudentBlock;
+use App\Models\StudentDailyPreservation;
+use App\Models\StudentWarning;
+use App\Models\SummativeExam;
 use App\Models\Supervisor;
 use App\Models\Teacher;
 use App\Models\User;
@@ -18,6 +25,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -29,12 +37,14 @@ class Students extends Component
 
     public $successMessage = '';
 
-    public $catchError, $updateMode = false, $isFoundFather = false,$tab_id,
-        $photo, $show_table = true, $process_type, $quran_parts, $groups, $grades;
+    public $catchError, $updateMode = false, $isFoundFather = false, $tab_id,
+        $photo, $show_table = true, $process_type, $quran_parts, $groups, $grades, $warning_cancel_notes,
+        $block_cancel_notes, $reset_data_daily_preservation_type, $message_warning_reset_data,
+        $last_quran_part_id;
 
     public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
 
-    public $currentStep = 1, $father_id, $student_id, $quran_part_id,
+    public $currentStep = 1, $father_id, $student_id, $quran_part_id, $quran_part_type,
 
         // Father_INPUTS
         $father_identification_number, $father_name,
@@ -52,6 +62,9 @@ class Students extends Component
     public function mount()
     {
         $this->tab_id = "profile-08";
+        $this->all_Grades();
+        $this->read_All_StudentWarnings();
+        $this->read_All_StudentBlocks();
     }
 
     public function updated($propertyName)
@@ -77,8 +90,14 @@ class Students extends Component
             'photo' => 'image|mimes:jpeg,png,jpg|max:2048',
             ////////////////////////////////////
             'quran_part_id' => 'required',
+            'quran_part_type' => 'required',
             'student_id' => 'required|unique:exams_orders,student_id,',
         ]);
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
     public function messages()
@@ -139,12 +158,12 @@ class Students extends Component
             'student_id.required' => 'حقل الطالب مطلوب',
             'student_id.unique' => 'عذرا يوجد طلب مسبق لهذا الطالب',
             'quran_part_id.required' => 'حقل الجزء مطلوب',
+            'quran_part_type.required' => 'حقل نوع الإختبار مطلوب',
         ];
     }
 
     public function render()
     {
-        $this->all_Grades();
         $this->all_Groups();
 
         if (!$this->updateMode) {
@@ -287,22 +306,46 @@ class Students extends Component
         }
     }
 
-    //secondStepSubmit
 
-    public function all_Quran_Parst($id, $isSuccess)
+    public function all_Quran_Parts($id, $isSuccess)
     {
         if ($id != null) {
             $this->quran_parts =
                 QuranPart::query()->orderBy('id')->find($isSuccess == true ? $id - 1 : $id)->toArray();
         } else {
-            $this->quran_parts = QuranPart::query()->orderBy('id')->get();
+            $this->quran_parts = QuranPart::query()->orderByDesc('id')->get();
         }
     }
 
-    public function checkLastExamStatus($id)
+    public function all_Quran_Summative_Parts($id, $isSuccess)
+    {
+        if ($id != null) {
+            $this->quran_parts =
+                QuranSummativePart::query()->orderBy('id')->find($isSuccess == true ? $id - 1 : $id)->toArray();
+        } else {
+            $this->quran_parts = QuranSummativePart::query()->orderBy('id')->get();
+        }
+    }
+
+
+    public function requestExamByType($id)
     {
         $this->getStudent($id);
-        $exam = Exam::where('student_id', $id)->orderBy('exam_date', 'desc')->first();
+        $this->dispatchBrowserEvent('showDialog');
+    }
+
+    public function updatedQuranPartType($value)
+    {
+        if ($this->quran_part_type == 1) {
+            $this->checkLastExamStatus();
+        } elseif ($this->quran_part_type == 2) {
+            $this->checkLastSummativeExamStatus();
+        }
+    }
+
+    public function checkLastSummativeExamStatus()
+    {
+        $exam = SummativeExam::where('student_id', $this->student_id)->orderBy('exam_date', 'desc')->first();
         if ($exam) {
             $sum = 0;
             for ($i = 1; $i <= count($exam->marks_questions); $i++) {
@@ -310,8 +353,8 @@ class Students extends Component
             }
             $exam_mark = round(100 - $sum) - (10 - $exam->another_mark);
             if ($exam_mark >= $exam->examSuccessMark->mark) {
-                $this->all_Quran_Parst($exam->quran_part_id, true);
-                $this->emit('showDialogExamRequest');
+                $this->all_Quran_Summative_Parts($exam->quran_summative_part_id, true);
+                $this->dispatchBrowserEvent('showDialog');
             } else {
                 $to = Carbon::createFromFormat('Y-m-d', date('Y-m-d', Carbon::now()->timestamp));
                 $from = Carbon::createFromFormat('Y-m-d', $exam->exam_date);
@@ -320,8 +363,8 @@ class Students extends Component
                 $number_days_exam = ExamSettings::find(1)->number_days_exam;
                 $days = ($diff_in_days - $number_days_exam);
                 if ($days > 0) {
-                    $this->all_Quran_Parst($exam->quran_part_id, false);
-                    $this->emit('showDialogExamRequest');
+                    $this->all_Quran_Summative_Parts($exam->quran_summative_part_id, false);
+                    $this->dispatchBrowserEvent('showDialog');
                 } else {
                     if (abs($days) == 0) {
                         $this->dispatchBrowserEvent('alert',
@@ -342,8 +385,56 @@ class Students extends Component
                 }
             }
         } else {
-            $this->emit('showDialogExamRequest');
-            $this->all_Quran_Parst(null, null);
+            $this->dispatchBrowserEvent('showDialog');
+            $this->all_Quran_Summative_Parts(null, null);
+        }
+    }
+
+
+    public function checkLastExamStatus()
+    {
+        $exam = Exam::where('student_id', $this->student_id)->orderBy('exam_date', 'desc')->first();
+        if ($exam) {
+            $sum = 0;
+            for ($i = 1; $i <= count($exam->marks_questions); $i++) {
+                $sum += $exam->marks_questions[$i];
+            }
+            $exam_mark = round(100 - $sum) - (10 - $exam->another_mark);
+            if ($exam_mark >= $exam->examSuccessMark->mark) {
+                $this->all_Quran_Parts($exam->quran_part_id, true);
+                $this->dispatchBrowserEvent('showDialog');
+            } else {
+                $to = Carbon::createFromFormat('Y-m-d', date('Y-m-d', Carbon::now()->timestamp));
+                $from = Carbon::createFromFormat('Y-m-d', $exam->exam_date);
+
+                $diff_in_days = $to->diffInDays($from);
+                $number_days_exam = ExamSettings::find(1)->number_days_exam;
+                $days = ($diff_in_days - $number_days_exam);
+                if ($days > 0) {
+                    $this->all_Quran_Parts($exam->quran_part_id, false);
+                    $this->dispatchBrowserEvent('showDialog');
+                } else {
+                    if (abs($days) == 0) {
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب يوم حتى تتمكن من طلب اختبار جديد.']);
+                    } else if (abs($days) == 1) {
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب يومان حتى تتمكن من طلب اختبار جديد.']);
+                    } else if (abs($days) == 2) {
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب ثلاث أيام حتى تتمكن من طلب اختبار جديد.']);
+                    } else if (in_array(abs($days), range(3, 10))) {
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب ' . abs($days) . ' أيام حتى تتمكن من طلب اختبار جديد']);
+                    } else if (in_array(abs($days), range(11, 15))) {
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'error', 'message' => 'عذرا متبقي لهذا الطالب ' . abs($days) . ' يوم حتى تتمكن من طلب اختبار جديد']);
+                    }
+                }
+            }
+        } else {
+            $this->dispatchBrowserEvent('showDialog');
+            $this->all_Quran_Parts(null, null);
         }
     }
 
@@ -519,10 +610,17 @@ class Students extends Component
 
         // clear inputs submit exam request
         $this->student_id = null;
+        $this->quran_parts = null;
         $this->quran_part_id = null;
+        $this->quran_part_type = null;
         $this->catchError = null;
         $this->successMessage = null;
         $this->tab_id = "profile-08";
+        $this->warning_cancel_notes = null;
+        $this->block_cancel_notes = null;
+        $this->last_quran_part_id = null;
+        $this->reset_data_daily_preservation_type = null;
+        $this->message_warning_reset_data = null;
         $this->resetValidation();
     }
 
@@ -531,10 +629,90 @@ class Students extends Component
         $this->process_type = $process_type;
         if ($process_type == 'edit') {
             $this->edit($id);
+        } else if ($process_type == 'reset') {
+            $this->reset_data_daily_preservation($id);
         } else {
             $this->resetValidation();
             $this->show_table = false;
             $this->student_id = $id;
+        }
+    }
+
+    public function reset_data_daily_preservation($id)
+    {
+        $this->resetValidation();
+        $this->reset_data_daily_preservation_type = 0;
+        $student = Student::where('id', $id)->first();
+        $this->student_id = $student->id;
+        $this->student_name = $student->user->name;
+        $this->dispatchBrowserEvent('showDialogDailyPreservation');
+    }
+
+    public function updatedResetDataDailyPreservationType($type)
+    {
+        if ($type == 1) {
+            // تصفير البيانات لبداية الجزء الحالي.
+            $dailyPreservation = StudentDailyPreservation::query()
+                ->where('student_id', $this->student_id)
+                ->where('type', '=', 1)
+                ->orderByDesc('daily_preservation_date')->first();
+            if ($dailyPreservation != null) {
+                $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة لسور الجزء الحالي " . $dailyPreservation->quranSuraTo->quranPart->name;
+                $this->last_quran_part_id = $dailyPreservation->quranSuraTo->quranPart->id;
+            }
+        } elseif ($type == 2) {
+            // تصفير جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب.
+
+            $exam = Exam::where('student_id', $this->student_id)->orderBy('exam_date', 'desc')->first();
+
+            $examsCount = 0;
+
+            if ($exam) {
+                $sum = 0;
+                for ($i = 1; $i <= count($exam->marks_questions); $i++) {
+                    $sum += $exam->marks_questions[$i];
+                }
+                $exam_mark = round(100 - $sum) - (10 - $exam->another_mark);
+                if ($exam_mark >= $exam->examSuccessMark->mark) {
+                    $examsCount = 31 - $exam->quranPart->id;
+                } else {
+                    $examsCount = 30 - $exam->quranPart->id;
+                }
+            }
+
+            if ($examsCount == 0) {
+                $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب.";
+            } elseif ($examsCount == 1) {
+                $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب والبالغ عددها اختبار واحد.";
+            } else if (in_array($examsCount, range(2, 30))) {
+                $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب والبالغ عددها" . " ($examsCount) " . "اختبار.";
+            }
+
+        }
+    }
+
+    public function reset_daily_preservation()
+    {
+        if ($this->student_id != null && $this->last_quran_part_id != null) {
+            $student = Student::find($this->student_id);
+            if ($this->reset_data_daily_preservation_type == 1) {
+                $student->daily_preservation()->whereHas('quranSuraFrom', function ($q) {
+                    $q->where('quran_part_id', $this->last_quran_part_id);
+                })->whereHas('quranSuraTo', function ($q) {
+                    $q->where('quran_part_id', $this->last_quran_part_id);
+                })->delete();
+                $this->dispatchBrowserEvent('hideDialog');
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تم حذف بيانات الحفظ والمراجعة للجزء الحالي للطالب بنجاح.']);
+            } else if ($this->reset_data_daily_preservation_type == 2) {
+                $student->daily_preservation()->delete(); // حذف جميع بيانات الحفظ والمراجعة.
+                $student->exam_order()->delete(); // حذف جميع طلبات الإختبارات للطالب.
+                $student->exams()->delete(); // حذف جميع اختبارات الطالب.
+
+                $this->dispatchBrowserEvent('hideDialog');
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات قرآنية أنجزها الطالب بنجاح.']);
+            }
         }
     }
 
@@ -697,7 +875,7 @@ class Students extends Component
             'readable' => $readable,
         ]);
 
-        $this->emit('add-exam');
+        $this->dispatchBrowserEvent('hideDialog');
 
         $this->dispatchBrowserEvent('alert',
             ['type' => 'success', 'message' => 'تمت عملية طلب الإختبار بنجاح.']);
@@ -719,11 +897,56 @@ class Students extends Component
                 $message = "لقد قام المحفظ: " . $examOrder->teacher->name . " بطلب اختبار: " . $examOrder->quranPart->name . " للطالب : " . $examOrder->student->user->name;
             }
 
-            $this->push_notifications($arr_external_user_ids, $message);
+            $this->push_notifications($arr_external_user_ids, $message, 'حالة طلب الإختبار');
         }
     }
 
-    public function push_notifications($arr_external_user_ids, $message)
+    public function submitSummativeExamRequest()
+    {
+        $this->validate([
+            'quran_part_id' => 'required',
+            'student_id' => 'required|unique:exam_summative_orders,student_id,',
+        ]);
+
+        $readable = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
+            "isReadableTester" => false, "isReadableSupervisorExams" => false];
+
+        $examOrder = ExamSummativeOrder::create([
+            'status' => 0,
+            'quran_summative_part_id' => $this->quran_part_id,
+            'student_id' => $this->student_id,
+            'teacher_id' => Student::where('id', $this->student_id)->first()->group->teacher_id,
+            'readable' => $readable,
+        ]);
+
+        $this->dispatchBrowserEvent('hideDialog');
+
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'success', 'message' => 'تمت عملية طلب اختبار التجميعي بنجاح.']);
+        $this->clearForm();
+
+        // push notification
+        if ($examOrder != null) {
+            $arr_external_user_ids = [];
+            $user_role_supervisor_id = Supervisor::where('grade_id', $examOrder->student->grade_id)->first()->id;
+            array_push($arr_external_user_ids, "" . $user_role_supervisor_id);
+
+            if (auth()->user()->current_role != 'محفظ') {
+                array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
+            }
+            $message = "";
+            if (auth()->user()->current_role == 'أمير المركز') {
+                $message = "لقد قام أمير المركز بطلب اختبار: " . $examOrder->quranPart->quransummativepartname() . " للطالب: " . $examOrder->student->user->name;
+            } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
+                $message = "لقد قام المحفظ: " . $examOrder->teacher->name . " بطلب اختبار: " . $examOrder->quranPart->quransummativepartname() . " للطالب : " . $examOrder->student->user->name;
+            }
+
+            $this->push_notifications($arr_external_user_ids, $message, "حالة طلب اختبار التجميعي");
+        }
+    }
+
+
+    public function push_notifications($arr_external_user_ids, $message, $title)
     {
         $fields = array(
             'app_id' => env("ONE_SIGNAL_APP_ID"),
@@ -731,8 +954,8 @@ class Students extends Component
             'channel_for_external_user_ids' => 'push',
             'data' => array("foo" => "bar"),
             'headings' => array(
-                "en" => 'حالة طلب الاختبار',
-                "ar" => 'حالة طلب الاختبار',
+                "en" => $title,
+                "ar" => $title,
             ),
             'url' => 'https://memorization-management-system.herokuapp.com/manage_exams_orders',
             'contents' => array(
@@ -771,6 +994,171 @@ class Students extends Component
     public function update_index_tab($id)
     {
         $this->tab_id = $id;
+    }
+
+    public function all_StudentWarnings()
+    {
+        if (auth()->user()->current_role == 'مشرف') {
+            return StudentWarning::query()
+                ->where('readable->isReadableSupervisor', false)
+                ->whereHas('student', function ($q) {
+                    return $q->where('grade_id', '=', Supervisor::where('id', auth()->id())->first()->grade_id);
+                })
+                ->get();
+        } else if (auth()->user()->current_role == 'محفظ') {
+            return StudentWarning::query()
+                ->whereHas('student', function ($q) {
+                    return $q->where('group_id', '=', Teacher::where('id', auth()->id())->first()->group->id);
+                })
+                ->where('readable->isReadableTeacher', false)
+                ->get();
+        }
+        return [];
+    }
+
+    public function all_StudentBlocks()
+    {
+        if (auth()->user()->current_role == 'مشرف') {
+            return StudentBlock::query()
+                ->where('readable->isReadableSupervisor', false)
+                ->whereHas('student', function ($q) {
+                    return $q->where('grade_id', '=', Supervisor::where('id', auth()->id())->first()->grade_id);
+                })
+                ->get();
+        } else if (auth()->user()->current_role == 'محفظ') {
+            return StudentBlock::query()
+                ->whereHas('student', function ($q) {
+                    return $q->where('group_id', '=', Teacher::where('id', auth()->id())->first()->group->id);
+                })
+                ->where('readable->isReadableTeacher', false)
+                ->get();
+        }
+        return [];
+    }
+
+
+    private function read_All_StudentWarnings()
+    {
+        $studentWarnings = $this->all_StudentWarnings();
+
+        if ($studentWarnings != null && !empty($studentWarnings)) {
+            for ($i = 0; $i < count($studentWarnings); $i++) {
+                if (auth()->user()->current_role == 'محفظ') {
+                    if ($studentWarnings[$i]->readable['isReadableTeacher'] == false) {
+                        $array = $studentWarnings[$i]['readable'];
+                        $array['isReadableTeacher'] = true;
+                        $studentWarnings[$i]->update(['readable' => $array]);
+                    }
+                } else if (auth()->user()->current_role == 'مشرف') {
+                    if ($studentWarnings[$i]->readable['isReadableSupervisor'] == false) {
+                        $array = $studentWarnings[$i]['readable'];
+                        $array['isReadableSupervisor'] = true;
+                        $studentWarnings[$i]->update(['readable' => $array]);
+                    }
+                }
+            }
+        }
+    }
+
+    private function read_All_StudentBlocks()
+    {
+        $studentBlocks = $this->all_StudentBlocks();
+
+        if ($studentBlocks != null && !empty($studentBlocks)) {
+            for ($i = 0; $i < count($studentBlocks); $i++) {
+                if (auth()->user()->current_role == 'محفظ') {
+                    if ($studentBlocks[$i]->readable['isReadableTeacher'] == false) {
+                        $array = $studentBlocks[$i]['readable'];
+                        $array['isReadableTeacher'] = true;
+                        $studentBlocks[$i]->update(['readable' => $array]);
+                    }
+                } else if (auth()->user()->current_role == 'مشرف') {
+                    if ($studentBlocks[$i]->readable['isReadableSupervisor'] == false) {
+                        $array = $studentBlocks[$i]['readable'];
+                        $array['isReadableSupervisor'] = true;
+                        $studentBlocks[$i]->update(['readable' => $array]);
+                    }
+                }
+            }
+        }
+    }
+
+    public function warningCancel()
+    {
+        $this->validate(['warning_cancel_notes' => 'required|string'], ['warning_cancel_notes.required' => 'حقل الملاحظات مطلوب',
+            'warning_cancel_notes.string' => 'حقل الملاحظات يجب أن يكون نص']);
+
+        $studentAttendance = null;
+        $readable = ["isReadableTeacher" => false, "isReadableSupervisor" => false,];
+
+        if (auth()->user()->current_role == 'مشرف') {
+            $studentAttendance = Student::query()
+                ->select('id')
+                ->where('id', $this->student_id)
+                ->withCount(['attendance' => function ($query) {
+                    $query->whereMonth('attendance_date', Date('m'))
+                        ->whereYear('attendance_date', Date('Y'))
+                        ->where('attendance_status', 0);
+                }])
+                ->having('attendance_count', '>=', 6)
+                ->first();
+        }
+
+        if ($studentAttendance == null) {
+            $studentWarning = StudentWarning::query()
+                ->where('student_id', $this->student_id)
+                ->whereNull('warning_expiry_date')
+                ->orderByDesc('updated_at')
+                ->first();
+
+            if ($studentWarning != null) {
+                $studentWarning->update(['warning_expiry_date' => Date('Y-m-d'), 'notes' => $this->warning_cancel_notes, 'readable' => $readable]);
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تم إلغاء إنذار الطالب بنجاح.']);
+                $this->dispatchBrowserEvent('hideDialog');
+                $this->clearForm();
+            }
+        } else {
+            $messageBag = new MessageBag();
+            $messageBag->add('warning_cancel_notes', 'عذرا لا يمكنك إلغاء تحذير الطالب بسبب حصول الطالب على أكثر من إنذار خلال الشهر, راجع أمير المركز.');
+            $this->setErrorBag($messageBag);
+        }
+    }
+
+    public function blockCancel()
+    {
+        $this->validate(['block_cancel_notes' => 'required|string'], ['block_cancel_notes.required' => 'حقل الملاحظات مطلوب',
+            'block_cancel_notes.string' => 'حقل الملاحظات يجب أن يكون نص']);
+
+        $readable = ["isReadableTeacher" => false, "isReadableSupervisor" => false,];
+
+        $studentBlock = StudentBlock::query()
+            ->where('student_id', $this->student_id)
+            ->whereNull('block_expiry_date')
+            ->orderByDesc('updated_at')
+            ->first();
+
+        if ($studentBlock != null) {
+            $studentBlock->update(['block_expiry_date' => Date('Y-m-d'), 'notes' => $this->block_cancel_notes, 'readable' => $readable]);
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم فك حظر الطالب بنجاح.']);
+            $this->dispatchBrowserEvent('hideDialog');
+            $this->clearForm();
+        }
+    }
+
+    public function activeStudent($id)
+    {
+        $preventStatusStudent = PreventStatusStudent::find($id);
+        if ($preventStatusStudent != null) {
+            $preventStatusStudent->delete();
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم فك حظر الطالب بنجاح.']);
+        } else {
+            PreventStatusStudent::create(['student_id' => $id]);
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم حظر الطالب بنجاح.']);
+        }
     }
 
 }

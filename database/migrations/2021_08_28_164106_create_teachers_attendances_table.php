@@ -18,7 +18,7 @@ class CreateTeachersAttendancesTable extends Migration
             $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('attendance_date')->index();
-            $table->boolean('attendance_status');
+            $table->boolean('attendance_status')->index();
             $table->timestamps();
         });
     }

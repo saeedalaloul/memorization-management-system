@@ -42,6 +42,11 @@ class StudentsDailyPreservation extends Component
         return view('livewire.students-daily-preservation', ['students' => $this->all_Students(),]);
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName, [

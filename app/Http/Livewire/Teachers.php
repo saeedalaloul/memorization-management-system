@@ -40,6 +40,11 @@ class Teachers extends Component
         return view('livewire.teachers', ['teachers' => $this->all_Teachers()]);
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortDirection == 'asc') {

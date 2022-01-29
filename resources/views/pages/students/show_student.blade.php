@@ -2,6 +2,8 @@
     @php
         if (isset($student_id)) {
          $student = \App\Models\Student::find($student_id);
+         $block = $student->student_is_block != null ? true:false;
+         $warning = $student->student_is_warning != null ? true:false;
          $user = $student->user;
          $father = $student->father->user;
          $exam = $student->exams()
@@ -10,10 +12,10 @@
          $quranPartName = "لا يوجد";
          if ($exam != null) {
              if ($exam->calcmarkexam() >= $exam->examSuccessMark->mark) {
-             $countOfPartQuran = $exam->quranPart->id - 29;
+             $countOfPartQuran = 31 - $exam->quranPart->id;
              $quranPartName = $exam->quranPart->name;
              }else{
-             $countOfPartQuran = $exam->quranPart->id - 30;
+             $countOfPartQuran = 30 - $exam->quranPart->id;
             }
          }
        $countOfDayAbsence =  $student->attendance()->where('attendance_date', '>=',date('Y-m-1'))
@@ -147,9 +149,21 @@
                                         @endif
                                     </td>
                                     <th scope="row">حالة الطالب</th>
-                                    <td> <div class="badge-danger" style="width: 40px;">
-                                            مجمد
-                                        </div></td>
+                                    <td>
+                                        @if ($block == true)
+                                            <div class="badge-danger" style="width: 40px;">
+                                                مجمد
+                                            </div>
+                                        @elseif($warning == true)
+                                            <div class="badge-warning" style="width: 50px;">
+                                                قيد الحظر
+                                            </div>
+                                        @else
+                                            <div class="badge-success" style="width: 40px;">
+                                                منتظم
+                                            </div>
+                                        @endif
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>

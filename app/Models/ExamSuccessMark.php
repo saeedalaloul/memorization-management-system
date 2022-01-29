@@ -12,6 +12,4 @@ class ExamSuccessMark extends Model
     protected $table = 'exam_success_mark';
 
     protected $fillable = ['mark'];
-
-    public $timestamps = false;
 }

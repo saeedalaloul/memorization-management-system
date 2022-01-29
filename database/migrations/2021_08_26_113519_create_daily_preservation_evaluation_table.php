@@ -16,6 +16,7 @@ class CreateDailyPreservationEvaluationTable extends Migration
         Schema::create('daily_preservation_evaluations', function (Blueprint $table) {
             $table->id();
             $table->string('name',10)->index()->unique();
+            $table->timestamps();
         });
     }
 

@@ -6,53 +6,68 @@
                 <div class="tab nav-border">
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "grade-02"? "active show":""}}" id="grade-02-tab" data-toggle="tab" href="#grade-02"
+                            <a class="nav-link {{$tab_id == "grade-02"? "active show":""}}" id="grade-02-tab"
+                               data-toggle="tab" href="#grade-02"
                                role="tab" aria-controls="grade-02" wire:click.prevent="update_index_tab('grade-02');"
                                aria-selected="true">المراحل</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "group-02"? "active show":""}}" id="group-02-tab" data-toggle="tab" href="#group-02"
+                            <a class="nav-link {{$tab_id == "group-02"? "active show":""}}" id="group-02-tab"
+                               data-toggle="tab" href="#group-02"
                                role="tab" aria-controls="group-02" wire:click.prevent="update_index_tab('group-02');"
                                aria-selected="false">المجموعات</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "supervisor-02"? "active show":""}}" id="supervisor-02-tab" data-toggle="tab" href="#supervisor-02"
-                               role="tab" aria-controls="supervisor-02" wire:click.prevent="update_index_tab('supervisor-02');"
+                            <a class="nav-link {{$tab_id == "supervisor-02"? "active show":""}}" id="supervisor-02-tab"
+                               data-toggle="tab" href="#supervisor-02"
+                               role="tab" aria-controls="supervisor-02"
+                               wire:click.prevent="update_index_tab('supervisor-02');"
                                aria-selected="false">مشرفي المراحل</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "low-supervisor-02"? "active show":""}}" id="low-supervisor-02-tab" data-toggle="tab" href="#low-supervisor-02"
-                               role="tab" aria-controls="low-supervisor-02" wire:click.prevent="update_index_tab('low-supervisor-02');"
+                            <a class="nav-link {{$tab_id == "low-supervisor-02"? "active show":""}}"
+                               id="low-supervisor-02-tab" data-toggle="tab" href="#low-supervisor-02"
+                               role="tab" aria-controls="low-supervisor-02"
+                               wire:click.prevent="update_index_tab('low-supervisor-02');"
                                aria-selected="false">إداريي المراحل</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "teacher-02"? "active show":""}}" id="teacher-02-tab" data-toggle="tab" href="#teacher-02"
-                               role="tab" aria-controls="teacher-02" wire:click.prevent="update_index_tab('teacher-02');"
+                            <a class="nav-link {{$tab_id == "teacher-02"? "active show":""}}" id="teacher-02-tab"
+                               data-toggle="tab" href="#teacher-02"
+                               role="tab" aria-controls="teacher-02"
+                               wire:click.prevent="update_index_tab('teacher-02');"
                                aria-selected="false">المحفظين</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "student-02"? "active show":""}}" id="student-02-tab" data-toggle="tab" href="#student-02"
-                               role="tab" aria-controls="student-02" wire:click.prevent="update_index_tab('student-02');"
+                            <a class="nav-link {{$tab_id == "student-02"? "active show":""}}" id="student-02-tab"
+                               data-toggle="tab" href="#student-02"
+                               role="tab" aria-controls="student-02"
+                               wire:click.prevent="update_index_tab('student-02');"
                                aria-selected="false">الطلاب</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "exam-02"? "active show":""}}" id="exam-02-tab" data-toggle="tab" href="#exam-02"
+                            <a class="nav-link {{$tab_id == "exam-02"? "active show":""}}" id="exam-02-tab"
+                               data-toggle="tab" href="#exam-02"
                                role="tab" aria-controls="exam-02" wire:click.prevent="update_index_tab('exam-02');"
                                aria-selected="false">الإختبارات</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "order-exam-02"? "active show":""}}" id="order-exam-02-tab" data-toggle="tab" href="#order-exam-02"
-                               role="tab" aria-controls="order-exam-02" wire:click.prevent="update_index_tab('order-exam-02');"
+                            <a class="nav-link {{$tab_id == "order-exam-02"? "active show":""}}" id="order-exam-02-tab"
+                               data-toggle="tab" href="#order-exam-02"
+                               role="tab" aria-controls="order-exam-02"
+                               wire:click.prevent="update_index_tab('order-exam-02');"
                                aria-selected="false">طلبات الإختبارات</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$tab_id == "tester-02"? "active show":""}}" id="tester-02-tab" data-toggle="tab" href="#tester-02"
+                            <a class="nav-link {{$tab_id == "tester-02"? "active show":""}}" id="tester-02-tab"
+                               data-toggle="tab" href="#tester-02"
                                role="tab" aria-controls="tester-02" wire:click.prevent="update_index_tab('tester-02');"
                                aria-selected="false">المختبرين</a>
                         </li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane fade {{$tab_id == "grade-02"? "active show":""}}" id="grade-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "grade-02"? "active show":""}}" id="grade-02"
+                             role="tabpanel"
                              aria-labelledby="grade-02-tab">
                             <div class="row">
                                 <div class="col-md-4">
@@ -154,7 +169,8 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade {{$tab_id == "group-02"? "active show":""}}" id="group-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "group-02"? "active show":""}}" id="group-02"
+                             role="tabpanel"
                              aria-labelledby="group-02-tab">
                             <div class="row">
                                 <div class="col-md-4">
@@ -280,7 +296,8 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade {{$tab_id == "supervisor-02"? "active show":""}}" id="supervisor-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "supervisor-02"? "active show":""}}" id="supervisor-02"
+                             role="tabpanel"
                              aria-labelledby="supervisor-02-tab">
                             <div class="row">
                                 <div class="col-md-4">
@@ -381,7 +398,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane fade {{$tab_id == "low-supervisor-02"? "active show":""}}" id="low-supervisor-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "low-supervisor-02"? "active show":""}}"
+                             id="low-supervisor-02" role="tabpanel"
                              aria-labelledby="low-supervisor-02-tab">
                             <div class="row">
                                 <div class="col-md-4">
@@ -483,7 +501,8 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade {{$tab_id == "teacher-02"? "active show":""}}" id="teacher-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "teacher-02"? "active show":""}}" id="teacher-02"
+                             role="tabpanel"
                              aria-labelledby="teacher-02-tab">
                             <div class="row">
                                 <div class="col-md-4">
@@ -608,7 +627,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane fade {{$tab_id == "student-02"? "active show":""}}" id="student-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "student-02"? "active show":""}}" id="student-02"
+                             role="tabpanel"
                              aria-labelledby="student-02-tab">
                             <div class="row">
                                 <div class="col-md-4">
@@ -758,7 +778,8 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade {{$tab_id == "exam-02"? "active show":""}}" id="exam-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "exam-02"? "active show":""}}" id="exam-02"
+                             role="tabpanel"
                              aria-labelledby="exam-02-tab">
                             <div class="row">
                                 <div class="col-md-4">
@@ -907,7 +928,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane fade {{$tab_id == "order-exam-02"? "active show":""}}" id="order-exam-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "order-exam-02"? "active show":""}}" id="order-exam-02"
+                             role="tabpanel"
                              aria-labelledby="order-exam-02-tab">
                             <div class="row">
                                 <div class="col-md-4">
@@ -957,6 +979,32 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <div class="checkbox checbox-switch switch-success">
+                                            <label>
+                                                @php
+                                                    $isCheck = false;
+                                                @endphp
+                                                @foreach($user_permissions as $key => $value)
+                                                    @if ($value['name'] == 'إدارة طلبات اختبارات التجميعي')
+                                                        @php
+                                                            $isCheck = true;
+                                                        @endphp
+                                                    @endif
+                                                @endforeach
+                                                <input type="checkbox" name="switch"
+                                                       wire:click="update_permission('إدارة طلبات اختبارات التجميعي')"
+                                                    {{ $isCheck== true ? "checked" : ""}}>
+                                                <span></span>
+                                                إدارة طلبات اختبارات التجميعي
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="col-md-4">
                                     <div class="mb-3">
@@ -981,10 +1029,12 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 
-                        <div class="tab-pane fade {{$tab_id == "tester-02"? "active show":""}}" id="tester-02" role="tabpanel"
+                        <div class="tab-pane fade {{$tab_id == "tester-02"? "active show":""}}" id="tester-02"
+                             role="tabpanel"
                              aria-labelledby="tester-02-tab">
                             <div class="row">
                                 <div class="col-md-4">

@@ -19,6 +19,8 @@ class ExamsSettings extends Component
     public $updateMode = false, $isOpenTabFirst = true, $isOpenTabSecond = false;
 
     public $allow_exams_update, $exam_questions_min, $exam_questions_max,
+        $exam_questions_summative_three_part,$exam_questions_summative_five_part,
+        $exam_questions_summative_ten_part,$exam_questions_summative_fifteen_part,
         $number_days_exam, $exam_success_rate;
     protected $paginationTheme = 'bootstrap';
 
@@ -53,6 +55,10 @@ class ExamsSettings extends Component
             'exam_questions_max' => 'required|numeric|between:7,10',
             'number_days_exam' => 'required|numeric|between:1,15',
             'exam_success_rate' => 'required|numeric|between:80,90',
+            'exam_questions_summative_three_part' => 'required|numeric|between:3,4',
+            'exam_questions_summative_five_part' => 'required|numeric|between:5,6',
+            'exam_questions_summative_ten_part' => 'required|numeric|between:7,8',
+            'exam_questions_summative_fifteen_part' => 'required|numeric|between:10,11',
 
             'quran_part_id' => 'required|unique:exam_custom_questions,quran_part_id,' . $this->modalId,
             'exam_question_count' => 'required|numeric|between:7,12',
@@ -75,6 +81,10 @@ class ExamsSettings extends Component
                     'allow_exams_update' => $this->allow_exams_update == null ? false : $this->allow_exams_update,
                     'exam_questions_min' => $this->exam_questions_min,
                     'exam_questions_max' => $this->exam_questions_max,
+                    'exam_questions_summative_three_part' => $this->exam_questions_summative_three_part,
+                    'exam_questions_summative_five_part' => $this->exam_questions_summative_five_part,
+                    'exam_questions_summative_ten_part' => $this->exam_questions_summative_ten_part,
+                    'exam_questions_summative_fifteen_part' => $this->exam_questions_summative_fifteen_part,
                     'number_days_exam' => $this->number_days_exam,
                     'exam_success_rate' => $this->exam_success_rate,
                 ]);
@@ -83,6 +93,10 @@ class ExamsSettings extends Component
                     'allow_exams_update' => $this->allow_exams_update == null ? false : $this->allow_exams_update,
                     'exam_questions_min' => $this->exam_questions_min,
                     'exam_questions_max' => $this->exam_questions_max,
+                    'exam_questions_summative_three_part' => $this->exam_questions_summative_three_part,
+                    'exam_questions_summative_five_part' => $this->exam_questions_summative_five_part,
+                    'exam_questions_summative_ten_part' => $this->exam_questions_summative_ten_part,
+                    'exam_questions_summative_fifteen_part' => $this->exam_questions_summative_fifteen_part,
                     'number_days_exam' => $this->number_days_exam,
                     'exam_success_rate' => $this->exam_success_rate,
                 ]);
@@ -97,6 +111,10 @@ class ExamsSettings extends Component
         return [
             'exam_questions_min' => 'required|numeric|between:7,10',
             'exam_questions_max' => 'required|numeric|between:7,10',
+            'exam_questions_summative_three_part' => 'required|numeric|between:3,4',
+            'exam_questions_summative_five_part' => 'required|numeric|between:5,6',
+            'exam_questions_summative_ten_part' => 'required|numeric|between:7,8',
+            'exam_questions_summative_fifteen_part' => 'required|numeric|between:10,11',
             'number_days_exam' => 'required|numeric|between:1,15',
             'exam_success_rate' => 'required|numeric|between:80,90',
         ];
@@ -111,6 +129,18 @@ class ExamsSettings extends Component
             'exam_questions_max.required' => 'يجب تحديد أقصى عدد أسئلة اختبار',
             'exam_questions_max.numeric' => 'يجب أن يكون رقم',
             'exam_questions_max.between' => 'يجب أن يكون الرقم بين 7 أو 10 أسئلة',
+            'exam_questions_summative_three_part.required' => 'يجب تحديد عدد أسئلة اختبار التجميعي (3) أجزاء',
+            'exam_questions_summative_three_part.numeric' => 'يجب أن يكون رقم',
+            'exam_questions_summative_three_part.between' => 'يجب أن يكون الرقم بين 3 أو 4 أسئلة',
+            'exam_questions_summative_five_part.required' => 'يجب تحديد عدد أسئلة اختبار التجميعي (5) أجزاء',
+            'exam_questions_summative_five_part.numeric' => 'يجب أن يكون رقم',
+            'exam_questions_summative_five_part.between' => 'يجب أن يكون الرقم بين 5 أو 6 أسئلة',
+            'exam_questions_summative_ten_part.required' => 'يجب تحديد عدد أسئلة اختبار التجميعي (10) أجزاء',
+            'exam_questions_summative_ten_part.numeric' => 'يجب أن يكون رقم',
+            'exam_questions_summative_ten_part.between' => 'يجب أن يكون الرقم بين 7 أو 8 أسئلة',
+            'exam_questions_summative_fifteen_part.required' => 'يجب تحديد عدد أسئلة اختبار التجميعي (15) أجزاء',
+            'exam_questions_summative_fifteen_part.numeric' => 'يجب أن يكون رقم',
+            'exam_questions_summative_fifteen_part.between' => 'يجب أن يكون الرقم بين 10 أو 11 أسئلة',
             'number_days_exam.numeric' => 'يجب أن يكون رقم',
             'number_days_exam.between' => 'يجب أن يكون الرقم بين 1 أو 15 يوم',
             'exam_success_rate.numeric' => 'يجب أن يكون رقم',
@@ -143,6 +173,10 @@ class ExamsSettings extends Component
             $this->allow_exams_update = $exams_settings->allow_exams_update;
             $this->exam_questions_max = $exams_settings->exam_questions_max;
             $this->exam_questions_min = $exams_settings->exam_questions_min;
+            $this->exam_questions_summative_three_part = $exams_settings->exam_questions_summative_three_part;
+            $this->exam_questions_summative_five_part = $exams_settings->exam_questions_summative_five_part;
+            $this->exam_questions_summative_ten_part = $exams_settings->exam_questions_summative_ten_part;
+            $this->exam_questions_summative_fifteen_part = $exams_settings->exam_questions_summative_fifteen_part;
             $this->number_days_exam = $exams_settings->number_days_exam;
             $this->exam_success_rate = $exams_settings->exam_success_rate;
         }

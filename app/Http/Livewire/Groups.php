@@ -45,6 +45,11 @@ class Groups extends Component
         return view('livewire.groups', ['groups' => $this->all_Groups()]);
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortDirection == 'asc') {

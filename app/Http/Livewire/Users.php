@@ -8,7 +8,6 @@ use App\Models\Grade;
 use App\Models\Group;
 use App\Models\LowerSupervisor;
 use App\Models\Student;
-use App\Models\StudentAttendance;
 use App\Models\Supervisor;
 use App\Models\Teacher;
 use App\Models\Tester;
@@ -45,19 +44,14 @@ class Users extends Component
 
     public function render()
     {
-//        dd(StudentAttendance::query()
-//            ->select('id', 'student_id','attendance_date',
-//                DB::raw('COUNT(attendance_date) AS attendance_status_count'))
-//            ->where('attendance_status', '=', 0)
-//            ->whereYear('attendance_date', Date('Y'))
-//            ->whereMonth('attendance_date', Date('m'))
-//            ->groupBy('id','attendance_date')
-//            ->orderByDesc('attendance_date')
-//            ->get()->toArray());
-//
         $this->getDataByRoleUser();
         $this->all_Groups();
         return view('livewire.users', ['users' => $this->all_Users()]);
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
 
