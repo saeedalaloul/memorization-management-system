@@ -52,7 +52,7 @@ class StudentDailyPreservation extends Model
                     ->sum('aya_percent')) / 15;
             // جلب السور ما بين أول سور وأخر سورة لحساب عدد الصفحات.
             $suras_between = (AyaDetails::query()
-                    ->whereBetween('sura_name', [$this->from_sura, $this->to_sura])
+                    ->whereBetween('sura_name', [$this->to_sura,$this->from_sura])
                     ->sum('aya_percent')) / 15;
             // جلب أخر سورة لحساب عدد الصفحات.
             $sura_end = (AyaDetails::query()
