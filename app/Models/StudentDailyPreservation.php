@@ -46,21 +46,21 @@ class StudentDailyPreservation extends Model
                     ->sum('aya_percent')) / 15, 2);
         } else {
             // جلب أول سورة لحساب عدد الصفحات.
-            $sura_start = AyaDetails::query()
-                ->where('sura_name', '=', $this->quranSuraFrom->name)
-                ->whereBetween('aya_number', [$this->from_aya, $this->quranSuraFrom->total_number_aya])
-                ->sum('aya_percent');
+            $sura_start = route((AyaDetails::query()
+                    ->where('sura_name', '=', $this->quranSuraFrom->name)
+                    ->whereBetween('aya_number', [$this->from_aya, $this->quranSuraFrom->total_number_aya])
+                    ->sum('aya_percent')) / 15);
             // جلب السور ما بين أول سور وأخر سورة لحساب عدد الصفحات.
-            $suras_between = AyaDetails::query()
-                ->whereBetween('sura_name', [$this->from_sura, $this->to_sura])
-                ->sum('aya_percent');
+            $suras_between = route((AyaDetails::query()
+                    ->whereBetween('sura_name', [$this->from_sura, $this->to_sura])
+                    ->sum('aya_percent')) / 15);
             // جلب أخر سورة لحساب عدد الصفحات.
-            $sura_end = AyaDetails::query()
-                ->where('sura_name', '=', $this->quranSuraTo->name)
-                ->whereBetween('aya_number', [1, $this->to_aya])
-                ->sum('aya_percent');
+            $sura_end = round((AyaDetails::query()
+                    ->where('sura_name', '=', $this->quranSuraTo->name)
+                    ->whereBetween('aya_number', [1, $this->to_aya])
+                    ->sum('aya_percent')) / 15);
 
-            return round(($sura_start + $suras_between + $sura_end) / 15, 2);
+            return round($sura_start + $suras_between + $sura_end, 2);
         }
     }
 
