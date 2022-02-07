@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Adnane\SimpleUuid\Traits\SimpleUuid;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,6 +19,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasProfilePhoto;
     use Notifiable;
     use HasRoles;
+    use SimpleUuid;
     use TwoFactorAuthenticatable;
 
     /**

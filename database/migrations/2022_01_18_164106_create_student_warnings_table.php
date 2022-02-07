@@ -14,8 +14,8 @@ class CreateStudentWarningsTable extends Migration
     public function up()
     {
         Schema::create('student_warnings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('student_id')->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('warning_expiry_date')->nullable()->index();
             $table->string('notes', 50)->nullable();
             $table->json('readable');

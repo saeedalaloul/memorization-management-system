@@ -56,9 +56,9 @@ class UsersExport implements
                 $event->sheet->getDelegate()->setRightToLeft(true);
                 $styleArray = [
                     'borders' => [
-                        'outline' => [
+                        'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
-                            'color' => ['argb' => 'FFFF0000'],
+                            'color' => ['argb' => '000000'],
                         ],
                     ],
                 ];

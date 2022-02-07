@@ -4,12 +4,12 @@ Template:  Webmin - Bootstrap 4 & Angular 5 Admin Dashboard Template
 Author: potenzaglobalsolutions.com
 Design and Developed by: potenzaglobalsolutions.com
 
-NOTE:
+NOTE: 
 
 */
 
-(function($){
-    "use strict";
+ (function($){
+  "use strict";
 // Line Stacked
 
     $('.date-picker-default').datepicker({
@@ -41,7 +41,7 @@ NOTE:
             rightArrow: '<i class="fa fa-angle-right"></i>'
         }
     });
-
+    
 
     $('#datepicker-inline').datepicker({
         todayHighlight: true,
@@ -107,7 +107,7 @@ NOTE:
         }
     });
 
-    var checkin = $('.range-from').datepicker({
+var checkin = $('.range-from').datepicker({
         onRender: function(date) {
             return date.valueOf() < now.valueOf() ? 'disabled' : '';
         }
@@ -129,4 +129,4 @@ NOTE:
         checkout.hide();
     }).data('datepicker');
 
-})(jQuery);
+ })(jQuery);

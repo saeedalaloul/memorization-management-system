@@ -650,24 +650,25 @@ class Students extends Component
 
     public function updatedResetDataDailyPreservationType($type)
     {
+        $dailyPreservation = StudentDailyPreservation::query()
+            ->where('student_id', $this->student_id)
+            ->where('type', '=', 1)
+            ->orderByDesc('daily_preservation_date')->first();
+
         if ($type == 1) {
             // تصفير البيانات لبداية الجزء الحالي.
-            $dailyPreservation = StudentDailyPreservation::query()
-                ->where('student_id', $this->student_id)
-                ->where('type', '=', 1)
-                ->orderByDesc('daily_preservation_date')->first();
             if ($dailyPreservation != null) {
                 $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة لسور الجزء الحالي " . $dailyPreservation->quranSuraTo->quranPart->name;
                 $this->last_quran_part_id = $dailyPreservation->quranSuraTo->quranPart->id;
+            } else {
+                $this->message_warning_reset_data = "لا بيانات سابقة";
             }
         } elseif ($type == 2) {
             // تصفير جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب.
 
             $exam = Exam::where('student_id', $this->student_id)->orderBy('exam_date', 'desc')->first();
 
-            $examsCount = 0;
-
-            if ($exam) {
+            if ($exam != null) {
                 $sum = 0;
                 for ($i = 1; $i <= count($exam->marks_questions); $i++) {
                     $sum += $exam->marks_questions[$i];
@@ -678,16 +679,19 @@ class Students extends Component
                 } else {
                     $examsCount = 30 - $exam->quranPart->id;
                 }
-            }
 
-            if ($examsCount == 0) {
-                $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب.";
-            } elseif ($examsCount == 1) {
-                $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب والبالغ عددها اختبار واحد.";
-            } else if (in_array($examsCount, range(2, 30))) {
-                $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب والبالغ عددها" . " ($examsCount) " . "اختبار.";
+                if ($examsCount == 0) {
+                    $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب.";
+                } elseif ($examsCount == 1) {
+                    $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب والبالغ عددها اختبار واحد.";
+                } else if (in_array($examsCount, range(2, 30))) {
+                    $this->message_warning_reset_data = "سيتم حذف جميع بيانات الحفظ والمراجعة وأي اختبارات أنجزها الطالب والبالغ عددها" . " ($examsCount) " . "اختبار.";
+                }
+            } else {
+                if ($dailyPreservation == null) {
+                    $this->message_warning_reset_data = "لا اختبارات أو بيانات سابقة";
+                }
             }
-
         }
     }
 

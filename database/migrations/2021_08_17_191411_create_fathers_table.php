@@ -14,7 +14,7 @@ class CreateFathersTable extends Migration
     public function up()
     {
         Schema::create('fathers', function (Blueprint $table) {
-            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

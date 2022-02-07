@@ -14,13 +14,13 @@ class CreateExamOrdersTable extends Migration
     public function up()
     {
         Schema::create('exam_orders', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->tinyInteger('status')->default(0)->index();
-            $table->json('readable')->index();
+            $table->json('readable');
             $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('exam_date')->nullable()->index();
             $table->string('notes', 50)->nullable();
             $table->timestamps();

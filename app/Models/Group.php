@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Adnane\SimpleUuid\Traits\SimpleUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Traits\HasRoles;
 
 class Group extends Model
 {
-    use HasFactory;
+    use HasFactory,SimpleUuid;
 
     protected $fillable = ['name', 'grade_id','teacher_id'];
 

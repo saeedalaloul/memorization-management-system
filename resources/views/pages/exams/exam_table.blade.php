@@ -1,4 +1,4 @@
-@can('إدارة اختبارات التجميعي')
+@can('إدارة الإختبارات')
     <div class="row">
         @if (isset($grades))
             <div>
@@ -48,6 +48,25 @@
                 </div>
             </div>
         @endif
+        <div style="padding-right: 10px;">
+            <label style="font-size: 15px; color: #1e7e34">من تاريخ*</label>
+            <div class='input-group date'>
+                <input class="form-control" type="date" wire:model="searchDateFrom"
+                       data-date-format="yyyy-mm-dd">
+            </div>
+        </div>
+        <div style="padding-right: 10px;">
+            <label style="font-size: 15px; color: #1e7e34">إلى تاريخ*</label>
+            <div class='input-group date'>
+                <input class="form-control" type="date" wire:model="searchDateTo"
+                       data-date-format="yyyy-mm-dd">
+            </div>
+        </div>
+        <div style="padding-right: 10px; margin-top: 30px;">
+            <a class="modal-effect btn btn-sm btn-success" style="color: white"
+               wire:click.prevent="export();"><i class="fas fa-file-download"></i>&nbsp;تصدير اكسيل
+            </a>
+        </div>
     </div>
     <br>
     @include('livewire.search')

@@ -14,13 +14,13 @@ class CreateExamSummativeOrdersTable extends Migration
     public function up()
     {
         Schema::create('exam_summative_orders', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->tinyInteger('status')->index()->default(0);
-            $table->json('readable')->index();
+            $table->json('readable');
             $table->foreignId('quran_summative_part_id')->index()->references('id')->on('quran_summative_parts')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('exam_date')->index()->nullable();
             $table->string('notes', 50)->nullable();
             $table->timestamps();

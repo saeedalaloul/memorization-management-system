@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.0.8",
         "ext-curl": "*",
+        "adnane/simple-uuid": "^1.0",
         "fruitcake/laravel-cors": "^v2.0.4",
         "guzzlehttp/guzzle": "^7.4.0",
         "ladumor/one-signal": "0.4.1",

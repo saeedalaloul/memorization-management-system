@@ -47,6 +47,18 @@
                             {{'مشرف الإختبارات' }}
                             <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
                                  alt="">
+                        @elseif(auth()->user()->current_role == 'مشرف الدورات')
+                            {{'مشرف الدورات' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
+                        @elseif(auth()->user()->current_role == 'مشرف الأنشطة')
+                            {{'مشرف الأنشطة' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
+                        @elseif(auth()->user()->current_role == 'مشرف الرقابة')
+                            {{'مشرف الرقابة' }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
                         @elseif(auth()->user()->current_role == 'مختبر')
                             {{'مختبر' }}
                             <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"

@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Exports\ExamsSummativeExport;
 use App\Models\ExamSettings;
 use App\Models\ExamSummativeSuccessMark;
 use App\Models\Grade;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\MessageBag;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Excel;
 use Spatie\Permission\Models\Role;
 
 class ExamsSummative extends Component
@@ -35,7 +37,7 @@ class ExamsSummative extends Component
     public $sortDirection = 'desc';
     public $perPage = 10;
     public $search = '';
-    public $searchGradeId, $searchGroupId, $searchStudentId;
+    public $searchGradeId, $searchGroupId, $searchStudentId,$searchDateFrom,$searchDateTo;
     protected $paginationTheme = 'bootstrap';
 
     public function render()
@@ -58,6 +60,8 @@ class ExamsSummative extends Component
         $this->all_Testers();
         $this->read_All_Exams();
         $this->all_exam_settings();
+        $this->searchDateFrom = date('Y-m-d');
+        $this->searchDateTo = date('Y-m-d');
     }
 
     public function updatedSearch()
@@ -132,70 +136,147 @@ class ExamsSummative extends Component
     {
         if (auth()->user()->current_role == 'محفظ') {
             if (empty($this->searchStudentId)) {
-                return SummativeExam::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) {
-                        return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
+                if ($this->searchDateFrom != null && $this->searchDateTo != null) {
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                        ->whereHas('student', function ($q) {
+                            return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }else{
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->whereHas('student', function ($q) {
+                            return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }
             } else {
-                return SummativeExam::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) {
-                        return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id)
-                            ->where('id', '=', $this->searchStudentId);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
+                if ($this->searchDateFrom != null && $this->searchDateTo != null) {
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                        ->whereHas('student', function ($q) {
+                            return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id)
+                                ->where('id', '=', $this->searchStudentId);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }else{
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->whereHas('student', function ($q) {
+                            return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id)
+                                ->where('id', '=', $this->searchStudentId);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }
             }
         } elseif (auth()->user()->current_role == 'مشرف') {
             return $this->getExamsByGrade(Supervisor::where('id', auth()->id())->first()->grade_id);
         } elseif (auth()->user()->current_role == 'مختبر') {
-            return SummativeExam::query()
-                ->search($this->search)
-                ->where('tester_id', auth()->id())
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
+            if ($this->searchDateFrom != null && $this->searchDateTo != null) {
+                return SummativeExam::query()
+                    ->search($this->search)
+                    ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                    ->where('tester_id', auth()->id())
+                    ->orderBy($this->sortBy, $this->sortDirection)
+                    ->paginate($this->perPage);
+            }else{
+                return SummativeExam::query()
+                    ->search($this->search)
+                    ->where('tester_id', auth()->id())
+                    ->orderBy($this->sortBy, $this->sortDirection)
+                    ->paginate($this->perPage);
+            }
         } elseif (auth()->user()->current_role == 'اداري') {
             return $this->getExamsByGrade(LowerSupervisor::where('id', auth()->id())->first()->grade_id);
         } elseif (auth()->user()->current_role == 'أمير المركز' ||
             auth()->user()->current_role == 'مشرف الإختبارات') {
             if (empty($this->searchGradeId)) {
-                return SummativeExam::query()
-                    ->search($this->search)
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            } else {
-                if (empty($this->searchGroupId)) {
+                if ($this->searchDateFrom != null && $this->searchDateTo != null) {
                     return SummativeExam::query()
                         ->search($this->search)
-                        ->whereHas('student', function ($q) {
-                            return $q->where('grade_id', '=', $this->searchGradeId);
-                        })
+                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
                         ->orderBy($this->sortBy, $this->sortDirection)
                         ->paginate($this->perPage);
+                }else{
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }
+            } else {
+                if (empty($this->searchGroupId)) {
+                    if ($this->searchDateFrom != null && $this->searchDateTo != null) {
+                        return SummativeExam::query()
+                            ->search($this->search)
+                            ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                            ->whereHas('student', function ($q) {
+                                return $q->where('grade_id', '=', $this->searchGradeId);
+                            })
+                            ->orderBy($this->sortBy, $this->sortDirection)
+                            ->paginate($this->perPage);
+                    }else{
+                        return SummativeExam::query()
+                            ->search($this->search)
+                            ->whereHas('student', function ($q) {
+                                return $q->where('grade_id', '=', $this->searchGradeId);
+                            })
+                            ->orderBy($this->sortBy, $this->sortDirection)
+                            ->paginate($this->perPage);
+                    }
                 } else {
                     if (empty($this->searchStudentId)) {
-                        return SummativeExam::query()
-                            ->search($this->search)
-                            ->whereHas('student', function ($q) {
-                                return $q->where('grade_id', '=', $this->searchGradeId)
-                                    ->where('group_id', '=', $this->searchGroupId);
-                            })
-                            ->orderBy($this->sortBy, $this->sortDirection)
-                            ->paginate($this->perPage);
+                        if ($this->searchDateFrom != null && $this->searchDateTo != null) {
+                            return SummativeExam::query()
+                                ->search($this->search)
+                                ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                                ->whereHas('student', function ($q) {
+                                    return $q->where('grade_id', '=', $this->searchGradeId)
+                                        ->where('group_id', '=', $this->searchGroupId);
+                                })
+                                ->orderBy($this->sortBy, $this->sortDirection)
+                                ->paginate($this->perPage);
+                        }else{
+                            return SummativeExam::query()
+                                ->search($this->search)
+                                ->whereHas('student', function ($q) {
+                                    return $q->where('grade_id', '=', $this->searchGradeId)
+                                        ->where('group_id', '=', $this->searchGroupId);
+                                })
+                                ->orderBy($this->sortBy, $this->sortDirection)
+                                ->paginate($this->perPage);
+                        }
                     } else {
-                        return SummativeExam::query()
-                            ->search($this->search)
-                            ->whereHas('student', function ($q) {
-                                return $q
-                                    ->where('grade_id', '=', $this->searchGradeId)
-                                    ->where('group_id', '=', $this->searchGroupId)
-                                    ->where('id', '=', $this->searchStudentId);
-                            })
-                            ->orderBy($this->sortBy, $this->sortDirection)
-                            ->paginate($this->perPage);
+                        if ($this->searchDateFrom != null && $this->searchDateTo != null){
+                            return SummativeExam::query()
+                                ->search($this->search)
+                                ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                                ->whereHas('student', function ($q) {
+                                    return $q
+                                        ->where('grade_id', '=', $this->searchGradeId)
+                                        ->where('group_id', '=', $this->searchGroupId)
+                                        ->where('id', '=', $this->searchStudentId);
+                                })
+                                ->orderBy($this->sortBy, $this->sortDirection)
+                                ->paginate($this->perPage);
+                        }else{
+                            return SummativeExam::query()
+                                ->search($this->search)
+                                ->whereHas('student', function ($q) {
+                                    return $q
+                                        ->where('grade_id', '=', $this->searchGradeId)
+                                        ->where('group_id', '=', $this->searchGroupId)
+                                        ->where('id', '=', $this->searchStudentId);
+                                })
+                                ->orderBy($this->sortBy, $this->sortDirection)
+                                ->paginate($this->perPage);
+                        }
                     }
                 }
             }
@@ -206,34 +287,71 @@ class ExamsSummative extends Component
     private function getExamsByGrade($grade_id)
     {
         if (empty($this->searchGroupId)) {
-            return SummativeExam::query()
-                ->search($this->search)
-                ->whereHas('student', function ($q) use ($grade_id) {
-                    return $q->where('grade_id', '=', $grade_id);
-                })
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
+            if ($this->searchDateFrom != null && $this->searchDateTo != null){
+                return SummativeExam::query()
+                    ->search($this->search)
+                    ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                    ->whereHas('student', function ($q) use ($grade_id) {
+                        return $q->where('grade_id', '=', $grade_id);
+                    })
+                    ->orderBy($this->sortBy, $this->sortDirection)
+                    ->paginate($this->perPage);
+            }else{
+                return SummativeExam::query()
+                    ->search($this->search)
+                    ->whereHas('student', function ($q) use ($grade_id) {
+                        return $q->where('grade_id', '=', $grade_id);
+                    })
+                    ->orderBy($this->sortBy, $this->sortDirection)
+                    ->paginate($this->perPage);
+            }
         } else {
             if (empty($this->searchStudentId)) {
-                return SummativeExam::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) use ($grade_id) {
-                        return $q->where('grade_id', '=', $grade_id)
-                            ->where('group_id', '=', $this->searchGroupId);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
+                if ($this->searchDateFrom != null && $this->searchDateTo != null){
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                        ->whereHas('student', function ($q) use ($grade_id) {
+                            return $q->where('grade_id', '=', $grade_id)
+                                ->where('group_id', '=', $this->searchGroupId);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }else{
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->whereHas('student', function ($q) use ($grade_id) {
+                            return $q->where('grade_id', '=', $grade_id)
+                                ->where('group_id', '=', $this->searchGroupId);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }
             } else {
-                return SummativeExam::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) use ($grade_id) {
-                        return $q
-                            ->where('grade_id', '=', $grade_id)
-                            ->where('group_id', '=', $this->searchGroupId)
-                            ->where('id', '=', $this->searchStudentId);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
+                if ($this->searchDateFrom != null && $this->searchDateTo != null){
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
+                        ->whereHas('student', function ($q) use ($grade_id) {
+                            return $q
+                                ->where('grade_id', '=', $grade_id)
+                                ->where('group_id', '=', $this->searchGroupId)
+                                ->where('id', '=', $this->searchStudentId);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }else{
+                    return SummativeExam::query()
+                        ->search($this->search)
+                        ->whereHas('student', function ($q) use ($grade_id) {
+                            return $q
+                                ->where('grade_id', '=', $grade_id)
+                                ->where('group_id', '=', $this->searchGroupId)
+                                ->where('id', '=', $this->searchStudentId);
+                        })
+                        ->orderBy($this->sortBy, $this->sortDirection)
+                        ->paginate($this->perPage);
+                }
             }
         }
     }
@@ -642,5 +760,8 @@ class ExamsSummative extends Component
         $this->exam_notes = null;
     }
 
-
+    public function export()
+    {
+        return (new ExamsSummativeExport($this->all_Exam()))->download('exams summative report.xlsx', Excel::XLSX);
+    }
 }

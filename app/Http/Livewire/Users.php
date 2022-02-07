@@ -144,6 +144,33 @@ class Users extends Component
                         $this->modalFormReset();
                         $this->show_table = true;
                     }
+                } else if ($role_name == "مشرف الدورات") {
+                    $user = User::find($this->modalId);
+                    if ($user) {
+                        $user->assignRole([$this->role_id]);
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف الدورات إلى المستخدم بنجاح.']);
+                        $this->modalFormReset();
+                        $this->show_table = true;
+                    }
+                } else if ($role_name == "مشرف الأنشطة") {
+                    $user = User::find($this->modalId);
+                    if ($user) {
+                        $user->assignRole([$this->role_id]);
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف الأنشطة إلى المستخدم بنجاح.']);
+                        $this->modalFormReset();
+                        $this->show_table = true;
+                    }
+                } else if ($role_name == "مشرف الرقابة") {
+                    $user = User::find($this->modalId);
+                    if ($user) {
+                        $user->assignRole([$this->role_id]);
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف الرقابة إلى المستخدم بنجاح.']);
+                        $this->modalFormReset();
+                        $this->show_table = true;
+                    }
                 } else if ($role_name == "مختبر") {
                     $user = User::find($this->modalId);
                     if ($user) {
@@ -317,6 +344,27 @@ class Users extends Component
                     $user?->removeRole($this->role_id);
                     $this->dispatchBrowserEvent('alert',
                         ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الإختبارات من المستخدم بنجاح.']);
+                    $this->modalFormReset();
+                    $this->show_table = true;
+                } else if ($role_name == "مشرف الدورات") {
+                    $user = User::find($this->modalId);
+                    $user?->removeRole($this->role_id);
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الدورات من المستخدم بنجاح.']);
+                    $this->modalFormReset();
+                    $this->show_table = true;
+                } else if ($role_name == "مشرف الأنشطة") {
+                    $user = User::find($this->modalId);
+                    $user?->removeRole($this->role_id);
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الأنشطة من المستخدم بنجاح.']);
+                    $this->modalFormReset();
+                    $this->show_table = true;
+                } else if ($role_name == "مشرف الرقابة") {
+                    $user = User::find($this->modalId);
+                    $user?->removeRole($this->role_id);
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الرقابة من المستخدم بنجاح.']);
                     $this->modalFormReset();
                     $this->show_table = true;
                 } else if ($role_name == "مختبر") {

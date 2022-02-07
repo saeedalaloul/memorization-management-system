@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Adnane\SimpleUuid\Traits\SimpleUuid;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentBlock extends Model
 {
+    use SimpleUuid;
 
     protected $fillable = [
         'student_id',

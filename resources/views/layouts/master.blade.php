@@ -10,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     @include('layouts.head')
+    @yield('style')
 </head>
 
 <body>
@@ -64,9 +65,7 @@ preloader -->
 
 <!--=================================
 footer -->
-
 @include('layouts.footer-scripts')
-
+@yield('script')
 </body>
-
 </html>

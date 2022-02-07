@@ -14,8 +14,8 @@ class CreateSupervisorsTable extends Migration
     public function up()
     {
         Schema::create('supervisors', function (Blueprint $table) {
-            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

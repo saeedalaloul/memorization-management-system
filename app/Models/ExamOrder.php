@@ -3,12 +3,13 @@
 namespace App\Models;
 
 
+use Adnane\SimpleUuid\Traits\SimpleUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ExamOrder extends Model
 {
-    use HasFactory;
+    use HasFactory,SimpleUuid;
 
     protected $fillable = [
         'status',

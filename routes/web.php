@@ -73,9 +73,6 @@ Route::group(
     //==============================Students============================
     Route::view('manage_student', 'pages.students.index');
 
-    //==============================Students Attendance============================
-    Route::view('manage_students_attendance', 'pages.students_attendance.index');
-
     //==============================Students Daily Preservation============================
     Route::view('manage_students_daily_preservation', 'pages.students_daily_preservation.index');
 
@@ -106,6 +103,15 @@ Route::group(
     //==============================Testers============================
     Route::view('manage_testers', 'pages.testers.index');
 
+    //==============================Complaint Box Category============================
+    Route::view('manage_complaint_box_categories', 'pages.complaint_box_categories.index');
+
+    //==============================Complaint Box Role============================
+    Route::view('manage_complaint_box_roles', 'pages.complaint_box_roles.index');
+
+    //==============================Complaint Box Role============================
+    Route::view('manage_box_complaint_suggestions', 'pages.box_complaint_suggestions.index');
+
     //==============================Users============================
     Route::view('manage_users', 'pages.users.index');
 
@@ -117,3 +123,4 @@ Route::group(
 });
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::view('/demo','demo');

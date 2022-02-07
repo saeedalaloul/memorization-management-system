@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Adnane\SimpleUuid\Traits\SimpleUuid;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentWarning extends Model
 {
+    use SimpleUuid;
 
     protected $fillable = [
         'student_id',
@@ -34,7 +36,7 @@ class StudentWarning extends Model
                 ->where('readable->isReadableTeacher', false)
                 ->count();
         } else if (auth()->user()->current_role == 'مشرف') {
-           return $this
+            return $this
                 ->where('readable->isReadableSupervisor', false)
                 ->whereHas('student', function ($q) {
                     return $q->where('grade_id', '=', Supervisor::where('id', auth()->id())->first()->grade_id);

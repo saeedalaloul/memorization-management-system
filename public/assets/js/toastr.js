@@ -4,12 +4,12 @@ Template:  Webmin - Bootstrap 4 & Angular 5 Admin Dashboard Template
 Author: potenzaglobalsolutions.com
 Design and Developed by: potenzaglobalsolutions.com
 
-NOTE:
+NOTE: 
 
 */
 
-(function($){
-    "use strict";
+ (function($){
+  "use strict";
 
     $(function () {
         var i = -1;
@@ -126,12 +126,12 @@ NOTE:
             }
 
             $('#toastrOptions').text('Command: toastr["'
-                + shortCutFunction
-                + '"]("'
-                + msg
-                + (title ? '", "' + title : '')
-                + '")\n\ntoastr.options = '
-                + JSON.stringify(toastr.options, null, 2)
+                    + shortCutFunction
+                    + '"]("'
+                    + msg
+                    + (title ? '", "' + title : '')
+                    + '")\n\ntoastr.options = '
+                    + JSON.stringify(toastr.options, null, 2)
             );
 
             var $toast = toastr[shortCutFunction](msg, title); // Wire up an event handler to a button in the toast, if it exists
@@ -170,4 +170,4 @@ NOTE:
         });
     })
 
-})(jQuery);
+ })(jQuery);

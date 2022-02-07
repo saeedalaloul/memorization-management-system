@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Exports\DailyPreservationExport;
 use App\Models\DailyPreservationType;
 use App\Models\Grade;
 use App\Models\Group;
@@ -11,6 +12,7 @@ use App\Models\StudentDailyPreservation;
 use App\Models\Supervisor;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Excel;
 
 class ReportDailyPreservation extends Component
 {
@@ -522,8 +524,7 @@ class ReportDailyPreservation extends Component
         }
     }
 
-    public
-    function sortBy($field)
+    public function sortBy($field)
     {
         if ($this->sortDirection == 'asc') {
             $this->sortDirection = 'desc';
@@ -532,5 +533,10 @@ class ReportDailyPreservation extends Component
         }
 
         return $this->sortBy = $field;
+    }
+
+    public function export()
+    {
+        return (new DailyPreservationExport($this->all_Reports_Daily_Preservation()))->download('Preservation and review report.xlsx', Excel::XLSX);
     }
 }

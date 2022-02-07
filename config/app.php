@@ -236,6 +236,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'OneSignal' => \Ladumor\OneSignal\OneSignal::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'SimpleUuid' => Adnane\SimpleUuid\Traits\SimpleUuid::class,
     ],
 
 ];

@@ -54,7 +54,7 @@
                             </div>
                         @endif
                     </div>
-                <br>
+                    <br>
                     @include('livewire.search')
                     <div class="table-responsive mt-15">
                         <table class="table center-aligned-table mb-0">
@@ -222,7 +222,8 @@
                             <div class="col-sm-12 col-md-5">
                                 <div class="dataTables_info" id="datatable_info" role="status"
                                      aria-live="polite">
-                                    Showing {{$exam_orders->firstItem()}} to {{$exam_orders->lastItem()}}
+                                    Showing {{$exam_orders->firstItem()}}
+                                    to {{$exam_orders->lastItem()}}
                                     of {{$exam_orders->total()}} entries
                                 </div>
                             </div>
