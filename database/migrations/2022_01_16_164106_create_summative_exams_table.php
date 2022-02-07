@@ -16,8 +16,8 @@ class CreateSummativeExamsTable extends Migration
         Schema::create('summative_exams', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->json('readable');
-            $table->json('signs_questions')->index();
-            $table->json('marks_questions')->index();
+            $table->json('signs_questions');
+            $table->json('marks_questions');
             $table->unsignedTinyInteger('another_mark')->index();
             $table->foreignId('quran_summative_part_id')->index()->references('id')->on('quran_summative_parts')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('exam_summative_success_mark_id')->index()->references('id')->on('exam_summative_success_mark')->cascadeOnDelete()->cascadeOnUpdate();
