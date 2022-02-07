@@ -18,8 +18,8 @@ class CreateBoxComplaintSuggestionsTable extends Migration
             $table->date('complaint_date')->index();
             $table->foreignId('category_complaint_id')->index()->references('id')->on('complaint_box_categories')->cascadeOnDelete()->cascadeOnUpdate();
             $table->longText('subject');
-            $table->foreignId('sender_id')->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('receiver_id')->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('sender_id')->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('receiver_id')->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('receiver_role_id')->index()->references('id')->on('complaint_box_roles')->cascadeOnDelete()->cascadeOnUpdate();
             $table->longText('reply')->nullable();
             $table->timestamp('read_at')->nullable();
