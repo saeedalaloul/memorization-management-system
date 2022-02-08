@@ -14,7 +14,7 @@ class CreatePreventStatusStudentsTable extends Migration
     public function up()
     {
         Schema::create('prevent_status_students', function (Blueprint $table) {
-            $table->foreignUuid('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }
