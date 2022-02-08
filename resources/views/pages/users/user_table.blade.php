@@ -97,14 +97,14 @@
                             <td>
                                 @if ($user->last_seen != null)
                                     @if(Cache::has('user-is-online-' . $user->id))
-                                        <label class="badge bg-success">نشط الآن</label>
+                                        <label class="badge badge-success">نشط الآن</label>
                                     @else
                                         <label
-                                            class="badge bg-danger">{{ Carbon\Carbon::parse($user->last_seen)->diffForHumans() }}
+                                            class="badge badge-danger">{{ Carbon\Carbon::parse($user->last_seen)->diffForHumans() }}
                                         </label>
                                     @endif
                                 @else
-                                    <label class="badge bg-danger">لا ظهور</label>
+                                    <label class="badge badge-danger">لا ظهور</label>
                                 @endif
                             </td>
                             <td class="embed-responsive-item">
