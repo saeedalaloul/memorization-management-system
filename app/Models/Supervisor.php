@@ -2,17 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Traits\HasRoles;
 
 class Supervisor extends Model
 {
-    use HasFactory;
-
-    protected $fillable = ['id','grade_id'];
-
-    public $timestamps = false;
+    protected $fillable = ['id', 'grade_id'];
 
     public function scopeSearch($query, $val)
     {

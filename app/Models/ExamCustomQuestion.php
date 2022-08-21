@@ -3,18 +3,16 @@
 namespace App\Models;
 
 use Adnane\SimpleUuid\Traits\SimpleUuid;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ExamCustomQuestion extends Model
 {
-    use HasFactory,SimpleUuid;
+    use SimpleUuid;
 
     protected $fillable = [
-        'quran_part_id', 'exam_question_count'
+        'quran_part_id', 'question_count'
     ];
 
-    public $timestamps = false;
 
     // علاقة بين جدول أسئلة الإختبارات المخصصة وجدول أجزاء القرآن لجلب اسم جزء الإختبار في جدول أسئلة الإختبارات المخصصة
     public function quranPart()

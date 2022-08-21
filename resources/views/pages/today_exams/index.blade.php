@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('css')
-    @toastr_css
 @section('title')
     اختبارات اليوم
 @stop
@@ -24,28 +23,17 @@
 
 @section('js')
     @livewireScripts
-    @toastr_js
     @toastr_render
-    <script>
-        window.livewire.on('approval-exam', () => {
-            $('#approval-exam').modal('hide');
-        });
 
-        window.livewire.on('showModal', () => {
+    <script>
+        window.addEventListener('showModal', _ => {
             $('#exam-question-count-select').modal('show');
         });
 
-        window.livewire.on('exam-question-count-select', () => {
+        window.addEventListener('hideModal', _ => {
             $('#exam-question-count-select').modal('hide');
-        });
-    </script>
-
-    <script>
-        window.addEventListener('alert', event => {
-            toastr[event.detail.type](event.detail.message,
-                event.detail.title ?? ''), toastr.options = {
-                "progressBar": true,
-            }
+            $('#approval-exam').modal('hide');
+            $('#exam-question-count-select').modal('hide');
         });
     </script>
 @endsection

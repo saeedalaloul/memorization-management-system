@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\CheckStudentStatusCron::class,
+        Commands\CheckVisitReminderStatusCron::class,
     ];
 
     /**
@@ -26,6 +27,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('CheckStudentStatus:cron')
+            ->everyMinute();
+
+        $schedule->command('CheckVisitReminderStatus:cron')
             ->everyMinute();
     }
 

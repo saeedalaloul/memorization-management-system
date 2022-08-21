@@ -1,8 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\NotificationsController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,7 +34,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     return redirect('/dashboard');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
-Route::post('/email/verification-notification', function (Request $request) {
+Route::post('/email/verification-notifications', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
 
     return back()->with('message', 'Verification link sent!');
@@ -49,78 +48,130 @@ Route::group(
 
     //==============================dashboard============================
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-    Route::get('switch_account/{current_role}', [HomeController::class, 'switchAccountUser']);
-    Route::post('check_user_subscribe_notifications', [HomeController::class, 'checkUserSubscribeNotifications']);
+    Route::post('store-token', [NotificationsController::class, 'updateDeviceToken'])->name('store.token');
 
-    //==============================Grades============================
-    Route::view('manage_grade', 'pages.grades.index');
+    Route::post('switch_account/', [HomeController::class, 'switchAccountUser'])->name('switch_account');
+    Route::any('user/notifications/read/{id}', [NotificationsController::class, 'markAsReadAndRedirect'])->name('user/notifications/read');
 
-    //==============================Groups============================
-    Route::view('manage_group', 'pages.groups.index');
+    Route::group(['middleware' => ['role:أمير المركز']], function () {
+        //==============================Grades============================
+        Route::view('manage_grade', 'pages.grades.index')->name('manage_grade');
+        //==============================Supervisors============================
+        Route::view('manage_supervisor', 'pages.supervisors.index')->name('manage_supervisor');
+        //==============================Roles============================
+        Route::view('manage_roles', 'pages.roles.index')->name('manage_roles');
 
-    //==============================Supervisors============================
-    Route::view('manage_supervisor', 'pages.supervisors.index');
+        //==============================Punitive Measures============================
+        Route::view('manage_punitive_measures', 'pages.punitive_measures.index')->name('manage_punitive_measures');
 
-    //==============================LowerSupervisors============================
-    Route::view('manage_lower_supervisor', 'pages.lower_supervisors.index');
+        //==============================Users============================
+        Route::view('manage_users', 'pages.users.index')->name('manage_users');
 
-    //==============================Teachers============================
-    Route::view('manage_teacher', 'pages.teachers.index');
+        //==============================Settings============================
+        Route::view('manage_settings', 'pages.settings.index')->name('manage_settings');
+    });
 
-    //==============================Teachers Attendance============================
-    Route::view('manage_teachers_attendance', 'pages.teachers_attendance.index');
+    Route::group(['middleware' => ['role:أمير المركز|مشرف']], function () {
+        //==============================Groups============================
+        Route::view('manage_group', 'pages.groups.index')->name('manage_group');
+        //==============================Teachers============================
+        Route::view('manage_teacher', 'pages.teachers.index')->name('manage_teacher');
+    });
 
-    //==============================Students============================
-    Route::view('manage_student', 'pages.students.index');
+    Route::group(['middleware' => ['role:مشرف']], function () {
+        //==============================Teachers Attendance============================
+        Route::view('manage_teachers_attendance', 'pages.teachers_attendance.index')->name('manage_teachers_attendance');
+    });
 
-    //==============================Students Daily Preservation============================
-    Route::view('manage_students_daily_preservation', 'pages.students_daily_preservation.index');
+    Route::group(['middleware' => ['role:أمير المركز|مشرف|محفظ']], function () {
+        //==============================Students============================
+        Route::view('manage_student/{id?}', 'pages.students.index')->name('manage_student');
 
-    //==============================Report Daily Preservation============================
-    Route::view('manage_report_daily_preservation', 'pages.report_daily_preservation.index');
+        //==============================Students Daily Memorization============================
+        Route::view('manage_students_daily_memorization', 'pages.students_daily_memorization.index')->name('manage_students_daily_memorization');
 
-    //==============================Exams============================
-    Route::view('manage_exams', 'pages.exams.index');
+        //==============================Report Daily Memorization============================
+        Route::view('manage_report_daily_memorization', 'pages.report_daily_memorization.index')->name('manage_report_daily_memorization');
 
-    //==============================Exam Orders============================
-    Route::view('manage_exams_orders', 'pages.exams_orders.index');
+        //==============================Report Monthly Memorization============================
+        Route::view('manage_report_monthly_memorization', 'pages.report_monthly_memorization.index')->name('manage_report_monthly_memorization');
+    });
 
-    //==============================Exams Today============================
-    Route::view('manage_today_exams', 'pages.today_exams.index');
+    Route::group(['middleware' => ['role:مشرف|محفظ']], function () {
+        //==============================Students Daily Memorization============================
+        Route::view('manage_students_daily_memorization', 'pages.students_daily_memorization.index')->name('manage_students_daily_memorization');
+    });
 
-    //==============================Exam Summative============================
-    Route::view('manage_exams_summative', 'pages.exams_summative.index');
+    Route::group(['middleware' => ['role:مشرف الإختبارات|أمير المركز|مشرف|محفظ|مختبر']], function () {
+        //==============================Exams============================
+        Route::view('manage_exams/{id?}', 'pages.exams.index')->name('manage_exams');
+    });
 
-    //==============================Exam Summative Orders============================
-    Route::view('manage_exams_summative_orders', 'pages.exams_summative_orders.index');
+    Route::group(['middleware' => ['role:مشرف الإختبارات|مشرف|محفظ|مختبر']], function () {
+        //==============================Exam Orders============================
+        Route::view('manage_exams_orders/{id?}', 'pages.exams_orders.index')->name('manage_exams_orders');
 
-    //==============================Exams Summative Today============================
-    Route::view('manage_today_exams_summative', 'pages.today_exams_summative.index');
+        //==============================Exams Today============================
+        Route::view('manage_today_exams', 'pages.today_exams.index')->name('manage_today_exams');
+    });
 
-    //==============================Exams Settings============================
-    Route::view('manage_exams_settings', 'pages.exams_settings.index');
+    Route::group(['middleware' => ['role:مشرف الإختبارات']], function () {
+        //==============================Exams Settings============================
+        Route::view('manage_exams_settings', 'pages.exams_settings.index')->name('manage_exams_settings');
 
-    //==============================Testers============================
-    Route::view('manage_testers', 'pages.testers.index');
+        //==============================Testers============================
+        Route::view('manage_testers', 'pages.testers.index')->name('manage_testers');
+    });
 
-    //==============================Complaint Box Category============================
-    Route::view('manage_complaint_box_categories', 'pages.complaint_box_categories.index');
+    Route::group(['middleware' => ['role:مشرف الرقابة|أمير المركز|مشرف|محفظ']], function () {
+        //==============================Complaint Box Suggestion============================
+        Route::view('manage_box_complaint_suggestions/{id?}', 'pages.box_complaint_suggestions.index')->name('manage_box_complaint_suggestions');
+    });
 
-    //==============================Complaint Box Role============================
-    Route::view('manage_complaint_box_roles', 'pages.complaint_box_roles.index');
+    Route::group(['middleware' => ['role:مشرف الرقابة']], function () {
+        //==============================Oversight Members============================
+        Route::view('manage_oversight_members', 'pages.oversight_members.index')->name('manage_oversight_members');
+        //==============================Select Visit Group============================
+        Route::view('manage_select_visit_groups', 'pages.select_visit_group.index')->name('manage_select_visit_groups');
 
-    //==============================Complaint Box Role============================
-    Route::view('manage_box_complaint_suggestions', 'pages.box_complaint_suggestions.index');
+        //==============================Select Visit Tester============================
+        Route::view('manage_select_visit_testers', 'pages.select_visit_tester.index')->name('manage_select_visit_testers');
 
-    //==============================Users============================
-    Route::view('manage_users', 'pages.users.index');
+        //==============================Select Visit Activity Member============================
+        Route::view('manage_select_visit_activity_members', 'pages.select_visit_activity_member.index')->name('manage_select_visit_activity_members');
+    });
 
-    //==============================Settings============================
-    Route::view('manage_settings', 'pages.settings.index');
+    Route::group(['middleware' => ['role:أمير المركز|مشرف الرقابة|مراقب']], function () {
+        //==============================Visits============================
+        Route::view('manage_visits/{id?}', 'pages.visits.index')->name('manage_visits');
+    });
 
-    Route::resource('roles', RoleController::class);
-    Route::resource('users', UserController::class);
+    Route::group(['middleware' => ['role:مراقب|مشرف الرقابة']], function () {
+        //==============================Visits Orders============================
+        Route::view('manage_visits_orders/{id?}', 'pages.visits_orders.index')->name('manage_visits_orders');
+
+        //==============================Visits Orders Today============================
+        Route::view('manage_visits_today', 'pages.today_visits.index')->name('manage_visits_today');
+    });
+
+    Route::group(['middleware' => ['role:مشرف الأنشطة']], function () {
+        //==============================Activity Members============================
+        Route::view('manage_activity_members', 'pages.activity_members.index')->name('manage_activity_members');
+        //==============================Activities Types============================
+        Route::view('manage_activities_types', 'pages.activities_types.index')->name('manage_activities_types');
+    });
+
+    Route::group(['middleware' => ['role:مشرف الأنشطة|أمير المركز|منشط|محفظ']], function () {
+        //==============================Activities============================
+        Route::view('manage_activities', 'pages.activities.index')->name('manage_activities');
+    });
+
+    Route::group(['middleware' => ['role:مشرف الأنشطة|منشط|محفظ']], function () {
+        //==============================Activities Orders============================
+        Route::view('manage_activities_orders/{id?}', 'pages.activities_orders.index')->name('manage_activities_orders');
+    });
+    //==============================Manage Password============================
+    Route::view('manage_password', 'pages.manage_password.index')->name('manage_password');
 });
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::view('/demo','demo');

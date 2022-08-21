@@ -31,40 +31,44 @@
                 <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                     @if (auth()->user()->current_role != null)
-                        @if (auth()->user()->current_role == 'أمير المركز')
-                            {{'أمير المركز' }}
+                        @if (auth()->user()->current_role == \App\Models\User::ADMIN_ROLE)
+                            {{\App\Models\User::ADMIN_ROLE}}
                             <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
                                  alt="">
-                        @elseif(auth()->user()->current_role == 'مشرف')
-                            {{'مشرف' }}
+                        @elseif(auth()->user()->current_role == \App\Models\User::SUPERVISOR_ROLE)
+                            {{\App\Models\User::SUPERVISOR_ROLE }}
                             <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
                                  alt="">
-                        @elseif(auth()->user()->current_role == 'إداري')
-                            {{'إداري' }}
+                        @elseif(auth()->user()->current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
+                            {{\App\Models\User::EXAMS_SUPERVISOR_ROLE }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
+                        @elseif(auth()->user()->current_role == \App\Models\User::COURSES_SUPERVISOR_ROLE)
+                            {{\App\Models\User::COURSES_SUPERVISOR_ROLE }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
+                        @elseif(auth()->user()->current_role == \App\Models\User::ACTIVITIES_SUPERVISOR_ROLE)
+                            {{\App\Models\User::ACTIVITIES_SUPERVISOR_ROLE }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
+                        @elseif(auth()->user()->current_role == \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE)
+                            {{\App\Models\User::OVERSIGHT_SUPERVISOR_ROLE }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
+                                 alt="">
+                        @elseif(auth()->user()->current_role == \App\Models\User::OVERSIGHT_MEMBER_ROLE)
+                            {{\App\Models\User::OVERSIGHT_MEMBER_ROLE }}
                             <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
                                  alt="">
-                        @elseif(auth()->user()->current_role == 'مشرف الإختبارات')
-                            {{'مشرف الإختبارات' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
-                                 alt="">
-                        @elseif(auth()->user()->current_role == 'مشرف الدورات')
-                            {{'مشرف الدورات' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
-                                 alt="">
-                        @elseif(auth()->user()->current_role == 'مشرف الأنشطة')
-                            {{'مشرف الأنشطة' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
-                                 alt="">
-                        @elseif(auth()->user()->current_role == 'مشرف الرقابة')
-                            {{'مشرف الرقابة' }}
-                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/admin.png') }}"
-                                 alt="">
-                        @elseif(auth()->user()->current_role == 'مختبر')
-                            {{'مختبر' }}
+                        @elseif(auth()->user()->current_role == \App\Models\User::ACTIVITY_MEMBER_ROLE)
+                            {{\App\Models\User::ACTIVITY_MEMBER_ROLE }}
                             <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
                                  alt="">
-                        @elseif(auth()->user()->current_role == 'محفظ')
-                            {{'محفظ' }}
+                        @elseif(auth()->user()->current_role == \App\Models\User::TESTER_ROLE)
+                            {{\App\Models\User::TESTER_ROLE }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
+                                 alt="">
+                        @elseif(auth()->user()->current_role == \App\Models\User::TEACHER_ROLE)
+                            {{\App\Models\User::TEACHER_ROLE }}
                             <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
                                  alt="">
                         @endif
@@ -72,8 +76,12 @@
                 </button>
                 <div class="dropdown-menu">
                     @for ($i = 0; $i < count(auth()->user()->roles); $i++)
-                        <a class="dropdown-item" rel="alternate"
-                           href="{{url('switch_account',auth()->user()->roles[$i]->name,true)}}">{{auth()->user()->roles[$i]->name}}</a>
+                        <form method="post" action="{{route('switch_account')}}">
+                            @csrf
+                            <input value="{{auth()->user()->roles[$i]->name}}" name="current_role" hidden>
+                            <button type="submit" class="dropdown-item" rel="alternate"
+                                    href="#">{{auth()->user()->roles[$i]->name}}</button>
+                        </form>
                     @endfor
                 </div>
             </div>
@@ -83,9 +91,8 @@
             <a id="btnFullscreen" href="#" class="nav-link"><i class="ti-fullscreen"></i></a>
         </li>
         @php
-            $count = \App\Models\StudentWarning::UnreadWarnings() + \App\Models\StudentBlock::UnreadBlocks();
-            $studentWarnings = \App\Models\StudentWarning::Warnings();
-            $studentBlocks = \App\Models\StudentBlock::Blocks();
+            $count = auth()->user()->unreadNotifications->count();
+            $unreadNotifications = auth()->user()->unreadNotifications;
         @endphp
         <li class="nav-item dropdown">
             <a class="nav-link top-nav" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
@@ -99,41 +106,52 @@
                     <span class="badge badge-pill badge-warning">{{$count}}</span>
                 </div>
                 <div class="dropdown-divider"></div>
-                @if ($studentWarnings != null)
-                    @foreach($studentWarnings as $key => $value)
-                        @if ($value->warning_expiry_date != null)
-                            <a href="{{url('manage_student',null,true)}}"
-                               class="dropdown-item">{{"لقد تم إلغاء إنذار الطالب ".Str::limit($value->student->user->name,14,'...')}}
-                                <small
-                                    class="float-right text-muted time">{{Carbon\Carbon::parse($value['updated_at'])->diffForHumans()}}</small></a>
-                        @else
-                            <a href="{{url('manage_student',null,true)}}"
-                               class="dropdown-item">{{"لقد تم إنذار الطالب ".Str::limit($value->student->user->name,14,'...')}}
-                                <small
-                                    class="float-right text-muted time">{{Carbon\Carbon::parse($value['updated_at'])->diffForHumans()}}</small></a>
+                @if (count($unreadNotifications) > 0)
+                    @foreach($unreadNotifications as $key => $value)
+                        @if($value->type == 'App\Notifications\AcceptExamOrderForTeacherNotify'
+                             || $value->type == 'App\Notifications\AcceptExamOrderForTesterNotify'
+                             || $value->type == 'App\Notifications\FailureExamOrderForTeacherNotify'
+                             || $value->type == 'App\Notifications\ImproveExamOrderForExamsSupervisorNotify'
+                             || $value->type == 'App\Notifications\NewExamOrderForExamsSupervisorNotify'
+                             || $value->type == 'App\Notifications\RejectionExamOrderForTeacherNotify')
+                            @include('layouts.notifications.exam-orders-notifications')
+                        @elseif($value->type == 'App\Notifications\NewExamForTeacherNotify' ||
+                                 $value->type == 'App\Notifications\ImproveExamForTeacherNotify')
+                            @include('layouts.notifications.exams-notifications')
+                        @elseif($value->type == 'App\Notifications\NewBoxComplaintSuggestionNotify' ||
+                                 $value->type == 'App\Notifications\ReplayBoxComplaintSuggestionNotify')
+                            @include('layouts.notifications.box-complaint-suggestions-notifications')
+                        @elseif($value->type == 'App\Notifications\NewActivityOrderForActivitiesSupervisorNotify'
+                                || $value->type == 'App\Notifications\AcceptActivityOrderForTeacherNotify'
+                                || $value->type == 'App\Notifications\AcceptActivityOrderForActivityMemberNotify'
+                                || $value->type == 'App\Notifications\RejectionActivityOrderForTeacherNotify'
+                                || $value->type == 'App\Notifications\FailureActivityOrderForTeacherNotify')
+                            @include('layouts.notifications.activity-orders-notifications')
+                        @elseif($value->type == 'App\Notifications\NewStudentWarningForTeacherNotify'
+                                 || $value->type == 'App\Notifications\ExpiredStudentWarningForTeacherNotify')
+                            @include('layouts.notifications.student-warnings-notifications')
+                        @elseif($value->type == 'App\Notifications\NewStudentBlockForTeacherNotify'
+                               || $value->type == 'App\Notifications\ExpiredStudentBlockForTeacherNotify')
+                            @include('layouts.notifications.student-blocks-notifications')
+                        @elseif($value->type == 'App\Notifications\NewVisitOrderForOversightMemberNotify'
+                               || $value->type == 'App\Notifications\UpdateVisitOrderForOversightMemberNotify'
+                               || $value->type == 'App\Notifications\SendVisitOrderForOversightSupervisorNotify')
+                            @include('layouts.notifications.visits-orders-notifications')
+                        @elseif($value->type == 'App\Notifications\NewVisitForAdminNotify'
+                               || $value->type == 'App\Notifications\ReplyToVisitForOversightSupervisorNotify'
+                               || $value->type == 'App\Notifications\SolvedVisitForAdminNotify'
+                               || $value->type == 'App\Notifications\FailureProcessingOfVisitForAdminNotify'
+                               || $value->type == 'App\Notifications\ReminderOfVisitForAdminNotify'
+                               || $value->type == 'App\Notifications\ReminderOfVisitForOversightSupervisorNotify')
+                            @include('layouts.notifications.visits-notifications')
                         @endif
                     @endforeach
-                    @if ($studentBlocks != null)
-                        @foreach($studentBlocks as $key => $value)
-                            @if ($value->block_expiry_date != null)
-                                <a href="{{url('manage_student',null,true)}}"
-                                   class="dropdown-item">{{"لقد تم فك حظر الطالب ".Str::limit($value->student->user->name,14,'...')}}
-                                    <small
-                                        class="float-right text-muted time">{{Carbon\Carbon::parse($value['updated_at'])->diffForHumans()}}</small></a>
-                            @else
-                                <a href="{{url('manage_student',null,true)}}"
-                                   class="dropdown-item">{{"لقد تم حظر الطالب ".Str::limit($value->student->user->name,14,'...')}}
-                                    <small
-                                        class="float-right text-muted time">{{Carbon\Carbon::parse($value['updated_at'])->diffForHumans()}}</small></a>
-                            @endif
-                        @endforeach
-                    @endif
                 @else
                     <p class="text-dark text-center">لا توجد إشعارات</p>
                 @endif
             </div>
         </li>
-        <li class="nav-item dropdown ">
+        <li class="nav-item dropdown">
             <a class="nav-link top-nav" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                aria-expanded="true"> <i class=" ti-view-grid"></i> </a>
             <div class="dropdown-menu dropdown-menu-right dropdown-big">
@@ -157,37 +175,29 @@
             <a class="nav-link nav-pill user-avatar" data-toggle="dropdown" href="#" role="button"
                aria-haspopup="true"
                aria-expanded="false">
-                @if (auth()->user()->profile_photo_path == null || empty(auth()->user()->profile_photo_path))
-                    <img
-                        src="{{asset('https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name).'&color=7F9CF5&background=EBF4FF')}}"
-                        alt="avatar">
-                @else
-                    <img
-                        src="{{asset('/storage/users_images/'.auth()->user()->identification_number.'/'.auth()->user()->profile_photo_path,true)}}"
-                        alt="avatar">
-                @endif
+                <img
+                    src="{{auth()->user()->profile_photo_url}}"
+                    alt="avatar">
             </a>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-header">
                     <div class="media">
                         <div class="media-body">
                             <h5 class="mt-0 mb-0">{{auth()->user()->name}}</h5>
-                            <span>{{auth()->user()->email}}</span>
+                            <span>{{auth()->user()->phone}}</span>
                             {{--                            <span>{{auth()->user()->current_role}}</span>--}}
                         </div>
                     </div>
                 </div>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#"><i class="text-secondary ti-reload"></i>Activity</a>
-                <a class="dropdown-item" href="#"><i class="text-success ti-email"></i>Messages</a>
-                <a class="dropdown-item" href="#"><i class="text-warning ti-user"></i>Profile</a>
-                <a class="dropdown-item" href="#"><i class="text-dark ti-layers-alt"></i>Projects <span
-                        class="badge badge-info">6</span> </a>
+                <a class="dropdown-item" onclick="startFCM();"><i class="text-secondary ti-alarm-clock"></i>تفعيل
+                    الإشعارات</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#"><i class="text-info ti-settings"></i>Settings</a>
+                <a class="dropdown-item" href="{{route('manage_password')}}"><i class="text-info ti-key"></i>تغيير كلمة
+                    المرور</a>
                 <form action="{{route('logout')}}" method="POST">
                     @csrf
-                    <button class="dropdown-item"><i class="text-danger ti-unlock"></i>Logout</button>
+                    <button class="dropdown-item"><i class="text-danger ti-unlock"></i>تسجيل الخروج</button>
                 </form>
             </div>
         </li>

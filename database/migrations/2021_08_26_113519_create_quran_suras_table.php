@@ -16,7 +16,7 @@ class CreateQuranSurasTable extends Migration
         Schema::create('quran_suras', function (Blueprint $table) {
             $table->id();
             $table->string('name',20)->index()->unique();
-            $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->restrictOnDelete();
             $table->unsignedSmallInteger('total_number_aya')->index();
         });
     }

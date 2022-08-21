@@ -7,35 +7,25 @@
                         <div class="form-row">
                             <div class="col">
                                 <label for="name" style="font-size: 15px; color: #1e7e34">اسم المستخدم*</label>
-                                <input type="text" name="name" class="form-control" wire:model="name" required>
+                                <input type="text" name="name" class="form-control" wire:model.defer="name" required>
                                 @error('name')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col">
                                 <label for="email" style="font-size: 15px; color: #1e7e34">البريد الإلكتروني*</label>
-                                <input type="email" name="email" class="form-control" wire:model="email" required>
+                                <input type="email" name="email" class="form-control" wire:model.defer="email" required>
                                 @error('email')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                            @if ($modalId == null)
-                                <div class="col">
-                                    <label for="password" style="font-size: 15px; color: #1e7e34">كلمة المرور*</label>
-                                    <input type="password" name="password" class="form-control" wire:model="password"
-                                           required>
-                                    @error('password')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            @endif
                         </div>
                         <br>
 
                         <div class="form-row">
                             <div class="col">
                                 <label for="phone" style="font-size: 15px; color: #1e7e34">رقم الجوال*</label>
-                                <input type="number" name="phone" class="form-control" wire:model="phone" required>
+                                <input type="number" name="phone" class="form-control" wire:model.defer="phone" required>
                                 @error('phone')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -45,17 +35,8 @@
                                 <label for="identification_number" style="font-size: 15px; color: #1e7e34">رقم
                                     الهوية*</label>
                                 <input type="number" name="identification_number" class="form-control"
-                                       wire:model="identification_number" required>
+                                       wire:model.defer="identification_number" required>
                                 @error('identification_number')
-                                <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col">
-                                <label for="address" style="font-size: 15px; color: #1e7e34">العنوان*</label>
-                                <input type="text" name="address" class="form-control"
-                                       wire:model="address" required>
-                                @error('address')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -66,7 +47,7 @@
                             <div class="col">
                                 <label for="dob" style="font-size: 15px; color: #1e7e34">تاريخ الميلاد*</label>
                                 <div class='input-group date'>
-                                    <input class="form-control" wire:model="dob" type="date" id="datepicker-action"
+                                    <input class="form-control" wire:model.defer="dob" type="date" id="datepicker-action"
                                            data-date-format="yyyy-mm-dd">
                                 </div>
                                 @error('dob')
@@ -75,13 +56,29 @@
                             </div>
 
                             <div class="col">
-                                <label style="font-size: 15px; color: #1e7e34">صورة المستخدم</label>
+                                <label style="color: red">صورة المستخدم</label>
                                 <div class="form-group">
-                                    <input class="form-control-file" type="file" wire:model="photo" accept="image/*">
+                                    <div x-data="{ isUploading: false, progress: 5 }" x-on:livewire-upload-start="isUploading = true" x-on:livewire-upload-finish="isUploading = false; progress = 5" x-on:livewire-upload-error="isUploading = false" x-on:livewire-upload-progress="progress = $event.detail.progress">
+                                        <input type="file" wire:model="photo" accept="image/*">
+                                        <div x-show.transition="isUploading" class="progress progress-sm mt-2 rounded">
+                                            <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" x-bind:style="`width: ${progress}%`">
+                                                <span class="sr-only">40% Complete (success)</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <br>
+
+                                <div class="form-group">
+                                    @if ($photo)
+                                        <img src="{{ $photo->temporaryUrl() }}" style="width: 80px;"  class="img-fluid mr-15 avatar-small">
+                                    @else
+                                        <img src="{{ $photo_ret ?? '' }}" style="width: 50px;" class="img-fluid mr-15 avatar-small">
+                                    @endif
+                                </div>
+
                             </div>
                         </div>
+
                         @if (!empty($modalId))
                             <button wire:click.prevent="update()"
                                     class="btn btn-success btn-sm nextBtn btn-lg pull-right"

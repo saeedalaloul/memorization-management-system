@@ -87,9 +87,8 @@ class Settings extends Component
             }
 
             if ($this->logo != null) {
-                $logo_name = $this->logo->getClientOriginalName();
-                Setting::where('key', 'logo')->update(['value' => $logo_name]);
-                $this->uploadFile($logo_name, 'logo', 'logo');
+                $this->logo->storeAs("logo", "logo.jpeg", $disk = 'upload_attachments');
+                Setting::where('key', 'logo')->update(['value' => "logo.jpeg"]);
             }
 
             $this->dispatchBrowserEvent('alert',

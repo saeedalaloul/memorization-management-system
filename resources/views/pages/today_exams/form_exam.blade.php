@@ -11,7 +11,7 @@
         @for($i = 1; $i <= $exam_questions_count; $i++)
             <tr>
                 <td>{{ $i }}</td>
-                <td><input type="text" wire:click.prevent="getFocusId({{$i}})"
+                <td><input type="text" wire:click.prevent="getFocusId({{$i}})" readonly
                            id="signs_questions_{{$i}}" onkeydown="return false;"
                            wire:model="signs_questions.{{$i}}" style="width: 100px;" max="10"
                            class="form-control">
@@ -35,7 +35,7 @@
                         @endif
                     @endif
                 </td>
-                <td><input type="number" wire:model="marks_questions.{{$i}}" readonly
+                <td><input type="number" wire:model.defer="marks_questions.{{$i}}" readonly
                            style="width: 100px;" class="form-control"></td>
             </tr>
         @endfor

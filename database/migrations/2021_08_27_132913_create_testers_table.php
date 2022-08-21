@@ -14,8 +14,9 @@ class CreateTestersTable extends Migration
     public function up()
     {
         Schema::create('testers', function (Blueprint $table) {
-            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->timestamps();
+            $table->foreignId('id')->unique()->index()->references('id')->on('users')->restrictOnDelete();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

@@ -14,9 +14,10 @@ class CreateTeachersTable extends Migration
     public function up()
     {
         Schema::create('teachers', function (Blueprint $table) {
-            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->timestamps();
+            $table->foreignId('id')->unique()->index()->references('id')->on('users')->restrictOnDelete();
+            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->restrictOnDelete();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

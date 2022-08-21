@@ -20,13 +20,13 @@
                         <label for="name"
                                class="mr-sm-2">اسم المرحلة
                             :</label>
-                        <input id="name" type="text" name="name" wire:model="name"
+                        <input id="name" type="text" name="name" wire:model.defer="name"
                                class="form-control"
                                required>
                         @error('name')
                         <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
-                        <input id="id" type="hidden" name="id" class="form-control" wire:model="modalId">
+                        <input id="id" type="hidden" name="id" class="form-control" wire:model.defer="modalId">
                     </div>
                 </div>
                 <br><br>

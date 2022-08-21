@@ -8,18 +8,17 @@ trait AttachFilesTrait
 {
     public function uploadFile($file,$name,$folder)
     {
-        $file_name = $file->file($name)->getClientOriginalName();
-        $file->file($name)->storeAs('attachments/',$folder.'/'.$file_name,'upload_attachments');
+        $file->file($name)->storeAs('attachments/',$folder.'/'.$file,'upload_attachments');
 
     }
 
     public function deleteFile($name)
     {
-        $exists = Storage::disk('upload_attachments')->exists('attachments/library/'.$name);
+        $exists = Storage::disk('upload_attachments')->exists('attachments/'.$name);
 
         if($exists)
         {
-            Storage::disk('upload_attachments')->delete('attachments/library/'.$name);
+            Storage::disk('upload_attachments')->delete('attachments/'.$name);
         }
     }
 }

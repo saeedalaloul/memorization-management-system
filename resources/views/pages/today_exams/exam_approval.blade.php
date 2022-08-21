@@ -11,7 +11,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <label class="control-label">ملاحظات</label>
-                            <input type="text" wire:model="exam_notes" max="50" class="form-control">
+                            <input type="text" wire:model.defer="exam_notes" max="50" class="form-control">
                             @error('exam_notes')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
@@ -26,7 +26,7 @@
                         <div class="col-md-12">
                             <label class="control-label">درجة الإختبار النهائية</label>
                             <input type="text" style="color: {{$exam_mark >= $success_mark ? 'green': 'red'}}"
-                                   wire:model="final_exam_score" readonly class="form-control">
+                                   wire:model.defer="final_exam_score" readonly class="form-control">
                             @error('exam_mark')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateStudentWarningsTable extends Migration
 {
+
     /**
      * Run the migrations.
      *
@@ -15,11 +16,13 @@ class CreateStudentWarningsTable extends Migration
     {
         Schema::create('student_warnings', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('student_id')->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('student_id')->index()->references('id')->on('students')->restrictOnDelete();
+            $table->enum('reason',['memorize','did-not-memorize','absence','late'])->index();
             $table->date('warning_expiry_date')->nullable()->index();
+            $table->json('details');
             $table->string('notes', 50)->nullable();
-            $table->json('readable');
-            $table->timestamps();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

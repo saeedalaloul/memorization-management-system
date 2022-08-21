@@ -1,42 +1,35 @@
 <div class="row">
     <div>
-        @if(Session::has('success_message'))
-            <script>
-                $(function () {
-                    toastr.success("{{ Session::get('success_message') }}");
-                })
-            </script>
+        @if ($catchError)
+            <div class="alert alert-danger" id="success-danger">
+                <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
+                {{ $catchError }}
+            </div>
         @endif
     </div>
+
     <div class="col-xl-12 mb-30">
-        @if (auth()->user()->current_role == 'أمير المركز' ||
-             auth()->user()->current_role == 'مشرف' ||
-             auth()->user()->current_role == 'اداري')
+        @if ($current_role == \App\Models\User::ADMIN_ROLE ||$current_role == \App\Models\User::SUPERVISOR_ROLE)
             @can('إدارة حضور وغياب المحفظين')
                 <h5 style="font-family: 'Cairo', sans-serif;color: red"> تاريخ اليوم : {{ date('Y-m-d') }}</h5>
                 <div class="card-body">
-                    <div class="row">
-                        @if (auth()->user()->current_role == 'أمير المركز')
-                            @if (isset($grades))
-                                <div>
-                                    <label style="font-size: 15px; color: #1e7e34">المراحل*</label>
-                                    <div>
-                                        <select class="selectpicker" data-style="btn-info"
-                                                wire:model="searchGradeId">
-                                            <option value="" selected>جميع المراحل
-                                            </option>
-                                            @foreach ($grades as $grade)
-                                                <option
-                                                    value="{{ $grade->id }}">{{ $grade->name}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                            @endif
-                        @endif
-                    </div>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label style="font-size: 15px; color: #1e7e34">المراحل*</label>
+                                <select style="width: 100%;" wire:model="selectedGradeId" id="grade"
+                                        class="custom-select mr-sm-2">
+                                    <option value="">الكل</option>
+                                    @foreach ($grades as $grade)
+                                        <option
+                                            value="{{ $grade->id }}">{{ $grade->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </li>
                     <br>
-                    @include('livewire.search')
+                    <x-search></x-search>
                     <div class="table-responsive mt-15">
                         <table class="table center-aligned-table mb-0">
                             <thead>
@@ -52,23 +45,31 @@
                                                type="radio"
                                                name="flexRadioDefault"
                                                {{$isSelectedRadioBtn1 == true ? 'checked':''}}
-                                               wire:click="checkAllRadioBtn(1);">
+                                               wire:click="checkAllRadioBtn('{{\App\Models\TeacherAttendance::PRESENCE_STATUS}}');">
                                         <span class="text-success">حضور</span>
                                     </label>
-                                    <label class="ml-4 block text-gray-500 font-semibold">
+                                    <label class="ml-1 block text-gray-500 font-semibold">
                                         <input class="leading-tight"
                                                type="radio"
                                                name="flexRadioDefault"
                                                {{$isSelectedRadioBtn2 == true ? 'checked':''}}
-                                               wire:click="checkAllRadioBtn(2);">
+                                               wire:click="checkAllRadioBtn('{{\App\Models\TeacherAttendance::LATE_STATUS}}');">
                                         <span class="text-success">تأخر</span>
                                     </label>
-                                    <label class="ml-4 block text-gray-500 font-semibold">
+                                    <label class="ml-1 block text-gray-500 font-semibold">
+                                        <input class="leading-tight"
+                                               type="radio"
+                                               name="flexRadioDefault"
+                                               {{$isSelectedRadioBtn3 == true ? 'checked':''}}
+                                               wire:click="checkAllRadioBtn('{{\App\Models\TeacherAttendance::AUTHORIZED_STATUS}}');">
+                                        <span class="text-success">مأذون</span>
+                                    </label>
+                                    <label class="ml-1 block text-gray-500 font-semibold">
                                         <input class="leading-tight"
                                                type="radio"
                                                name="flexRadioDefault"
                                                {{$isSelectedRadioBtn0 == true ? 'checked':''}}
-                                               wire:click="checkAllRadioBtn(0);">
+                                               wire:click="checkAllRadioBtn('{{\App\Models\TeacherAttendance::ABSENCE_STATUS}}');">
                                         <span class="text-danger">غياب</span>
                                     </label>
                                 </th>
@@ -82,28 +83,35 @@
                                     <td>{{ $teacher->grade->name }}</td>
                                     <?php
                                     if (isset($teacher)) {
-                                        $attendance_teacher = $teacher->attendance()->where('attendance_date', date('Y-m-d'))->first();
+                                        $attendance_teacher = $teacher->attendance_today->first();
                                     }
                                     ?>
                                     <td>
                                         @if(isset($attendance_teacher->teacher_id))
                                             <label class="block text-gray-500 font-semibold sm:border-r sm:pr-4">
                                                 <input disabled
-                                                       {{ $attendance_teacher->attendance_status == 1 ? 'checked' : '' }}
+                                                       {{ $attendance_teacher->status == \App\Models\TeacherAttendance::PRESENCE_STATUS ? 'checked' : '' }}
                                                        class="leading-tight" type="radio" value="presence">
                                                 <span class="text-success">حضور</span>
                                             </label>
 
-                                            <label class="ml-4 block text-gray-500 font-semibold">
+                                            <label class="ml-1 block text-gray-500 font-semibold">
                                                 <input disabled
-                                                       {{ $attendance_teacher->attendance_status == 2 ? 'checked' : '' }}
+                                                       {{ $attendance_teacher->status == \App\Models\TeacherAttendance::LATE_STATUS ? 'checked' : '' }}
                                                        class="leading-tight" type="radio" value="presence">
                                                 <span class="text-success">تأخر</span>
                                             </label>
 
-                                            <label class="ml-4 block text-gray-500 font-semibold">
+                                            <label class="ml-1 block text-gray-500 font-semibold">
                                                 <input disabled
-                                                       {{ $attendance_teacher->attendance_status == 0 ? 'checked' : '' }}
+                                                       {{ $attendance_teacher->status == \App\Models\TeacherAttendance::AUTHORIZED_STATUS ? 'checked' : '' }}
+                                                       class="leading-tight" type="radio" value="presence">
+                                                <span class="text-success">مأذون</span>
+                                            </label>
+
+                                            <label class="ml-1 block text-gray-500 font-semibold">
+                                                <input disabled
+                                                       {{ $attendance_teacher->status == \App\Models\TeacherAttendance::ABSENCE_STATUS ? 'checked' : '' }}
                                                        class="leading-tight" type="radio" value="absent">
                                                 <span class="text-danger">غياب</span>
                                             </label>
@@ -115,25 +123,34 @@
                                                        type="radio"
                                                        name="flexRadioDefault.{{$loop->iteration}}"
                                                        {{$isSelectedRadioBtn1 == true ? 'checked':''}}
-                                                       wire:click="teacherStatusChange({{$teacher->id}},true)">
+                                                       wire:click="teacherStatusChange({{$teacher->id}},'{{\App\Models\TeacherAttendance::PRESENCE_STATUS}}')">
                                                 <span class="text-success">حضور</span>
                                             </label>
 
-                                            <label class="ml-4 block text-gray-500 font-semibold">
+                                            <label class="ml-1 block text-gray-500 font-semibold">
                                                 <input class="leading-tight"
                                                        type="radio"
                                                        name="flexRadioDefault.{{$loop->iteration}}"
                                                        {{$isSelectedRadioBtn2 == true ? 'checked':''}}
-                                                       wire:click="teacherStatusChange({{$teacher->id}},2)">
+                                                       wire:click="teacherStatusChange({{$teacher->id}},'{{\App\Models\TeacherAttendance::LATE_STATUS}}')">
                                                 <span class="text-success">تأخر</span>
                                             </label>
 
-                                            <label class="ml-4 block text-gray-500 font-semibold">
+                                            <label class="ml-1 block text-gray-500 font-semibold">
+                                                <input class="leading-tight"
+                                                       type="radio"
+                                                       name="flexRadioDefault.{{$loop->iteration}}"
+                                                       {{$isSelectedRadioBtn3 == true ? 'checked':''}}
+                                                       wire:click="teacherStatusChange({{$teacher->id}},'{{\App\Models\TeacherAttendance::AUTHORIZED_STATUS}}')">
+                                                <span class="text-success">مأذون</span>
+                                            </label>
+
+                                            <label class="ml-1 block text-gray-500 font-semibold">
                                                 <input class="leading-tight"
                                                        type="radio"
                                                        name="flexRadioDefault.{{$loop->iteration}}"
                                                        {{$isSelectedRadioBtn0 == true ? 'checked':''}}
-                                                       wire:click="teacherStatusChange({{$teacher->id}},false)">
+                                                       wire:click="teacherStatusChange({{$teacher->id}},'{{\App\Models\TeacherAttendance::ABSENCE_STATUS}}')">
                                                 <span class="text-danger">غياب</span>
                                             </label>
 
@@ -186,5 +203,5 @@
 
     </div>
     @endif
-    <x-loading-indicator/>
+    <x-loading-indicator></x-loading-indicator>
 </div>

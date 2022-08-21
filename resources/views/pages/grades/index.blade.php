@@ -1,10 +1,7 @@
 @extends('layouts.master')
-@section('css')
-    @toastr_css
 @section('title')
     إدارة المراحل
 @stop
-@endsection
 @section('page-header')
     <!-- breadcrumb -->
 @section('PageTitle')
@@ -20,27 +17,13 @@
 
 @section('js')
     @livewireScripts
-    @toastr_js
     @toastr_render
+
     <script>
-        window.livewire.on('gradeAdded', () => {
+        window.addEventListener('hideDialog', _ => {
             $('#gradeAdded').modal('hide');
-        });
-
-        window.livewire.on('gradeEdited', () => {
             $('#gradeEdited').modal('hide');
-        });
-        window.livewire.on('gradeDeleted', () => {
             $('#gradeDeleted').modal('hide');
-        });
-    </script>
-
-    <script>
-        window.addEventListener('alert', event => {
-            toastr[event.detail.type](event.detail.message,
-                event.detail.title ?? ''), toastr.options = {
-                "progressBar": true,
-            }
         });
     </script>
 @endsection

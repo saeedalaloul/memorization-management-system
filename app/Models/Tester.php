@@ -2,16 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Traits\HasRoles;
 
 class Tester extends Model
 {
-    use HasFactory;
-
     protected $fillable = ['id'];
-    public $timestamps = false;
+    const CACHE_KEY = "testers";
 
     public function scopeSearch($query, $val)
     {
@@ -29,12 +25,29 @@ class Tester extends Model
     }
 
     // علاقة بين المختبرين وجدول الإختبارات لجلب عدد الإختبارات في جدول المختبرين
-    public function exams(){
-        return $this->hasMany('App\Models\Exam','tester_id','id');
+    public function exams()
+    {
+        return $this->hasMany('App\Models\Exam', 'tester_id', 'id');
     }
 
     // علاقة بين المختبرين وجدول طلبات الإختبارات لجلب عدد طلبات الإختبارات في جدول المختبرين
-    public function exams_orders(){
-        return $this->hasMany('App\Models\ExamOrder','tester_id','id');
+    public function exams_orders()
+    {
+        return $this->hasMany('App\Models\ExamOrder', 'tester_id', 'id');
+    }
+
+
+    // علاقة بين المختبرين وجدول طلبات الإختبارات لجلب عدد طلبات الإختبارات في جدول المختبرين
+    public function tester_exams()
+    {
+        return $this->hasMany('App\Models\ExamOrder', 'tester_id', 'id')
+            ->where('status', '=', ExamOrder::ACCEPTABLE_STATUS);
+    }
+
+    // علاقة بين المختبرين والزيارات لجلب طلبات الزيارات في جدول المختبرين
+
+    public function visit_orders()
+    {
+        return $this->morphMany(VisitOrder::class, 'hostable');
     }
 }

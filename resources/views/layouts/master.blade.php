@@ -9,14 +9,17 @@
     <meta name="author" content="potenzaglobalsolutions.com"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+@stack('alpine-plugins')
+    <!-- Alpine Core -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @include('layouts.head')
     @yield('style')
+    @stack('styles')
 </head>
 
 <body>
 
 <div class="wrapper" style="font-family: 'Cairo', sans-serif">
-
     <!--=================================
 preloader -->
 
@@ -67,5 +70,7 @@ preloader -->
 footer -->
 @include('layouts.footer-scripts')
 @yield('script')
+@stack('js')
+
 </body>
 </html>

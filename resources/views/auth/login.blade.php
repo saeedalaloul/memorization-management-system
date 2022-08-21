@@ -94,9 +94,8 @@ login-->
                 <div class="col-lg-4 col-md-6 login-fancy-bg bg"
                      style="background-image: url({{URL::asset('assets/images/login-inner-bg.jpg',true)}});">
                     <div class="login-fancy">
-                        <h2 class="text-white mb-20">Hello world!</h2>
-                        <p class="mb-20 text-white">Create tailor-cut websites with the exclusive multi-purpose
-                            responsive template along with powerful features.</p>
+                        <h2 class="text-white mb-20">مركز الأنصار</h2>
+                        <p class="mb-20 text-white">مركز الأنصار لتحفيظ القرآن الكريم والسنة النبوية مسجد بسيسو.</p>
                         <ul class="list-unstyled  pos-bot pb-30">
                             <li class="list-inline-item"><a class="text-white" href="#"> Terms of Use</a></li>
                             <li class="list-inline-item"><a class="text-white" href="#"> Privacy Policy</a></li>
@@ -127,8 +126,7 @@ login-->
                             <div class="section-field mb-20">
                                 <label class="mb-10" for="Password">كلمة المرور* </label>
                                 <input id="password" type="password"
-                                       class="form-control @error('password') is-invalid @enderror" name="password"
-                                       required autocomplete="current-password">
+                                       class="form-control @error('password') is-invalid @enderror" name="password" required>
 
                                 @error('password')
                                 <span class="invalid-feedback" role="alert">

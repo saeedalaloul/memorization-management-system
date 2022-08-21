@@ -2,15 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Teacher extends Model
 {
-    use HasFactory;
-
     protected $fillable = ['id', 'grade_id'];
-    public $timestamps = false;
 
     public function scopeSearch($query, $val)
     {
@@ -45,6 +41,13 @@ class Teacher extends Model
         return $this->hasMany('App\Models\TeacherAttendance', 'teacher_id');
     }
 
+    // علاقة بين جدول المحفظين وجدول الحضور والغياب
+    public function attendance_today()
+    {
+        return $this->hasMany('App\Models\TeacherAttendance', 'teacher_id')
+            ->whereDate('datetime', date('Y-m-d'));
+    }
+
     // علاقة بين جدول المحفظين وجدول الحضور والغياب التابع للطلاب
     public function attendance_student()
     {
@@ -52,9 +55,9 @@ class Teacher extends Model
     }
 
     // علاقة بين جدول المحفظين وجدول الحضور والغياب التابع للطلاب
-    public function student_daily_preservation()
+    public function student_daily_memorization()
     {
-        return $this->hasMany('App\Models\StudentDailyPreservation', 'teacher_id');
+        return $this->hasMany('App\Models\StudentDailyMemorization', 'teacher_id');
     }
 
     // علاقة بين جدول المحفظين وجدول طلبات الإختبارات
@@ -67,5 +70,12 @@ class Teacher extends Model
     public function exam()
     {
         return $this->hasMany('App\Models\Exam', 'teacher_id');
+    }
+
+    // علاقة بين الحلقات والزيارات لجلب طلبات الزيارات في جدول الحلقات
+
+    public function visit_orders()
+    {
+        return $this->morphMany(VisitOrder::class, 'hostable');
     }
 }

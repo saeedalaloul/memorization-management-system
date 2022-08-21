@@ -1,33 +1,23 @@
-<div class="col-md-6">
-    <div class="form-row">
-        <div class="col">
-            <label for="title" style="font-size: 15px; color: #1e7e34">اسم المستخدم</label>
-            <input type="text" name="name" class="form-control" wire:model="name" readonly>
-            @error('name')
-            <div class="alert alert-danger">{{ $message }}</div>
-            @enderror
-        </div>
-    </div>
-    <br>
-    <div class="form-row">
-        <div class="col">
-            <label for="inputPassword" style="font-size: 15px; color: #1e7e34">كلمة المرور الجديدة*</label>
-            <input type="password" class="form-control" name="password" wire:model="password">
-            @error('password')
-            <div class="alert alert-danger">{{ $message }}</div>
-            @enderror
-        </div>
+<!-- Deleted inFormation Student -->
+<div wire:ignore.self class="modal fade" id="reset_user_password" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="font-family: 'Cairo', sans-serif;" class="modal-title" id="exampleModalLabel">إعادة تعيين كلمة المرور</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
 
-        <div class="col">
-            <label for="inputPassword_confirm" style="font-size: 15px; color: #1e7e34">تأكيد كلمة المرور*</label>
-            <input type="password" class="form-control" name="password_confirm" wire:model="password_confirm">
-            @error('password_confirm')
-            <div class="alert alert-danger">{{ $message }}</div>
-            @enderror
+                <h5 style="font-family: 'Cairo', sans-serif;">هل أنت متأكد من عملية إعادة تعيين كلمة المرور ؟</h5>
+                <input type="text" readonly wire:model="name"  class="form-control">
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
+                    <button  class="btn btn-danger" wire:click="resetPasswordUser();">إعادة تعيين كلمة المرور</button>
+                </div>
+            </div>
         </div>
     </div>
-    <br>
-    <button wire:click.prevent="resetPasswordUser()"
-            class="btn btn-success btn-sm nextBtn btn-lg pull-right" type="button">إعادة تعيين كلمة المرور
-    </button>
 </div>

@@ -1,51 +1,37 @@
 <div>
-    @if (!empty($successMessage))
-        <div class="alert alert-success" id="success-alert">
-            <button type="button" class="close" data-dismiss="alert">x</button>
-            {{ $successMessage }}
-        </div>
-    @endif
+   <div>
+       @if (!empty($successMessage))
+           <div class="alert alert-success" id="success-alert">
+               <button wire:click.prevent="resetMessage();" type="button" class="close" data-dismiss="alert">x</button>
+               {{ $successMessage }}
+           </div>
+       @endif
 
-    @if ($catchError)
-        <div class="alert alert-danger" id="success-danger">
-            <button type="button" class="close" data-dismiss="alert">x</button>
-            {{ $catchError }}
-        </div>
-    @endif
-    <div>
-        @if(Session::has('message'))
-            <script>
-                $(function () {
-                    toastr.success("{{ Session::get('message') }}");
-                })
-            </script>
-        @endif
-
-        @if(Session::has('failure_message'))
-            <script>
-                $(function () {
-                    toastr.error("{{ Session::get('failure_message') }}");
-                })
-            </script>
-        @endif
-    </div>
+       @if ($catchError)
+           <div class="alert alert-danger" id="success-danger">
+               <button wire:click.prevent="resetMessage();" type="button" class="close" data-dismiss="alert">x</button>
+               {{ $catchError }}
+           </div>
+       @endif
+   </div>
 
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
-            <div class="card-body">
+            <div class="card-body" x-data="{currentTab: $persist('home')}">
                 <h5 class="card-title">إدارة الطلاب</h5>
                 <div class="tab tab-border">
                     <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link {{$show_table == true ? 'active show':''}}" href="#" id="students-05-tab"
-                               data-bs-toggle="tab" role="tab" wire:click="showformadd(true);"
+                        <li class="nav-item" @click.prevent="currentTab = 'home'">
+                            <a class="nav-link" :class="currentTab === 'home' ? 'active show':'' " href="#"
+                               id="students-05-tab"
+                               data-bs-toggle="tab" role="tab"
                                aria-controls="students-05" aria-selected="true"> <i class="fa fa-users"></i> قائمة
                                 الطلاب</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{$show_table == false ? 'active show':''}}" id="add_student-05-tab"
-                               data-bs-toggle="tab" role="tab"
-                               wire:click="showformadd(false);" href="#"
+                        <li class="nav-item" @click.prevent="currentTab = 'form'">
+                            <a class="nav-link" :class="currentTab === 'form' ? 'active show':'' "
+                               id="add_student-05-tab"
+                               data-bs-toggle="tab" role="tab" href="#"
                                aria-controls="add_student-05" aria-selected="false">
                                 @if ($process_type == "edit")
                                     <i class="fas fa-user-edit"></i>
@@ -61,22 +47,21 @@
                         </li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane fade {{$show_table == true ? 'active show':''}}" id="students-05"
+                        <div class="tab-pane fade" :class="currentTab === 'home' ? 'active show':'' " id="students-05"
                              role="tabpanel"
                              aria-labelledby="students-05-tab">
-                            @include('pages.students.Student_Table')
+                            @include('pages.students.students_table')
                         </div>
-                        <div class="tab-pane fade {{$show_table == false ? 'active show':''}}" id="add_student-05"
+                        <div class="tab-pane fade" :class="currentTab === 'form' ? 'active show':'' " id="add_student-05"
                              role="tabpanel"
                              aria-labelledby="add_student-05-tab">
 
                             @if($process_type == "show")
                                 @include('pages.students.show_student')
                             @else
-                                @if (auth()->user()->current_role == 'أمير المركز' ||
-                                     auth()->user()->current_role == 'مشرف' ||
-                                     auth()->user()->current_role == 'اداري' ||
-                                     auth()->user()->current_role == 'محفظ')
+                                @if ($current_role == \App\Models\User::ADMIN_ROLE ||
+                                     $current_role == \App\Models\User::SUPERVISOR_ROLE ||
+                                     $current_role == \App\Models\User::TEACHER_ROLE)
 
                                     @can('إضافة طالب')
                                         <div class="stepwizard">
@@ -100,11 +85,11 @@
                                             </div>
                                         </div>
 
-                                        @include('pages.students.Father_Form')
+                                        @include('pages.students.father_form')
 
-                                        @include('pages.students.Student_Form')
+                                        @include('pages.students.student_form')
 
-                                        @include('pages.students.Student_Last_Form')
+                                        @include('pages.students.student_last_form')
                                     @endcan
                                 @endif
                             @endif
@@ -114,6 +99,36 @@
                 </div>
             </div>
         </div>
+        <x-loading-indicator></x-loading-indicator>
     </div>
-    <x-loading-indicator/>
 </div>
+@push('alpine-plugins')
+    <!-- Alpine Plugins -->
+    <script defer src="https://unpkg.com/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+@endpush
+@push('js')
+    <script>
+        $("#grade").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedGradeId', id);
+            livewire.emit('getTeachersByGradeId');
+        });
+
+        $("#grade_").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('grade_id', id);
+            livewire.emit('getTeachersByGradeId');
+        });
+
+        $("#group").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('group_id', id);
+        });
+
+        $("#teacher").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedTeacherId', id);
+            livewire.emit('getStudentsByTeacherId', id);
+        });
+    </script>
+@endpush

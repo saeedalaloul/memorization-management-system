@@ -1,5 +1,5 @@
 <!-- delete_modal_Tester -->
-<div class="modal fade" id="testerDeleted" tabindex="-1" role="dialog"
+<div wire:ignore.self class="modal fade" id="testerDeleted" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -19,7 +19,7 @@
                     <button type="button" class="btn btn-secondary"
                             data-dismiss="modal">اغلاق
                     </button>
-                    <button type="button" wire:click.prevent = "destroy({{$tester->id}})"
+                    <button type="button" wire:click.prevent = "delete()"
                             class="btn btn-danger">حذف
                     </button>
                 </div>

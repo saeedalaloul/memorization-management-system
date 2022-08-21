@@ -3,40 +3,44 @@
         <!-- Left Sidebar start-->
         <div class="side-menu-fixed">
 
-            @if (auth()->user()->current_role == 'أمير المركز')
+            @if (auth()->user()->current_role == \App\Models\User::ADMIN_ROLE)
                 @include('layouts.main-sidebar.admin-main-sidebar')
             @endif
 
-            @if (auth()->user()->current_role == 'مشرف الإختبارات')
-                @include('layouts.main-sidebar.supervisor-exams-main-sidebar')
+            @if (auth()->user()->current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
+                @include('layouts.main-sidebar.exams_supervisor-main-sidebar')
             @endif
 
-            @if (auth()->user()->current_role == 'مشرف الدورات')
+            @if (auth()->user()->current_role == \App\Models\User::COURSES_SUPERVISOR_ROLE)
                 @include('layouts.main-sidebar.courses-supervisor-main-sidebar')
             @endif
 
-            @if (auth()->user()->current_role == 'مشرف الأنشطة')
+            @if (auth()->user()->current_role == \App\Models\User::ACTIVITIES_SUPERVISOR_ROLE)
                 @include('layouts.main-sidebar.activities-supervisor-main-sidebar')
             @endif
 
-            @if (auth()->user()->current_role == 'مشرف الرقابة')
+            @if (auth()->user()->current_role == \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE)
                 @include('layouts.main-sidebar.oversight-supervisor-main-sidebar')
             @endif
 
-            @if (auth()->user()->current_role == 'مشرف')
+            @if (auth()->user()->current_role == \App\Models\User::SUPERVISOR_ROLE)
                 @include('layouts.main-sidebar.supervisor-main-sidebar')
             @endif
 
-            @if (auth()->user()->current_role == 'إداري')
-                @include('layouts.main-sidebar.lower-supervisor-main-sidebar')
-            @endif
-
-            @if (auth()->user()->current_role == 'محفظ')
+            @if (auth()->user()->current_role == \App\Models\User::TEACHER_ROLE)
                 @include('layouts.main-sidebar.teacher-main-sidebar')
             @endif
 
-            @if (auth()->user()->current_role == 'مختبر')
+            @if (auth()->user()->current_role == \App\Models\User::TESTER_ROLE)
                 @include('layouts.main-sidebar.tester-main-sidebar')
+            @endif
+
+            @if (auth()->user()->current_role == \App\Models\User::OVERSIGHT_MEMBER_ROLE)
+                @include('layouts.main-sidebar.oversight-member-main-sidebar')
+            @endif
+
+            @if (auth()->user()->current_role == \App\Models\User::ACTIVITY_MEMBER_ROLE)
+                @include('layouts.main-sidebar.activity-member-main-sidebar')
             @endif
 
         </div>

@@ -18,7 +18,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"
                                 data-dismiss="modal">اغلاق</button>
-                        <button type="button" wire:click.prevent = "destroy({{$grade->id}})"
+                        <button type="button" wire:click.prevent = "destroy('{{$grade->id}}')"
                                 class="btn btn-danger">حذف</button>
                     </div>
             </div>

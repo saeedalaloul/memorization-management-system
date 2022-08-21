@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('css')
-    @toastr_css
 @section('title')
     إدارة المستخدمين
 @stop
@@ -19,21 +18,15 @@
 @endsection
 @section('js')
     @livewireScripts
-    @toastr_js
     @toastr_render
 
     <script>
-        window.addEventListener('alert', event => {
-            toastr[event.detail.type](event.detail.message,
-                event.detail.title ?? ''), toastr.options = {
-                "progressBar": true,
-            }
+        window.addEventListener('showDialogResetPassword', _ => {
+            $('#reset_user_password').modal('show');
         });
-    </script>
 
-    <script>
-        window.addEventListener('keydown', event => {
-            document.getElementById("loading_indicator").innerHTML = "";
+        window.addEventListener('hideModal', _ => {
+            $('#reset_user_password').modal('hide');
         });
     </script>
 @endsection

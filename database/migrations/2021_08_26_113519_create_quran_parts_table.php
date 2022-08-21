@@ -15,7 +15,11 @@ class CreateQuranPartsTable extends Migration
     {
         Schema::create('quran_parts', function (Blueprint $table) {
             $table->id();
-            $table->string('name',50)->index()->unique();
+            $table->string('name',10)->index()->unique();
+            $table->boolean('arrangement')->unsigned()->index()->unique();
+            $table->boolean('total_preservation_parts')->unsigned()->index();
+            $table->enum('type',['individual','deserved'])->index();
+            $table->string('description',20);
         });
     }
 

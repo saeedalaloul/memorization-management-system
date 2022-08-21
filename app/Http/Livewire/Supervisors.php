@@ -7,75 +7,32 @@ use App\Models\Supervisor;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Livewire\Component;
-use Livewire\WithFileUploads;
-use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
 
-class Supervisors extends Component
+class Supervisors extends HomeComponent
 {
-    use WithPagination, WithFileUploads;
-
     public $name;
     public $grade_id;
     public $email;
-    public $password;
     public $phone;
     public $identification_number;
+    public $recitation_level;
+    public $economic_situation;
+    public $academic_qualification;
     public $dob;
     public $address;
-    public $photo, $show_table = true, $catchError;
-    public $modalId;
+    public $photo, $photo_ret;
     public $grades;
-    public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search;
-    protected $paginationTheme = 'bootstrap';
+
+    public function mount()
+    {
+        $this->current_role = auth()->user()->current_role;
+        $this->all_Grades();
+    }
 
     public function render()
     {
-        $this->grades = $this->all_Grades();
         return view('livewire.supervisors', ['supervisors' => $this->all_Supervisors()]);
-    }
-
-    public function updatedSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function sortBy($field)
-    {
-        if ($this->sortDirection == 'asc') {
-            $this->sortDirection = 'desc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-
-        return $this->sortBy = $field;
-    }
-
-    public function showformadd($isShow)
-    {
-        $this->show_table = $isShow;
-    }
-
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName, [
-            'email' => 'required|email|unique:users,email,' . $this->modalId,
-            'password' => 'required|min:8|max:10',
-            'name' => 'required|string|unique:users,name,' . $this->modalId,
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
-            'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
-            'dob' => 'required|date|date_format:Y-m-d',
-            'grade_id' => 'required',
-            'address' => 'required',
-            'photo' => 'image|mimes:jpeg,png,jpg|max:2048',
-        ]);
     }
 
     public function loadModalData($id)
@@ -84,6 +41,9 @@ class Supervisors extends Component
         $data = Supervisor::find($id);
         $this->modalId = $data->id;
         $this->grade_id = $data->grade_id;
+        $this->economic_situation = $data->user->user_info->economic_situation ?? null;
+        $this->recitation_level = $data->user->user_info->recitation_level ?? null;
+        $this->academic_qualification = $data->user->user_info->academic_qualification ?? null;
         $this->name = $data->user->name;
         $this->email = $data->user->email;
         $this->dob = $data->user->dob;
@@ -100,28 +60,26 @@ class Supervisors extends Component
         ];
     }
 
+    public function modelUserInfo($teacher_id)
+    {
+        return [
+            'id' => $teacher_id,
+            'economic_situation' => $this->economic_situation,
+            'recitation_level' => $this->recitation_level,
+            'academic_qualification' => $this->academic_qualification,
+        ];
+    }
+
     public function modelUser()
     {
-        if ($this->modalId == null) {
-            return [
-                'name' => $this->name,
-                'email' => $this->email,
-                'password' => Hash::make($this->password),
-                'dob' => $this->dob,
-                'phone' => $this->phone,
-                'address' => $this->address,
-                'identification_number' => $this->identification_number,
-            ];
-        } else {
-            return [
-                'name' => $this->name,
-                'email' => $this->email,
-                'dob' => $this->dob,
-                'phone' => $this->phone,
-                'address' => $this->address,
-                'identification_number' => $this->identification_number,
-            ];
-        }
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'dob' => $this->dob,
+            'phone' => $this->phone,
+            'address' => $this->address,
+            'identification_number' => $this->identification_number,
+        ];
     }
 
     public function messages()
@@ -130,9 +88,6 @@ class Supervisors extends Component
             'email.required' => 'حقل البريد الإلكتروني مطلوب',
             'email.email' => 'يجب ادخال بريد الكتروني صالح',
             'email.unique' => 'البريد الإلكتروني المدخل موجود مسبقا',
-            'password.required' => 'حقل كلمة المرور مطلوب',
-            'password.min' => 'يجب أن لا يقل طول كلمة المرور عن 8 حروف',
-            'password.max' => 'يجب أن لا يزيد طول كلمة المرور عن 10 حروف',
             'name.required' => 'حقل الاسم مطلوب',
             'name.string' => 'يجب ادخال نص في حقل الاسم',
             'name.unique' => 'الاسم المدخل موجود مسبقا',
@@ -145,6 +100,9 @@ class Supervisors extends Component
             'identification_number.unique' => 'رقم الهوية المدخل موجود مسبقا',
             'identification_number.min' => 'يجب أن لا يقل طول رقم الهوية عن 9 أرقام',
             'identification_number.max' => 'يجب أن لا يزيد طول رقم الهوية عن 9 أرقام',
+            'recitation_level.required' => 'أخر دورة أحكام مطلوب',
+            'economic_situation.required' => 'الوضع المادي مطلوب',
+            'academic_qualification.required' => 'المؤهل العلمي مطلوب',
             'dob.required' => 'حقل تاريخ الميلاد مطلوب',
             'dob.date' => 'حقل تاريخ الميلاد يجب أن يكون من نوع تاريخ',
             'dob.date_format' => 'حقل تاريخ الميلاد يجب أن يكون من نوع تاريخ',
@@ -159,19 +117,19 @@ class Supervisors extends Component
 
     public function modalFormReset()
     {
-        $this->modalId = null;
         $this->grade_id = null;
         $this->name = null;
         $this->email = null;
-        $this->password = null;
         $this->phone = null;
         $this->identification_number = null;
         $this->dob = null;
         $this->address = null;
         $this->photo = null;
-        $this->show_table = false;
-        $this->catchError = null;
-        $this->search = null;
+        $this->modalId = '';
+        $this->catchError = '';
+        $this->recitation_level = null;
+        $this->economic_situation = null;
+        $this->academic_qualification = null;
     }
 
     public function store()
@@ -180,14 +138,14 @@ class Supervisors extends Component
         DB::beginTransaction();
         try {
             $user = User::create($this->modelUser());
+            $user->user_info()->create($this->modelUserInfo($user->id));
             $roleId = Role::select('*')->where('name', '=', 'مشرف')->get();
             $user->assignRole([$roleId]);
             $supervisor = Supervisor::create($this->modelSupervisor($user->id));
             if (!empty($this->photo)) {
-                $this->photo->storeAs($this->identification_number, $this->photo->getClientOriginalName(), $disk = 'supervisors_images');
-                $supervisor->user->update([
-                    'profile_photo_url' => $this->photo->getClientOriginalName(),
-                ]);
+                $this->uploadImage($this->photo,
+                    $this->identification_number . '.' . $this->photo->getClientOriginalExtension(),
+                    $user->id);
             }
             $this->modalFormReset();
             $this->dispatchBrowserEvent('alert',
@@ -201,26 +159,16 @@ class Supervisors extends Component
 
     public function rules()
     {
-        if ($this->modalId == null) {
-            return ['email' => 'required|email|unique:users,email,' . $this->modalId,
-                'password' => 'required|min:8|max:10',
-                'name' => 'required|string|unique:users,name,' . $this->modalId,
-                'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
-                'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
-                'dob' => 'required|date|date_format:Y-m-d',
-                'address' => 'required',
-                'grade_id' => 'required',
-            ];
-        } else {
-            return ['email' => 'required|email|unique:users,email,' . $this->modalId,
-                'name' => 'required|string|unique:users,name,' . $this->modalId,
-                'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
-                'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
-                'dob' => 'required|date|date_format:Y-m-d',
-                'address' => 'required',
-                'grade_id' => 'required',
-            ];
-        }
+        return ['email' => 'required|email|unique:users,email,' . $this->modalId,
+            'name' => 'required|string|unique:users,name,' . $this->modalId,
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
+            'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
+            'dob' => 'required|date|date_format:Y-m-d',
+            'grade_id' => 'required',
+            'recitation_level' => 'required',
+            'economic_situation' => 'required',
+            'academic_qualification' => 'required',
+        ];
     }
 
     public function update()
@@ -231,16 +179,20 @@ class Supervisors extends Component
             $supervisor = Supervisor::where('id', $this->modalId)->first();
             $supervisor->update($this->modelSupervisor($this->modalId));
             $supervisor->user->update($this->modelUser());
+            if ($supervisor->user->user_info == null) {
+                $supervisor->user->user_info()->create($this->modelUserInfo($this->modalId));
+            } else {
+                $supervisor->user->user_info->update($this->modelUserInfo($this->modalId));
+            }
             $roleId = Role::select('*')->where('name', '=', 'مشرف')->get();
             $supervisor->user->assignRole([$roleId]);
             if (!empty($this->photo)) {
-                $this->photo->storeAs($this->identification_number, $this->photo->getClientOriginalName(), $disk = 'supervisors_images');
-                $supervisor->user->update([
-                    'profile_photo_url' => $this->photo,
-                ]);
+                $this->deleteImage($supervisor->user->profile_photo);
+                $this->uploadImage($this->photo,
+                    $this->identification_number . '.' . $this->photo->getClientOriginalExtension(),
+                    $this->modalId);
             }
             $this->modalFormReset();
-            $this->show_table = true;
             $this->dispatchBrowserEvent('alert',
                 ['type' => 'success', 'message' => 'تم تحديث معلومات المشرف بنجاح.']);
             DB::commit();
@@ -254,33 +206,30 @@ class Supervisors extends Component
     {
         $supervisor = Supervisor::find($id);
         $supervisor->delete();
-        $this->emit('delete_Supervisor');
+        $this->dispatchBrowserEvent('hideDialog');
         $this->dispatchBrowserEvent('alert',
             ['type' => 'error', 'message' => 'تم حذف المشرف بنجاح.']);
     }
 
     public function all_Supervisors()
     {
-        if (auth()->user()->current_role == 'أمير المركز')
-            if (!empty($this->search)) {
-                return Supervisor::query()
-                    ->search($this->search)
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            } else {
-                return Supervisor::query()
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }
+        if ($this->current_role == 'أمير المركز')
+            return Supervisor::query()
+                ->with(['user', 'grade'])
+                ->search($this->search)
+                ->orderBy($this->sortBy, $this->sortDirection)
+                ->paginate($this->perPage);
         else
             return [];
     }
 
+    public function submitSearch()
+    {
+        $this->all_Supervisors();
+    }
+
     public function all_Grades()
     {
-        if (auth()->user()->current_role == 'أمير المركز')
-            return Grade::all();
-        else
-            return [];
+        $this->grades = Grade::all();
     }
 }

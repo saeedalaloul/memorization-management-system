@@ -15,11 +15,12 @@ class CreateTeachersAttendancesTable extends Migration
     {
         Schema::create('teacher_attendances', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->date('attendance_date')->index();
-            $table->boolean('attendance_status')->index();
-            $table->timestamps();
+            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->restrictOnDelete();
+            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->restrictOnDelete();
+            $table->dateTime('datetime')->index();
+            $table->enum('status',['presence','absence','late','authorized'])->index();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

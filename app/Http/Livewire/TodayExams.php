@@ -4,83 +4,41 @@ namespace App\Http\Livewire;
 
 use App\Models\Exam;
 use App\Models\ExamCustomQuestion;
+use App\Models\ExamImprovement;
 use App\Models\ExamOrder;
 use App\Models\ExamSettings;
 use App\Models\ExamSuccessMark;
 use App\Models\Group;
+use App\Models\QuranPart;
 use App\Models\Teacher;
+use App\Notifications\FailureExamOrderForTeacherNotify;
+use App\Notifications\ImproveExamForTeacherNotify;
+use App\Notifications\NewExamForTeacherNotify;
+use App\Traits\NotificationTrait;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Spatie\Permission\Models\Role;
 
-class TodayExams extends Component
+class TodayExams extends HomeComponent
 {
-    use WithPagination;
+    use NotificationTrait;
 
-    public $sortBy = 'id';
-    public $sortDirection = 'desc';
-    public $perPage = 10;
-    public $search = '';
-    public $modalId, $notes, $student_name, $teacher_name, $tester_name, $quran_part, $numberOfReplays = 0;
-    public $exam_date, $exam_mark = 100, $exam_questions_count, $focus_id, $success_mark, $another_mark = 10;
-    public $final_exam_score, $exam_notes, $quran_part_id, $student_id, $teacher_id, $tester_id;
+    public $notes, $numberOfReplays = 0;
+    public $exam_mark = 100, $exam_questions_count, $focus_id, $success_mark, $another_mark = 10;
+    public $final_exam_score, $exam_notes;
     public $isExamOfStart = false, $signs_questions = [], $marks_questions = [];
     public $exam_questions_min, $exam_questions_max, $examOrder;
-    protected $paginationTheme = 'bootstrap';
 
-
-    public function launchModal()
+    public function mount()
     {
-        $this->emit('showModal');
+        $this->current_role = auth()->user()->current_role;
     }
 
     public function render()
     {
-        if ($this->isExamOfStart && $this->modalId && $this->another_mark) {
-            $this->calcAverage();
-        }
         return view('livewire.today-exams', [
             'exams_today' => $this->all_Exams_Today(),
         ]);
-    }
-
-    public function mount()
-    {
-        $this->read_All_Exams_Today_Orders();
-    }
-
-    public function updatedSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function sortBy($field)
-    {
-        if ($this->sortDirection == 'asc') {
-            $this->sortDirection = 'desc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-
-        return $this->sortBy = $field;
-    }
-
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName, [
-            'notes' => 'required|string|max:50',
-            'another_mark' => 'required|numeric|between:5,10',
-            'exam_mark' => 'required|numeric|between:60,100',
-        ]);
-    }
-
-    public function rules()
-    {
-        return [
-            'notes' => 'required|string|max:50',
-        ];
     }
 
     public function messages()
@@ -103,107 +61,75 @@ class TodayExams extends Component
 
     public function examOrderRefusal()
     {
-        $this->validate();
-        $examOrder = ExamOrder::where('id', $this->modalId)->first();
-        $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
-            "isReadableTester" => false, "isReadableSupervisorExams" => false];
+        $this->validate([
+            'notes' => 'required|string|max:50',
+        ]);
+        $examOrder = ExamOrder::where('id', $this->examOrder->id)->first();
         if ($examOrder) {
-            if ($examOrder->status == 2 && $examOrder->teacher_id != auth()->id()) {
-                if (auth()->user()->current_role == 'مختبر') {
+            if ($examOrder->status == ExamOrder::ACCEPTABLE_STATUS && $examOrder->teacher_id != auth()->id()) {
+                if ($this->current_role == 'مختبر') {
                     $examOrder->update([
-                        'status' => -3,
+                        'status' => ExamOrder::FAILURE_STATUS,
                         'notes' => $this->notes,
-                        'readable' => $array,
                     ]);
-                    $this->emit('refusal-exam');
+
+                    $examOrder->teacher->user->notify(new FailureExamOrderForTeacherNotify($examOrder));
+                    $title = "طلب اختبار فشل إجراؤه";
+                    $message = "لقد قام المختبر بتغيير حالة طلب اختبار الطالب: " . $examOrder->student->user->name . " في الجزء: " . $examOrder->quranPart->name . ' ' . $examOrder->quranPart->description . ' إلى لم يختبر بسبب: ' . $examOrder->notes;
+                    $this->push_notification($message, $title, [$examOrder->teacher->user->user_fcm_token->device_token]);
+
+                    $this->dispatchBrowserEvent('hideModal');
                     $this->dispatchBrowserEvent('alert',
                         ['type' => 'success', 'message' => 'تمت عملية اعتماد عدم إجراء الطالب الاختبار بنجاح.']);
                     $this->clearForm();
-
-                    // push notifications
-                    $arr_external_user_ids = [];
-                    if (auth()->user()->current_role != 'مشرف الإختبارات') {
-                        $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
-                        if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
-                            && $user_role_supervisor_exams->users[0] != null) {
-                            array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
-                        }
-                    }
-
-                    array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
-
-                    $message = "لقد قام المختبر: " . $examOrder->tester->name . " باعتماد عدم إجراء الطالب: " . $examOrder->student->user->name . " في اختبار: " . $examOrder->quranPart->name;
-                    $url = 'https://memorization-management-system.herokuapp.com/manage_exams_orders';
-                    $this->push_notifications($arr_external_user_ids, $message, 'حالة طلب الاختبار', $url);
                 }
             }
         }
     }
 
-    public function push_notifications($arr_external_user_ids, $message, $title, $url)
-    {
-        $fields = array(
-            'app_id' => env("ONE_SIGNAL_APP_ID"),
-            'include_external_user_ids' => $arr_external_user_ids,
-            'channel_for_external_user_ids' => 'push',
-            'data' => array("foo" => "bar"),
-            'headings' => array(
-                "en" => $title,
-                "ar" => $title,
-            ),
-            'url' => $url,
-            'contents' => array(
-                "en" => $message,
-                "ar" => $message,
-            )
-        );
-
-        $fields = json_encode($fields);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
-            'Authorization: Basic ' . env('ONE_SIGNAL_AUTHORIZE')));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HEADER, FALSE);
-        curl_setopt($ch, CURLOPT_POST, TRUE);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return $response;
-    }
-
-
     public function examQuestionsNumberApproval()
     {
         $this->validate(['exam_questions_count' => 'required|numeric']);
         $this->initializeExamStartInputs(null);
-        $this->emit('exam-question-count-select');
+        $this->dispatchBrowserEvent('hideModal');
     }
 
     public function examOfStart($id)
     {
-        $this->examOrder = ExamOrder::where('id', $id)->first();
+        $this->examOrder = ExamOrder::with(['student.user', 'teacher.user', 'tester.user', 'quranPart'])->where('id', $id)->first();
         if ($this->examOrder) {
-            if ($this->examOrder->status == 2 && $this->examOrder->teacher_id != auth()->id()) {
-                if (auth()->user()->current_role == 'مختبر') {
+            if ($this->examOrder->status == ExamOrder::ACCEPTABLE_STATUS && $this->examOrder->teacher_id != auth()->id()) {
+                if ($this->current_role == 'مختبر') {
                     $examSettings = ExamSettings::find(1);
-                    $this->success_mark = $examSettings->exam_success_rate;
-                    $examCustomQuestion = ExamCustomQuestion::where('quran_part_id', $this->examOrder->quran_part_id)->first();
-                    if ($examCustomQuestion) {
-                        $this->initializeExamStartInputs($examCustomQuestion->exam_question_count);
-                    } else {
-                        if ($examSettings) {
-                            if ($examSettings->exam_questions_min == $examSettings->exam_questions_max) {
-                                $this->initializeExamStartInputs($examSettings->exam_questions_min);
-                            } else {
-                                $this->exam_questions_min = $examSettings->exam_questions_min;
-                                $this->exam_questions_max = $examSettings->exam_questions_max;
-                                $this->launchModal();
+                    if ($this->examOrder->quranPart->type == QuranPart::INDIVIDUAL_TYPE) {
+                        // في حالة كان نوع الاختبار منفرد
+                        $this->success_mark = $examSettings->exam_success_rate;
+                        $examCustomQuestion = ExamCustomQuestion::where('quran_part_id', $this->examOrder->quran_part_id)->first();
+                        if ($examCustomQuestion) {
+                            $this->initializeExamStartInputs($examCustomQuestion->question_count);
+                        } else {
+                            if ($examSettings) {
+                                if ($examSettings->exam_questions_min == $examSettings->exam_questions_max) {
+                                    $this->initializeExamStartInputs($examSettings->exam_questions_min);
+                                } else {
+                                    $this->exam_questions_min = $examSettings->exam_questions_min;
+                                    $this->exam_questions_max = $examSettings->exam_questions_max;
+                                    $this->dispatchBrowserEvent('showModal');
+                                }
                             }
+                        }
+                    } else {
+                        // في حالة كان نوع الاختبار تجميعي
+                        $this->success_mark = $examSettings->summative_exam_success_rate;
+                        if ($this->examOrder->quranPart->total_preservation_parts == 3) {
+                            // في حال كان اختبار التجميعي مكون من 3 أسئلة
+                            $this->initializeExamStartInputs($examSettings->exam_questions_summative_three_part);
+                        } else if ($this->examOrder->quranPart->total_preservation_parts == 5) {
+                            // في حال كان اختبار التجميعي مكون من 5 أسئلة
+                            $this->initializeExamStartInputs($examSettings->exam_questions_summative_five_part);
+                        } else if ($this->examOrder->quranPart->total_preservation_parts == 10) {
+                            // في حال كان اختبار التجميعي مكون من 10 أسئلة
+                            $this->initializeExamStartInputs($examSettings->exam_questions_summative_ten_part);
                         }
                     }
                 }
@@ -214,16 +140,6 @@ class TodayExams extends Component
     private function initializeExamStartInputs($count)
     {
         $this->isExamOfStart = true;
-        $this->modalId = $this->examOrder->id;
-        $this->student_name = $this->examOrder->student->user->name;
-        $this->student_id = $this->examOrder->student->id;
-        $this->teacher_name = $this->examOrder->teacher->user->name;
-        $this->teacher_id = $this->examOrder->teacher->id;
-        $this->tester_name = $this->examOrder->tester->user->name;
-        $this->tester_id = $this->examOrder->tester->id;
-        $this->quran_part = $this->examOrder->quranPart->name;
-        $this->quran_part_id = $this->examOrder->quranPart->id;
-        $this->exam_date = $this->examOrder->exam_date;
         if ($count != null) {
             $this->exam_questions_count = $count;
         }
@@ -236,20 +152,8 @@ class TodayExams extends Component
         }
 
         // The process of calculating the number of times the exam is repeated
-        $exams = Exam::query()->where('student_id', $this->student_id)
-            ->where('quran_part_id', $this->quran_part_id)->get();
-        if ($exams != null && count($exams) > 0) {
-            for ($i = 0; $i < count($exams); $i++) {
-                $sum = 0;
-                for ($j = 1; $j <= count($exams[$i]->marks_questions); $j++) {
-                    $sum += $exams[$i]->marks_questions[$j];
-                }
-                $exam_mark = round(100 - $sum) - (10 - $exams[$i]->another_mark);
-                if ($exam_mark < $exams[$i]->examSuccessMark->mark) {
-                    $this->numberOfReplays++;
-                }
-            }
-        }
+        $this->numberOfReplays = Exam::query()->select(['id', 'student_id', 'quran_part_id'])->where('student_id', $this->examOrder->student_id)
+            ->where('quran_part_id', $this->examOrder->quran_part_id)->count();
     }
 
     public function examApproval()
@@ -257,58 +161,67 @@ class TodayExams extends Component
         $this->validate(['another_mark' => 'required|numeric|between:5,10',
             'exam_mark' => 'required|numeric|between:60,100']);
 
-        $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
-            "isReadableTester" => false, "isReadableLowerSupervisor" => false,
-            "isReadableSupervisorExams" => false];
         DB::beginTransaction();
         try {
-            $examSuccessMark = ExamSuccessMark::where('mark', $this->success_mark)->first();
-            if (!$examSuccessMark) {
-                $examSuccessMark = ExamSuccessMark::create(['mark' => $this->success_mark]);
-            }
-            Exam::create([
-                'readable' => $array,
-                'signs_questions' => $this->signs_questions,
-                'marks_questions' => $this->marks_questions,
-                'another_mark' => $this->another_mark,
-                'quran_part_id' => $this->quran_part_id,
-                'student_id' => $this->student_id,
-                'teacher_id' => $this->teacher_id,
-                'tester_id' => $this->tester_id,
-                'exam_success_mark_id' => $examSuccessMark->id,
-                'exam_date' => $this->exam_date,
-                'notes' => $this->exam_notes != null ? $this->exam_notes : null,
-            ]);
+            if ($this->examOrder->type == ExamOrder::NEW_TYPE) {
+                $examSuccessMark = ExamSuccessMark::where('mark', $this->success_mark)->first();
+                if (!$examSuccessMark) {
+                    $examSuccessMark = ExamSuccessMark::create(['mark' => $this->success_mark]);
+                }
+                $exam = Exam::create([
+                    'mark' => $this->exam_mark,
+                    'quran_part_id' => $this->examOrder->quran_part_id,
+                    'student_id' => $this->examOrder->student_id,
+                    'teacher_id' => $this->examOrder->teacher_id,
+                    'tester_id' => $this->examOrder->tester_id,
+                    'exam_success_mark_id' => $examSuccessMark->id,
+                    'datetime' => Carbon::now(),
+                    'notes' => $this->exam_notes != null ? $this->exam_notes : null,
+                ]);
 
-            $this->emit('approval-exam');
-            DB::commit();
-            $this->isExamOfStart = false;
-            ExamOrder::find($this->modalId)->delete();
-            $this->dispatchBrowserEvent('alert',
-                ['type' => 'success', 'message' => 'تمت عملية اعتماد اختبار الطالب بنجاح.']);
+                $exam->teacher->user->notify(new NewExamForTeacherNotify($exam));
+                $title = "اختبار جديد معتمد";
+                $message = "لقد تم اعتماد درجة: " . $exam->mark ."%" . " في الجزء: " . $exam->quranPart->name . ' ' . $exam->quranPart->description . " للطالب: ". $exam->student->user->name;
+                $this->push_notification($message, $title, [$exam->teacher->user->user_fcm_token->device_token]);
 
-            // push notifications
-            $arr_external_user_ids = [];
-            if (auth()->user()->current_role != 'مشرف الإختبارات') {
-                $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
-                if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
-                    && $user_role_supervisor_exams->users[0] != null) {
-                    array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
+            } else {
+                $exam_id = null;
+                $exams = Exam::query()->with(['examSuccessMark'])->where('student_id', '=', $this->examOrder->student_id)
+                    ->where('quran_part_id', '=', $this->examOrder->quran_part_id)
+                    ->get();
+
+                foreach ($exams as $exam) {
+                    if ($exam->mark >= $exam->examSuccessMark->mark) {
+                        $exam_id = $exam->id;
+                        break;
+                    }
+                }
+
+                if ($exam_id != null) {
+                   $examImprovement = ExamImprovement::create([
+                        'id' => $exam_id,
+                        'mark' => $this->exam_mark,
+                        'tester_id' => $this->examOrder->tester_id,
+                        'datetime' => Carbon::now(),
+                    ]);
+
+                    $examImprovement->exam->teacher->user->notify(new ImproveExamForTeacherNotify($examImprovement));
+                    $title = "اختبار تحسين درجة معتمد";
+                    $message = "لقد تم اعتماد تحسين درجة: " . $examImprovement->mark ."%" . " في الجزء: " . $examImprovement->exam->quranPart->name . ' ' . $examImprovement->exam->quranPart->description . " للطالب: ". $examImprovement->exam->student->user->name;
+                    $this->push_notification($message, $title, [$examImprovement->exam->teacher->user->user_fcm_token->device_token]);
                 }
             }
 
-            array_push($arr_external_user_ids, "" . $this->teacher_id);
-
-            $message = "لقد تم اعتماد درجة: " . $this->exam_mark . "%" . " في اختبار: " . $this->quran_part . " للطالب: " . $this->student_name;
-            $url = 'https://memorization-management-system.herokuapp.com/manage_exams';
-
-            $this->push_notifications($arr_external_user_ids, $message, "حالة اختبار الطالب", $url);
-
-            $this->reset();
-            $this->resetValidation();
+            $this->dispatchBrowserEvent('hideModal');
+            ExamOrder::find($this->examOrder->id)->delete();
+            $this->isExamOfStart = false;
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تمت عملية اعتماد اختبار الطالب بنجاح.']);
+            DB::commit();
+            $this->clearForm();
         } catch (Exception $e) {
             DB::rollback();
-            session()->flash('failure_message', $e->getMessage());
+            $this->catchError = $e->getMessage();
         }
     }
 
@@ -327,7 +240,13 @@ class TodayExams extends Component
             } else {
                 $this->signs_questions[$this->focus_id] = '/';
             }
-            $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 1;
+            if ($this->examOrder->quranPart->type == QuranPart::INDIVIDUAL_TYPE) {
+                // في حال كان نوع الاختبار منفرد
+                $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 1;
+            } else {
+                // في حال كان نوع الاختبار تجميعي
+                $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 2;
+            }
             $this->calcAverage();
         }
     }
@@ -338,9 +257,21 @@ class TodayExams extends Component
             $length = strlen($this->signs_questions[$this->focus_id]);
             if (isset($this->signs_questions[$this->focus_id][$length - 1])) {
                 if ($this->signs_questions[$this->focus_id][$length - 1] == '/') {
-                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 1;
+                    if ($this->examOrder->quranPart->type == QuranPart::INDIVIDUAL_TYPE) {
+                        // في حال كان نوع الاختبار منفرد
+                        $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 1;
+                    } else {
+                        // في حال كان نوع الاختبار تجميعي
+                        $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 2;
+                    }
                 } else {
-                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 0.5;
+                    if ($this->examOrder->quranPart->type == QuranPart::INDIVIDUAL_TYPE) {
+                        // في حال كان نوع الاختبار منفرد
+                        $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 0.5;
+                    } else {
+                        // في حال كان نوع الاختبار تجميعي
+                        $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 1;
+                    }
                 }
                 $this->signs_questions[$this->focus_id] = substr($this->signs_questions[$this->focus_id], 0, -1);
                 $this->calcAverage();
@@ -356,9 +287,20 @@ class TodayExams extends Component
             } else {
                 $this->signs_questions[$this->focus_id] = '-';
             }
-            $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 0.5;
+            if ($this->examOrder->quranPart->type == QuranPart::INDIVIDUAL_TYPE) {
+                // في حال كان نوع الاختبار منفرد
+                $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 0.5;
+            } else {
+                // في حال كان نوع الاختبار تجميعي
+                $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 1;
+            }
             $this->calcAverage();
         }
+    }
+
+    public function updatedAnotherMark()
+    {
+        $this->calcAverage();
     }
 
     private function calcAverage()
@@ -379,90 +321,38 @@ class TodayExams extends Component
     public function getExamOrder($id)
     {
         $this->clearForm();
-        $examOrder = ExamOrder::where('id', $id)->first();
+        $examOrder = ExamOrder::with(['student.user', 'quranPart'])->where('id', $id)->first();
         if ($examOrder) {
-            $this->modalId = $examOrder->id;
-            $this->student_name = $examOrder->student->user->name;
-            $this->quran_part = $examOrder->quranPart->name;
+            $this->examOrder = $examOrder;
         }
     }
 
     public function clearForm()
     {
-        $this->modalId = null;
-        $this->student_name = null;
-        $this->quran_part = null;
         $this->notes = null;
         $this->resetValidation();
     }
 
     public function all_Exams_Today()
     {
-        if (auth()->user()->current_role == 'محفظ') {
-            return ExamOrder::query()
-                ->search($this->search)
-                ->todayexams()
-                ->whereHas('student', function ($q) {
+        return ExamOrder::query()
+            ->with(['student.user', 'QuranPart', 'teacher.user', 'tester.user'])
+            ->search($this->search)
+            ->todayexams()
+            ->when($this->current_role == 'محفظ', function ($q, $v) {
+                $q->whereHas('student', function ($q) {
                     return $q->where('grade_id', '=', Teacher::where('id', auth()->id())->first()->grade_id)
-                        ->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id);
-                })
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        } else if (auth()->user()->current_role == 'مختبر') {
-            return ExamOrder::query()
-                ->search($this->search)
-                ->todayexams()
-                ->where('tester_id', auth()->id())
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        } else if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            return ExamOrder::query()
-                ->search($this->search)
-                ->todayexams()
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        }
-        return [];
+                        ->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id ?? null);
+                });
+            })
+            ->when($this->current_role == 'مختبر', function ($q, $v) {
+                $q->where('tester_id', auth()->id());
+            })
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate($this->perPage);
     }
 
-    private function read_All_Exams_Today_Orders()
-    {
-        $exams_orders = $this->all_Exams_Today();
-
-        if ($exams_orders != null && !empty($exams_orders)) {
-            for ($i = 0; $i < count($exams_orders); $i++) {
-                if (auth()->user()->current_role == 'محفظ') {
-                    if ($exams_orders[$i]->readable['isReadableTeacher'] == false) {
-                        $examOrder = ExamOrder::find($exams_orders[$i]->id);
-                        $array = $examOrder->readable;
-                        $array['isReadableTeacher'] = true;
-                        $examOrder->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مشرف') {
-                    if ($exams_orders[$i]->readable['isReadableSupervisor'] == false) {
-                        $examOrder = ExamOrder::find($exams_orders[$i]->id);
-                        $array = $examOrder->readable;
-                        $array['isReadableSupervisor'] = true;
-                        $examOrder->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مختبر') {
-                    if ($exams_orders[$i]->readable['isReadableTester'] == false) {
-                        $examOrder = ExamOrder::find($exams_orders[$i]->id);
-                        $array = $examOrder->readable;
-                        $array['isReadableTester'] = true;
-                        $examOrder->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
-                    if ($exams_orders[$i]->readable['isReadableSupervisorExams'] == false) {
-                        $examOrder = ExamOrder::find($exams_orders[$i]->id);
-                        $array = $examOrder->readable;
-                        $array['isReadableSupervisorExams'] = true;
-                        $examOrder->update(['readable' => $array]);
-                    }
-                }
-            }
-        }
+    public function submitSearch(){
+        $this->all_Exams_Today();
     }
-
 }

@@ -1,27 +1,35 @@
 <div class="row">
-    <div>
-        @if(Session::has('message'))
-            <script>
-                $(function () {
-                    toastr.success("{{ Session::get('message') }}");
-                })
-            </script>
-        @endif
-    </div>
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
-            @if (auth()->user()->current_role == 'أمير المركز')
+            @if (auth()->user()->current_role == \App\Models\User::ADMIN_ROLE)
                 <div class="card-body">
-                    @can('إضافة مرحلة')
-                        <button type="button" wire:click.prevent="modalFormReset()" class="button x-small"
-                                data-toggle="modal"
-                                data-target="#gradeAdded">
-                            اضافة مرحلة
-                        </button>
-                        @include('pages.grades.add')
-                    @endcan
-                    <br><br>
-                    @include('livewire.search')
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-3">
+                                @can('إضافة مرحلة')
+                                    <button type="button" wire:click.prevent="modalFormReset()"
+                                            class="button x-small"
+                                            data-toggle="modal"
+                                            data-target="#gradeAdded">
+                                        اضافة مرحلة
+                                    </button>
+                                    @include('pages.grades.add')
+                                @endcan
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-success"
+                                        wire:click.prevent="all_students_export();">تصدير بيانات طلاب المركز
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-success"
+                                        wire:click.prevent="all_teachers_export();">تصدير بيانات محفظي المركز
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                    <br>
+                    <x-search></x-search>
                     <div class="table-responsive mt-15">
                         <table class="table center-aligned-table mb-0">
                             <thead>
@@ -32,6 +40,7 @@
                                 <th wire:click="sortBy('name')" style="cursor: pointer;">اسم المرحلة
                                     @include('livewire._sort-icon',['field'=>'name'])
                                 </th>
+                                <th>عدد محفظي المرحلة</th>
                                 <th>عدد حلقات المرحلة</th>
                                 <th>العمليات</th>
                             </tr>
@@ -39,15 +48,30 @@
                             <tbody>
                             @forelse($grades as $grade)
                                 <tr>
-                                    <td>{{ $grade->id }}</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ $grade->name }}</td>
-                                    <td>{{ $grade->groups->count() }}</td>
+                                    <td>{{ $grade->teachers_count }}</td>
+                                    <td>{{ $grade->groups_count }}</td>
                                     <td>
+                                        @if ($grade->teachers_count > 0)
+                                            <button type="button"
+                                                    wire:click.prevent="grade_teachers_export('{{$grade->id}}');"
+                                                    class="btn btn-success btn-sm"
+                                                    title="تصدير بيانات المحفظين"><i
+                                                    class="fa fa-download"></i></button>
+                                        @endif
+                                        @if ($grade->groups_count > 0)
+                                            <button type="button"
+                                                    wire:click.prevent="grade_students_export('{{$grade->id}}');"
+                                                    class="btn btn-primary btn-sm"
+                                                    title="تصدير بيانات الطلاب"><i
+                                                    class="fa fa-download"></i></button>
+                                        @endif
                                         @can('تعديل مرحلة')
                                             <button type="button" class="btn btn-info btn-sm"
                                                     data-toggle="modal"
                                                     data-target="#gradeEdited"
-                                                    wire:click.prevent="loadModalData({{$grade->id}})"
+                                                    wire:click.prevent="loadModalData('{{$grade->id}}')"
                                                     title="تعديل"><i class="fa fa-edit"></i>
                                             </button>
                                         @endcan
@@ -75,6 +99,7 @@
                             <tr class="text-dark table-success">
                                 <th>#</th>
                                 <th>اسم المرحلة</th>
+                                <th>عدد محفظي المرحلة</th>
                                 <th>عدد حلقات المرحلة</th>
                                 <th>العمليات</th>
                             </tr>
@@ -105,5 +130,5 @@
             @endif
         </div>
     </div>
-    <x-loading-indicator/>
+    <x-loading-indicator></x-loading-indicator>
 </div>

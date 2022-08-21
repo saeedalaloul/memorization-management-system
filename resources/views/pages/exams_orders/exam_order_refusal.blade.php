@@ -11,15 +11,15 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label class="control-label">اسم الطالب</label>
-                            <input type="text" wire:model="student_name" readonly class="form-control">
+                            <input type="text" wire:model.defer="student_name" readonly class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label class="control-label">جزء الإختبار</label>
-                            <input type="text" wire:model="quran_part" readonly class="form-control">
+                            <input type="text" wire:model.defer="quran_part" readonly class="form-control">
                         </div>
                         <div class="col-md-12">
                             <label class="control-label">ملاحظات</label>
-                            <input type="text" wire:model="notes"  class="form-control">
+                            <input type="text" wire:model.defer="notes"  class="form-control">
                             @error('notes')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
@@ -29,7 +29,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger ripple" data-dismiss="modal">إغلاق</button>
-                <button type="button" wire:click="examOrderRefusal({{$modalId}})" class="btn btn-success ripple">رفض
+                <button type="button" wire:click="examOrderRefusal('{{$modalId}}')" class="btn btn-success ripple">رفض
                     طلب الإختبار
                 </button>
             </div>

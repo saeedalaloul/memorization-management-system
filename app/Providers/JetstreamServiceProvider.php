@@ -38,12 +38,16 @@ class JetstreamServiceProvider extends ServiceProvider
                 ->orWhere('phone', $request->email)
                 ->orWhere('identification_number', $request->email)
                 ->first();
-
-            if (
-                $user &&
-                Hash::check($request->password, $user->password)
-            ) {
-                return $user;
+            if ($user) {
+                if ($user->password != null) {
+                    if (Hash::check($request->password, $user->password)) {
+                        return $user;
+                    }
+                } else {
+                    if ($request->password != null && $user->identification_number == $request->password) {
+                        return $user;
+                    }
+                }
             }
         });
     }

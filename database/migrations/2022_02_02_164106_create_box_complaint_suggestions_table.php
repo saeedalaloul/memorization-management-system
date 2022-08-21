@@ -15,15 +15,16 @@ class CreateBoxComplaintSuggestionsTable extends Migration
     {
         Schema::create('box_complaint_suggestions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->date('complaint_date')->index();
-            $table->foreignId('category_complaint_id')->index()->references('id')->on('complaint_box_categories')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->dateTime('datetime')->index();
+            $table->enum('category',['complaint','suggestion','idea'])->index();
             $table->longText('subject');
-            $table->foreignId('sender_id')->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('receiver_id')->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('receiver_role_id')->index()->references('id')->on('complaint_box_roles')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('sender_id')->index()->references('id')->on('users')->restrictOnDelete();
+            $table->foreignId('receiver_id')->index()->references('id')->on('users')->restrictOnDelete();
             $table->longText('reply')->nullable();
-            $table->timestamp('read_at')->nullable();
-            $table->timestamps();
+            $table->timestamp('subject_read_at')->nullable()->index();
+            $table->timestamp('reply_read_at')->nullable()->index();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

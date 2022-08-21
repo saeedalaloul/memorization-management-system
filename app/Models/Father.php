@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Father extends Model
 {
     protected $fillable = ['id'];
-    public $timestamps = false;
 
     // علاقة بين ولي أمر الطالب وأبنائهم لجلب اسم الطالب في جدول ولي أمر الطالب
     public function students()

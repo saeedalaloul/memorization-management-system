@@ -2,7 +2,7 @@
     <div class="form-row">
         <div class="col">
             <label for="title">اسم الحلقة</label>
-            <input type="text" name="name" class="form-control" wire:model="name" readonly>
+            <input type="text" name="name" class="form-control" wire:model.defer="name" readonly>
             @error('name')
             <div class="alert alert-danger">{{ $message }}</div>
             @enderror
@@ -18,13 +18,13 @@
             @enderror
         </div>
 
-        <div class="col">
+        <div class="form-group col">
             <label for="inputGrade">المرحلة الجديدة</label>
-            <select class="custom-select my-1 mr-sm-2" name="new_grade_id" wire:model="new_grade_id">
-                <option selected>اختيار من القائمة...</option>
+            <select style="width: 100%;" class="custom-select my-1 mr-sm-2" id="new_grade" wire:model="new_grade_id">
+                <option selected value="">اختيار من القائمة...</option>
                 @foreach($grades as $grade)
                     @if ($grade->id != $grade_id)
-                        <option value="{{$grade->id}}">{{$grade->name}}</option>
+                    <option value="{{$grade->id}}">{{$grade->name}}</option>
                     @endif
                 @endforeach
             </select>

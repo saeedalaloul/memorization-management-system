@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('css')
-    @toastr_css
 @section('title')
     إدارة الإختبارات القرآنية
 @stop
@@ -20,20 +19,15 @@
 
 @section('js')
     @livewireScripts
-    @toastr_js
     @toastr_render
-    <script>
-        window.livewire.on('approval-exam', () => {
-            $('#approval-exam').modal('hide');
-        });
-    </script>
 
     <script>
-        window.addEventListener('alert', event => {
-            toastr[event.detail.type](event.detail.message,
-                event.detail.title ?? ''), toastr.options = {
-                "progressBar": true,
-            }
+        window.addEventListener('hideModal', _ => {
+            $('#approval-exam').modal('hide');
+            $('#assign-external-exam-mark').modal('hide');
+        });
+        window.addEventListener('showModal', _ => {
+            $('#assign-external-exam-mark').modal('show');
         });
     </script>
 @endsection

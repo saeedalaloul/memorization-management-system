@@ -5,326 +5,141 @@ namespace App\Http\Livewire;
 use App\Models\ExamOrder;
 use App\Models\Grade;
 use App\Models\Group;
-use App\Models\LowerSupervisor;
 use App\Models\Student;
 use App\Models\Supervisor;
 use App\Models\Teacher;
-use App\Models\Tester;
+use App\Notifications\AcceptExamOrderForTeacherNotify;
+use App\Notifications\AcceptExamOrderForTesterNotify;
+use App\Notifications\RejectionExamOrderForTeacherNotify;
+use App\Traits\NotificationTrait;
+use Carbon\Carbon;
 use Illuminate\Support\MessageBag;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Spatie\Permission\Models\Role;
 
-class ExamsOrders extends Component
+class ExamsOrders extends HomeComponent
 {
-    use WithPagination;
+    use NotificationTrait;
 
-    public $sortBy = 'id';
-    public $sortDirection = 'desc';
-    public $perPage = 10;
-    public $search = '';
-    public $grades, $groups, $students;
-    public $searchGradeId, $searchGroupId, $searchStudentId;
+    public $grades = [], $groups = [], $students = [];
+    public $selectedGradeId, $selectedTeacherId, $selectedStudentId, $selectedStatus;
     public $student_name, $quran_part;
-    public $tester_id, $teacher_id, $modalId, $exam_date, $notes;
-    protected $paginationTheme = 'bootstrap';
+    public $tester_id, $teacher_id, $exam_date, $notes;
+
+    protected $listeners = [
+        'getTeachersByGradeId' => 'getTeachersByGradeId',
+        'getStudentsByTeacherId' => 'getStudentsByTeacherId',
+    ];
 
     public function render()
     {
-        $this->all_Grades();
-        $this->all_Groups();
-        $this->all_Students();
-        $this->read_All_Exams_Orders();
-
-        return view('livewire.exams-orders', [
-            'exam_orders' => $this->all_Exam_Orders(),
-            'testers' => $this->all_Testers(),
-        ]);
+        return view('livewire.exams-orders', ['exam_orders' => $this->all_Exam_Orders()]);
     }
 
-    public function updatedSearch()
+    public function mount()
     {
-        $this->resetPage();
+        $this->current_role = auth()->user()->current_role;
+        $this->all_Grades();
+        $this->all_Testers();
     }
 
     public function all_Exam_Orders()
     {
-        if (auth()->user()->current_role == 'محفظ') {
-            if (empty($this->searchStudentId)) {
-                return ExamOrder::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) {
-                        return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            } else {
-                return ExamOrder::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) {
-                        return $q->where('group_id', '=', $this->searchGroupId)
-                            ->where('id', '=', $this->searchStudentId);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }
-
-        } elseif (auth()->user()->current_role == 'مشرف') {
-            return $this->getExamsByGrade(Supervisor::where('id', auth()->id())->first()->grade_id);
-        } elseif (auth()->user()->current_role == 'اداري') {
-            return $this->getExamsByGrade(LowerSupervisor::where('id', auth()->id())->first()->grade_id);
-        } else if (auth()->user()->current_role == 'مختبر') {
-            return ExamOrder::query()
-                ->search($this->search)
-                ->whereIn('status', [2, -3])
-                ->where('tester_id', auth()->id())
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        } else if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            return $this->getExamsByAdmin();
-        }
-        return [];
+        return ExamOrder::query()
+            ->with(['student.user', 'QuranPart', 'teacher.user'])
+            ->search($this->search)
+            ->when($this->current_role == 'محفظ', function ($q, $v) {
+                $q->when(!empty($this->selectedStudentId), function ($q, $v) {
+                    $q->whereHas('student', function ($q) {
+                        $q->where('id', '=', $this->selectedStudentId);
+                    });
+                })->whereHas('student', function ($q) {
+                    $q->where('group_id', '=', $this->selectedTeacherId);
+                });
+            })
+            ->when($this->current_role == 'مختبر', function ($q, $v) {
+                $q->where('tester_id', auth()->id());
+            })
+            ->when($this->current_role == 'مشرف', function ($q, $v) {
+                $q->whereHas('student', function ($q) {
+                    $q->where('grade_id', '=', $this->selectedGradeId);
+                })->when(!empty($this->selectedTeacherId), function ($q, $v) {
+                    $q->where('group_id', '=', $this->selectedTeacherId);
+                })->when(!empty($this->selectedStudentId), function ($q, $v) {
+                    $q->where('id', '=', $this->selectedStudentId);
+                });
+            })
+            ->when($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات', function ($q, $v) {
+                $q->when(!empty($this->selectedGradeId), function ($q, $v) {
+                    $q->whereHas('student', function ($q) {
+                        $q->where('grade_id', '=', $this->selectedGradeId);
+                    });
+                })->when(!empty($this->selectedTeacherId), function ($q, $v) {
+                    $q->whereHas('student', function ($q) {
+                        $q->where('group_id', '=', $this->selectedTeacherId);
+                    });
+                })->when(!empty($this->selectedStudentId), function ($q, $v) {
+                    $q->whereHas('student', function ($q) {
+                        $q->where('id', '=', $this->selectedStudentId);
+                    });
+                });
+            })->when(!empty($this->selectedStatus), function ($q, $v) {
+                $q->where('status', '=', $this->selectedStatus);
+            })
+            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) != 'message'), function ($q, $v) {
+                $q->where('id', \Request::segment(2));
+            })
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate($this->perPage);
     }
 
-    private function getExamsByAdmin()
+    public function submitSearch()
     {
-        if (empty($this->searchGradeId)) {
-            if (auth()->user()->current_role == 'أمير المركز') {
-                return ExamOrder::query()
-                    ->search($this->search)
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            } else {
-                return ExamOrder::query()
-                    ->whereIn('status', [1, 2, -2, -3])
-                    ->search($this->search)
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }
-        } else {
-            if (empty($this->searchGroupId)) {
-                if (auth()->user()->current_role == 'أمير المركز') {
-                    return ExamOrder::query()
-                        ->search($this->search)
-                        ->whereHas('student', function ($q) {
-                            return $q->where('grade_id', '=', $this->searchGradeId);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                } else {
-                    return ExamOrder::query()
-                        ->whereIn('status', [1, 2, -2, -3])
-                        ->search($this->search)
-                        ->whereHas('student', function ($q) {
-                            return $q->where('grade_id', '=', $this->searchGradeId);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }
-            } else {
-                if (empty($this->searchStudentId)) {
-                    if (auth()->user()->current_role == 'أمير المركز') {
-                        return ExamOrder::query()
-                            ->search($this->search)
-                            ->whereHas('student', function ($q) {
-                                return $q->where('grade_id', '=', $this->searchGradeId)
-                                    ->where('group_id', '=', $this->searchGroupId);
-                            })
-                            ->orderBy($this->sortBy, $this->sortDirection)
-                            ->paginate($this->perPage);
-                    } else {
-                        return ExamOrder::query()
-                            ->whereIn('status', [1, 2, -2, -3])
-                            ->search($this->search)
-                            ->whereHas('student', function ($q) {
-                                return $q->where('grade_id', '=', $this->searchGradeId)
-                                    ->where('group_id', '=', $this->searchGroupId);
-                            })
-                            ->orderBy($this->sortBy, $this->sortDirection)
-                            ->paginate($this->perPage);
-                    }
-                } else {
-                    if (auth()->user()->current_role == 'أمير المركز') {
-                        return ExamOrder::query()
-                            ->search($this->search)
-                            ->whereHas('student', function ($q) {
-                                return $q
-                                    ->where('grade_id', '=', $this->searchGradeId)
-                                    ->where('group_id', '=', $this->searchGroupId)
-                                    ->where('id', '=', $this->searchStudentId);
-                            })
-                            ->orderBy($this->sortBy, $this->sortDirection)
-                            ->paginate($this->perPage);
-                    } else {
-                        return ExamOrder::query()
-                            ->whereIn('status', [1, 2, -2, -3])
-                            ->search($this->search)
-                            ->whereHas('student', function ($q) {
-                                return $q
-                                    ->where('grade_id', '=', $this->searchGradeId)
-                                    ->where('group_id', '=', $this->searchGroupId)
-                                    ->where('id', '=', $this->searchStudentId);
-                            })
-                            ->orderBy($this->sortBy, $this->sortDirection)
-                            ->paginate($this->perPage);
-                    }
-                }
-            }
-        }
-    }
-
-    private function getExamsByGrade($grade_id)
-    {
-        if (empty($this->searchGroupId)) {
-            return ExamOrder::query()
-                ->search($this->search)
-                ->whereHas('student', function ($q) use ($grade_id) {
-                    return $q->where('grade_id', '=', $grade_id);
-                })
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        } else {
-            if (empty($this->searchStudentId)) {
-                return ExamOrder::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) use ($grade_id) {
-                        return $q->where('grade_id', '=', $grade_id)
-                            ->where('group_id', '=', $this->searchGroupId);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            } else {
-                return ExamOrder::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) use ($grade_id) {
-                        return $q
-                            ->where('grade_id', '=', $grade_id)
-                            ->where('group_id', '=', $this->searchGroupId)
-                            ->where('id', '=', $this->searchStudentId);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }
-        }
-    }
-
-    public function all_Testers()
-    {
-        if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            return Tester::all();
-        }
-        return [];
+        $this->all_Exam_Orders();
     }
 
 
     public function all_Grades()
     {
-        if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
+        if ($this->current_role == 'مشرف') {
+            $this->selectedGradeId = Supervisor::where('id', auth()->id())->first()->grade_id;
+            $this->grades = Grade::query()->where('id', $this->selectedGradeId)->get();
+        } else if ($this->current_role == 'محفظ') {
+            $this->selectedTeacherId = Group::where('teacher_id', auth()->id())->first()->id ?? null;
+            $this->grades = Grade::query()->where('id', Teacher::where('id', auth()->id())->first()->grade_id)->get();
+        } else if ($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات') {
             $this->grades = Grade::all();
-        } else if (auth()->user()->current_role == 'مشرف') {
-            $this->searchGradeId = Supervisor::where('id', auth()->id())->first()->grade_id;
-        } else if (auth()->user()->current_role == 'اداري') {
-            $this->searchGradeId = LowerSupervisor::where('id', auth()->id())->first()->grade_id;
-        } else if (auth()->user()->current_role == 'محفظ') {
-            $this->searchGradeId = Teacher::where('id', auth()->id())->first()->grade_id;
         }
     }
 
-    public function all_Groups()
+    public function getTeachersByGradeId()
     {
-        if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            if ($this->searchGradeId) {
-                $this->groups = Group::query()->where('grade_id', $this->searchGradeId)->get();
+        $this->reset('students', 'groups', 'selectedTeacherId', 'selectedStudentId');
+
+        if ($this->current_role == 'مشرف') {
+            if ($this->selectedGradeId) {
+                $this->groups = Group::query()->with(['teacher.user'])->where('grade_id', $this->selectedGradeId)->get();
             }
-        } else if (auth()->user()->current_role == 'مشرف') {
-            $this->groups = Group::query()
-                ->where('grade_id', '=', $this->searchGradeId)->get();
-        } else if (auth()->user()->current_role == 'اداري') {
-            $this->groups = Group::query()
-                ->where('grade_id', '=', $this->searchGradeId)->get();
-        } else if (auth()->user()->current_role == 'محفظ') {
-            $this->searchGroupId = Group::query()->where('teacher_id', auth()->id())->first()->id;
-        }
-
-    }
-
-    public function all_Students()
-    {
-        if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            if ($this->searchGroupId) {
-                $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
+        } else if ($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات') {
+            if ($this->selectedGradeId) {
+                $this->groups = Group::query()->with(['teacher.user'])->where('grade_id', $this->selectedGradeId)->get();
             }
-        } else if (auth()->user()->current_role == 'مشرف') {
-            $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
-        } else if (auth()->user()->current_role == 'اداري') {
-            $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
-        } else if (auth()->user()->current_role == 'محفظ') {
-            $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
+        } elseif ($this->current_role == 'محفظ') {
+            $this->groups = Group::query()->where('teacher_id', auth()->id())->get();
         }
     }
 
-    private function read_All_Exams_Orders()
+    public function getStudentsByTeacherId()
     {
-        $exams_orders = $this->all_Exam_Orders();
+        $this->reset('students', 'selectedStudentId');
 
-        if ($exams_orders != null && !empty($exams_orders)) {
-            for ($i = 0; $i < count($exams_orders); $i++) {
-                if (auth()->user()->current_role == 'محفظ') {
-                    if ($exams_orders[$i]->readable['isReadableTeacher'] == false) {
-                        $examOrder = ExamOrder::find($exams_orders[$i]->id);
-                        $array = $examOrder->readable;
-                        $array['isReadableTeacher'] = true;
-                        $examOrder->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مشرف') {
-                    if ($exams_orders[$i]->readable['isReadableSupervisor'] == false) {
-                        $examOrder = ExamOrder::find($exams_orders[$i]->id);
-                        $array = $examOrder->readable;
-                        $array['isReadableSupervisor'] = true;
-                        $examOrder->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مختبر') {
-                    if ($exams_orders[$i]->readable['isReadableTester'] == false) {
-                        $examOrder = ExamOrder::find($exams_orders[$i]->id);
-                        $array = $examOrder->readable;
-                        $array['isReadableTester'] = true;
-                        $examOrder->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
-                    if ($exams_orders[$i]->readable['isReadableSupervisorExams'] == false) {
-                        $examOrder = ExamOrder::find($exams_orders[$i]->id);
-                        $array = $examOrder->readable;
-                        $array['isReadableSupervisorExams'] = true;
-                        $examOrder->update(['readable' => $array]);
-                    }
-                }
+        if ($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات') {
+            if ($this->selectedTeacherId) {
+                $this->students = Student::query()->with(['user'])->where('group_id', $this->selectedTeacherId)->get();
             }
+        } else if ($this->current_role == 'مشرف') {
+            $this->students = Student::query()->with(['user'])->where('group_id', $this->selectedTeacherId)->get();
+        } else if ($this->current_role == 'محفظ') {
+            $this->students = Student::query()->with(['user'])->where('group_id', $this->selectedTeacherId)->get();
         }
-    }
-
-    public function sortBy($field)
-    {
-        if ($this->sortDirection == 'asc') {
-            $this->sortDirection = 'desc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-
-        return $this->sortBy = $field;
-    }
-
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName, [
-            'tester_id' => 'required|string',
-            'exam_date' => 'required|date|date_format:Y-m-d',
-            'notes' => 'required|string',
-        ]);
     }
 
     public function rules()
@@ -351,80 +166,39 @@ class ExamsOrders extends Component
     public function examOrderApproval($id)
     {
         $examOrder = ExamOrder::where('id', $id)->first();
-        $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
-            "isReadableTester" => false, "isReadableSupervisorExams" => false];
         if ($examOrder) {
-            if ($examOrder->status == 0 || $examOrder->status == -1) {
-                if (auth()->user()->current_role == 'مشرف' ||
-                    auth()->user()->current_role == 'أمير المركز') {
-                    $examOrder->update([
-                        'status' => 1,
-                        'notes' => null,
-                        'readable' => $array,
-                    ]);
-                    // push notification
-                    $arr_external_user_ids = [];
-
-                    $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
-                    if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
-                        && $user_role_supervisor_exams->users[0] != null) {
-                        array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
-                    }
-
-                    array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
-
-                    if (auth()->user()->current_role != 'مشرف') {
-                        $user_role_supervisor_id = Supervisor::where('grade_id', $examOrder->student->grade_id)->first()->id;
-                        array_push($arr_external_user_ids, "" . $user_role_supervisor_id);
-                    }
-
-                    $this->process_notification($arr_external_user_ids, 1, $examOrder->student->user->name, $examOrder->quranPart->name);
-                    $this->dispatchBrowserEvent('alert',
-                        ['type' => 'success', 'message' => 'تمت عملية قبول طلب الإختبار بنجاح.']);
-                }
-            } elseif ($examOrder->status == 1 || $examOrder->status == 2 || $examOrder->status == -2) {
+            if ($examOrder->status != ExamOrder::FAILURE_STATUS) {
                 $this->validate();
                 $messageBag = new MessageBag;
                 $messageBag->add('tester_id', 'يجب أن لا يكون المختبر هو نفس المحفظ');
                 if ($this->teacher_id == $this->tester_id) {
                     $this->setErrorBag($messageBag);
                 } else {
-                    if (auth()->user()->current_role == 'مشرف الإختبارات' ||
-                        auth()->user()->current_role == 'أمير المركز') {
+                    if ($this->current_role == 'مشرف الإختبارات' || $this->current_role == 'أمير المركز') {
                         $examOrder->update([
-                            'status' => 2,
+                            'status' => ExamOrder::ACCEPTABLE_STATUS,
                             'tester_id' => $this->tester_id,
-                            'exam_date' => $this->exam_date,
-                            'readable' => $array,
+                            'datetime' => $this->exam_date . ' ' . date('H:i:s', time()),
+                            'user_signature_id' => auth()->id(),
                             'notes' => null,
                         ]);
-                        // push notification
-                        $arr_external_user_ids = [];
 
-                        if (auth()->user()->current_role != 'مشرف الإختبارات') {
-                            $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
-                            if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
-                                && $user_role_supervisor_exams->users[0] != null) {
-                                array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
-                            }
-                        }
+                        // start push notifications to teacher
+                        $examOrder->teacher->user->notify(new AcceptExamOrderForTeacherNotify($examOrder));
+                        $title = "طلب اختبار معتمد";
+                        $message = "لقد قام مشرف الإختبارات باعتماد طلب اختبار الطالب: " . $examOrder->student->user->name . " في الجزء: " . $examOrder->quranPart->name . ' ' . $examOrder->quranPart->description . " بتاريخ " . Carbon::parse($examOrder->datetime)->format('d-m-Y');
+                        $this->push_notification($message, $title, [$examOrder->teacher->user->user_fcm_token->device_token ?? null]);
+                        // end push notifications to teacher
 
-                        array_push($arr_external_user_ids, "" . $examOrder->teacher_id);
+                        // start push notifications to tester
+                        $examOrder->tester->user->notify(new AcceptExamOrderForTesterNotify($examOrder));
+                        $message = "لقد قام مشرف الإختبارات بتعيينك مختبر طلب اختبار الطالب: " . $examOrder->student->user->name . " في الجزء: " . $examOrder->quranPart->name . ' ' . $examOrder->quranPart->description . " بتاريخ " . Carbon::parse($examOrder->datetime)->format('d-m-Y');
+                        $this->push_notification($message, $title, [$examOrder->tester->user->user_fcm_token->device_token ?? null]);
+                        // end push notifications to tester
 
-                        $this->process_notification($arr_external_user_ids, 2, $examOrder->student->user->name, $examOrder->quranPart->name);
-
-                        // push notification to tester
-                        if (auth()->user()->current_role == 'أمير المركز') {
-                            $message = "لقد قام أمير المركز بتعيينك مختبر طلب اختبار " . $examOrder->quranPart->name . " للطالب: " . $examOrder->student->user->name . " يرجى مراجعة الموعد المحدد للطلب ...";
-                        } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
-                            $message = "لقد قام مشرف الإختبارات بتعيينك مختبر طلب اختبار " . $examOrder->quranPart->name . " للطالب: " . $examOrder->student->user->name . " يرجى مراجعة الموعد المحدد للطلب ...";
-                        }
-                        $response = $this->push_notifications([$examOrder->tester_id], $message);
-                        $return["allresponses"] = $response;
-                        $return = json_encode($return);
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية اعتماد طلب الإختبار بنجاح.']);
-                        $this->emit('approval-exam');
+                        $this->dispatchBrowserEvent('hideDialog');
                         $this->clearForm();
                     }
                 }
@@ -432,79 +206,9 @@ class ExamsOrders extends Component
         }
     }
 
-    public function process_notification($arr_external_user_ids, $status, $student_name, $part_name)
-    {
-        if ($arr_external_user_ids != null && $status != null) {
-            $message = "";
-            if (auth()->user()->current_role == 'أمير المركز') {
-                if ($status == 1) {
-                    $message = "لقد قام أمير المركز بقبول طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
-                } else if ($status == -1) {
-                    $message = "لقد قام أمير المركز برفض طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
-                } else if ($status == 2) {
-                    $message = "لقد قام أمير المركز بحجز طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة الموعد المحدد للطلب ...";
-                } elseif ($status == -2) {
-                    $message = "لقد قام أمير المركز برفض حجز طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
-                }
-            } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
-                if ($status == 2) {
-                    $message = "لقد قام مشرف الإختبارات بحجز طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة الموعد المحدد للطلب ...";
-                } elseif ($status == -2) {
-                    $message = "لقد قام مشرف الإختبارات برفض حجز طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
-                }
-            } else if (auth()->user()->current_role == 'مشرف') {
-                if ($status == 1) {
-                    $message = "لقد قام مشرف المرحلة بقبول طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
-                } else if ($status == -1) {
-                    $message = "لقد قام مشرف المرحلة برفض طلب اختبار " . $part_name . " للطالب: " . $student_name . " يرجى مراجعة طلب الاختبار ...";
-                }
-            }
-            $response = $this->push_notifications($arr_external_user_ids, $message);
-            $return["allresponses"] = $response;
-            $return = json_encode($return);
-        }
-    }
-
-    public function push_notifications($arr_external_user_ids, $message)
-    {
-        $fields = array(
-            'app_id' => env("ONE_SIGNAL_APP_ID"),
-            'include_external_user_ids' => $arr_external_user_ids,
-            'channel_for_external_user_ids' => 'push',
-            'data' => array("foo" => "bar"),
-            'headings' => array(
-                "en" => 'حالة طلب الاختبار',
-                "ar" => 'حالة طلب الاختبار',
-            ),
-            'url' => 'https://memorization-management-system.herokuapp.com/manage_exams_orders',
-            'contents' => array(
-                "en" => $message,
-                "ar" => $message,
-            )
-        );
-
-        $fields = json_encode($fields);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
-            'Authorization: Basic ' . env('ONE_SIGNAL_AUTHORIZE')));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HEADER, FALSE);
-        curl_setopt($ch, CURLOPT_POST, TRUE);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return $response;
-    }
-
-
     public function clearForm()
     {
-        $this->modalId = null;
+        $this->modalId = '';
         $this->tester_id = null;
         $this->teacher_id = null;
         $this->exam_date = null;
@@ -517,59 +221,30 @@ class ExamsOrders extends Component
     public function examOrderRefusal($id)
     {
         $examOrder = ExamOrder::where('id', $id)->first();
-        $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
-            "isReadableTester" => false, "isReadableSupervisorExams" => false];
-
         if ($examOrder) {
-            if ($examOrder->status == 0) {
-                $this->validate(['notes' => 'required|string',]);
-                if (auth()->user()->current_role == 'مشرف' ||
-                    auth()->user()->current_role == 'أمير المركز') {
-                    $examOrder->update(['status' => -1, 'notes' => $this->notes, 'readable' => $array,]);
-                    $this->emit('refusal-exam');
-                    $this->dispatchBrowserEvent('alert',
-                        ['type' => 'error', 'message' => 'تمت عملية رفض طلب الإختبار بنجاح.']);
-                    $this->clearForm();
-                    $this->process_notification([$examOrder->teacher_id], -1, $examOrder->student->user->name, $examOrder->quranPart->name);
-                }
-            } elseif ($examOrder->status == 2) {
-                $this->validate(['notes' => 'required|string',]);
-                if (auth()->user()->current_role == 'مشرف الإختبارات' ||
-                    auth()->user()->current_role == 'أمير المركز') {
+            $this->validate(['notes' => 'required|string',]);
+            if ($examOrder->status != ExamOrder::FAILURE_STATUS) {
+                if ($this->current_role == 'مشرف الإختبارات' || $this->current_role == 'أمير المركز') {
                     $examOrder->update([
-                        'status' => -2,
+                        'status' => ExamOrder::REJECTED_STATUS,
                         'notes' => $this->notes,
+                        'user_signature_id' => auth()->id(),
                         'tester_id' => null,
-                        'exam_date' => null,
-                        'readable' => $array,
+                        'datetime' => null,
                     ]);
-                    $this->emit('refusal-exam');
+
+                    // start push notifications to teacher
+                    $examOrder->teacher->user->notify(new RejectionExamOrderForTeacherNotify($examOrder));
+                    $title = "طلب اختبار مرفوض";
+                    $message = "لقد قام مشرف الإختبارات برفض طلب اختبار الطالب: " . $examOrder->student->user->name . " في الجزء: " . $examOrder->quranPart->name . ' ' . $examOrder->quranPart->description . " وذلك بسبب: " . $examOrder->notes;
+                    $this->push_notification($message, $title, [$examOrder->teacher->user->user_fcm_token->device_token]);
+                    // end push notifications to teacher
+
+                    $this->dispatchBrowserEvent('hideDialog');
                     $this->dispatchBrowserEvent('alert',
                         ['type' => 'error', 'message' => 'تمت عملية رفض طلب الإختبار بنجاح.']);
                     $this->clearForm();
-                    $this->process_notification([$examOrder->teacher_id], -2, $examOrder->student->user->name, $examOrder->quranPart->name);
                 }
-            } elseif ($examOrder->status == 1) {
-                $this->validate(['notes' => 'required|string',]);
-                if (auth()->user()->current_role == 'مشرف الإختبارات' || auth()->user()->current_role == 'أمير المركز') {
-                    $examOrder->update([
-                        'status' => -2,
-                        'notes' => $this->notes,
-                        'readable' => $array,
-                    ]);
-                    $this->process_notification([$examOrder->teacher_id], -2, $examOrder->student->user->name, $examOrder->quranPart->name);
-                } elseif (auth()->user()->current_role == 'مشرف') {
-                    $examOrder->update([
-                        'status' => -1,
-                        'notes' => $this->notes,
-                        'readable' => $array,
-                    ]);
-                    $this->process_notification([$examOrder->teacher_id], -1, $examOrder->student->user->name, $examOrder->quranPart->name);
-                }
-                $this->emit('refusal-exam');
-                $this->dispatchBrowserEvent('alert',
-                    ['type' => 'error', 'message' => 'تمت عملية رفض طلب الإختبار بنجاح.']);
-                $this->clearForm();
             }
         }
     }
@@ -577,28 +252,25 @@ class ExamsOrders extends Component
     public function getExamOrder($id)
     {
         $this->clearForm();
-        $examOrder = ExamOrder::where('id', $id)->first();
+        $examOrder = ExamOrder::with(['student.user', 'quranPart'])->where('id', $id)->first();
         if ($examOrder) {
             $this->modalId = $examOrder->id;
             $this->student_name = $examOrder->student->user->name;
-            $this->quran_part = $examOrder->quranPart->name;
+            $this->quran_part = $examOrder->quranPart->name . ' ' . $examOrder->quranPart->description;
             $this->teacher_id = $examOrder->teacher_id;
-            if ($examOrder->tester_id != null) {
-                $this->tester_id = $examOrder->tester_id;
-            }
-            $this->exam_date = $examOrder->exam_date;
+            $this->tester_id = $examOrder->tester_id;
+            $this->exam_date = Carbon::parse($examOrder->datetime)->format('Y-m-d');
         }
     }
 
     public function destroy($id)
     {
         $exam_order = ExamOrder::find($id);
-        if ($exam_order->status == 0 ||
-            $exam_order->status == -1 ||
-            $exam_order->status == -2 ||
-            $exam_order->status == -3) {
+        if ($exam_order->status == ExamOrder::IN_PENDING_STATUS ||
+            $exam_order->status == ExamOrder::REJECTED_STATUS ||
+            $exam_order->status == ExamOrder::FAILURE_STATUS) {
             $exam_order->delete();
-            $this->emit('delete-exam-order');
+            $this->dispatchBrowserEvent('hideDialog');
             $this->dispatchBrowserEvent('alert',
                 ['type' => 'error', 'message' => 'تم حذف طلب الإختبار بنجاح.']);
         }

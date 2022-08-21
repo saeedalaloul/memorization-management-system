@@ -19,17 +19,25 @@
                                     <tbody>
                                     <tr class="table-info">
                                         <th scope="row">اسم الطالب</th>
-                                        <td class="text-dark">{{$student_name}}</td>
+                                        <td class="text-dark">{{$examOrder->student->user->name}}</td>
                                         <th scope="row">جزء الإختبار</th>
-                                        <td class="text-dark">{{$quran_part}}</td>
+                                        <td class="text-dark">
+                                            @if ($examOrder->type == \App\Models\ExamOrder::IMPROVEMENT_TYPE)
+                                                <label class="badge badge-success">
+                                                    {{ $examOrder->QuranPart->name .' '.$examOrder->QuranPart->description . ' (طلب تحسين درجة)' }}
+                                                </label>
+                                            @else
+                                                {{ $examOrder->QuranPart->name .' '.$examOrder->QuranPart->description }}
+                                            @endif
+                                        </td>
                                         <th scope="row">تاريخ الإختبار</th>
-                                        <td class="text-dark">{{$exam_date}}</td>
+                                        <td class="text-dark">{{ \Carbon\Carbon::parse($examOrder->datetime)->format('Y-m-d') }}</td>
                                         <th scope="row">اسم المحفظ</th>
-                                        <td class="text-dark">{{$teacher_name}}</td>
+                                        <td class="text-dark">{{$examOrder->teacher->user->name}}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">اسم المختبر</th>
-                                        <td class="text-dark">{{$tester_name}}</td>
+                                        <td class="text-dark">{{$examOrder->tester->user->name}}</td>
                                         <th scope="row">عدد مرات الإعادة</th>
                                         <td class="text-dark">
                                             @if ($numberOfReplays > 0)

@@ -14,11 +14,12 @@ class CreateStudentsTable extends Migration
     public function up()
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->foreignId('id')->unique()->index()->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('father_id')->index()->references('id')->on('fathers')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignUuid('group_id')->index()->references('id')->on('groups')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->timestamps();
+            $table->foreignId('id')->unique()->index()->references('id')->on('users')->restrictOnDelete();
+            $table->foreignId('father_id')->index()->references('id')->on('fathers')->restrictOnDelete();
+            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->restrictOnDelete();
+            $table->foreignUuid('group_id')->index()->references('id')->on('groups')->restrictOnDelete();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

@@ -3,755 +3,378 @@
 namespace App\Http\Livewire;
 
 use App\Exports\ExamsExport;
+use App\Exports\ExternalExamsExport;
+use App\Imports\ExternalExamsImport;
 use App\Models\Exam;
-use App\Models\ExamCustomQuestion;
-use App\Models\ExamSettings;
+use App\Models\ExamOrder;
 use App\Models\ExamSuccessMark;
+use App\Models\ExternalExam;
 use App\Models\Grade;
 use App\Models\Group;
-use App\Models\LowerSupervisor;
 use App\Models\QuranPart;
 use App\Models\Student;
 use App\Models\Supervisor;
 use App\Models\Teacher;
-use App\Models\Tester;
 use App\Models\User;
-use Carbon\Carbon;
+use App\Notifications\ImproveExamOrderForExamsSupervisorNotify;
+use App\Notifications\NewExamForTeacherNotify;
+use App\Traits\NotificationTrait;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\MessageBag;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Maatwebsite\Excel\Excel;
 use Spatie\Permission\Models\Role;
 
-class Exams extends Component
+class Exams extends HomeComponent
 {
-    use WithPagination;
+    use NotificationTrait;
 
-    public $isAddExam = false, $isExamOfStart = false;
-    public $grades, $groups, $students, $testers, $quran_parts, $grade_id, $group_id, $student_id;
-    public $quran_part_id, $tester_id, $catchError, $success_mark, $exam_questions_count;
-    public $marks_questions = [], $signs_questions = [], $exam_questions_min, $exam_questions_max, $exam_date;
-    public $focus_id, $final_exam_score, $exam_mark = 100, $another_mark = 10, $exam_notes;
-    public $sortBy = 'id';
-    public $sortDirection = 'desc';
-    public $perPage = 10;
-    public $search = '';
-    public $searchGradeId, $searchGroupId, $searchStudentId,$searchDateFrom,$searchDateTo;
-    protected $paginationTheme = 'bootstrap';
+    public $grades = [], $groups = [], $students = [], $quran_parts = [], $exam_success_marks = [], $student_id;
+    public $quran_part_id, $exam_success_mark_id, $tester_id, $exam_date, $exam_mark, $quran_part, $student_name;
+    public $selectedGradeId, $selectedTeacherId, $selectedStudentId, $selectedExternalExams, $searchDateFrom, $searchDateTo;
+    public $file;
 
     public function render()
     {
-        $this->all_Groups();
-        $this->all_Students();
-        $this->checkLastExamStatus();
-        $this->all_questions_exam();
-
-        if ($this->isExamOfStart && $this->another_mark) {
-            $this->calcAverage();
-        }
-
         return view('livewire.exams', [
-            'exams' => $this->all_Exam(),]);
+            'exams' => $this->all_Exams(),]);
     }
+
+    protected $listeners = [
+        'getTeachersByGradeId' => 'getTeachersByGradeId',
+        'getStudentsByTeacherId' => 'getStudentsByTeacherId',
+    ];
 
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
         $this->all_Grades();
         $this->all_Testers();
-        $this->read_All_Exams();
-        $this->searchDateFrom = date('Y-m-d');
+        $this->all_ExamSuccessMarks();
+        $this->searchDateFrom = date('Y-m-01');
         $this->searchDateTo = date('Y-m-d');
-    }
-
-
-    public function sortBy($field)
-    {
-        if ($this->sortDirection == 'asc') {
-            $this->sortDirection = 'desc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-
-        return $this->sortBy = $field;
-    }
-
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName, [
-            'grade_id' => 'required|numeric',
-            'group_id' => 'required|numeric',
-            'student_id' => 'required|numeric',
-            'tester_id' => 'required|numeric',
-            'quran_part_id' => 'required|numeric',
-            'exam_questions_count' => 'required|numeric',
-            'exam_date' => 'required||date|date_format:Y-m-d',
-        ]);
-    }
-
-    public function updatedSearch()
-    {
-        $this->resetPage();
     }
 
     public function rules()
     {
         return [
-            'grade_id' => 'required|numeric',
-            'group_id' => 'required|numeric',
+            'selectedGradeId' => 'required|string',
+            'selectedTeacherId' => 'required|string',
             'student_id' => 'required|numeric',
             'tester_id' => 'required|numeric',
             'quran_part_id' => 'required|numeric',
-            'exam_questions_count' => 'required|numeric',
-            'exam_date' => 'required|date|date_format:Y-m-d',
+            'exam_mark' => 'required|numeric|between:60,100',
+            'exam_success_mark_id' => 'required|numeric',
+            'exam_date' => 'required||date|date_format:Y-m-d',
         ];
     }
 
     public function messages()
     {
         return [
-            'grade_id.required' => 'حقل المرحلة مطلوب',
-            'grade_id.numeric' => 'يجب اختيار صالح لحقل المرحلة',
-            'group_id.required' => 'حقل المجموعة مطلوب',
-            'group_id.numeric' => 'يجب اختيار صالح لحقل المجموعة',
+            'selectedGradeId.required' => 'حقل المرحلة مطلوب',
+            'selectedGradeId.numeric' => 'يجب اختيار صالح لحقل المرحلة',
+            'selectedTeacherId.required' => 'حقل المجموعة مطلوب',
+            'selectedTeacherId.numeric' => 'يجب اختيار صالح لحقل المجموعة',
             'student_id.required' => 'حقل الطالب مطلوب',
             'student_id.numeric' => 'يجب اختيار صالح لحقل الطالب',
             'tester_id.required' => 'حقل المختبر مطلوب',
             'tester_id.numeric' => 'يجب اختيار صالح لحقل المختبر',
             'quran_part_id.required' => 'حقل جزء الإختبار مطلوب',
             'quran_part_id.numeric' => 'يجب اختيار صالح لحقل الجزء',
-            'exam_questions_count.required' => 'حقل عدد أسئلة الإختبار مطلوب',
-            'exam_questions_count.numeric' => 'يجب اختيار صالح لحقل عدد أسئلة الإختبار',
+            'exam_success_mark_id.required' => 'حقل نسبة النجاح في الاختبار مطلوب',
+            'exam_success_mark_id.numeric' => 'يجب اختيار صالح لحقل نسبة النجاح في الإختبار',
+            'exam_mark.required' => 'علامة الاختبار مطلوبة',
+            'exam_mark.numeric' => 'يجب أن يكون رقم',
+            'exam_mark.between' => 'يجب أن تكون علامة الاختبار بين 60 أو 100',
             'exam_date.required' => 'حقل تاريخ الإختبار مطلوب',
             'exam_date.date' => 'حقل تاريخ الإختبار يجب أن يكون تاريخ',
             'exam_date.date_format' => 'حقل تاريخ الإختبار يجب أن يكون من نوع تاريخ',
         ];
     }
 
-    public function addExam($isShow)
+    public function show_dialog_assign_external_exam($id)
     {
-        $this->isAddExam = $isShow;
-    }
-
-    public function all_Exam()
-    {
-        if (auth()->user()->current_role == 'محفظ') {
-            if (empty($this->searchStudentId)) {
-                if ($this->searchDateFrom != null && $this->searchDateTo != null) {
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                        ->whereHas('student', function ($q) {
-                            return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }else{
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereHas('student', function ($q) {
-                            return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }
-            } else {
-                if ($this->searchDateFrom != null && $this->searchDateTo != null) {
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                        ->whereHas('student', function ($q) {
-                            return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id)
-                                ->where('id', '=', $this->searchStudentId);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }else{
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereHas('student', function ($q) {
-                            return $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id)
-                                ->where('id', '=', $this->searchStudentId);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }
-            }
-        } elseif (auth()->user()->current_role == 'مشرف') {
-            return $this->getExamsByGrade(Supervisor::where('id', auth()->id())->first()->grade_id);
-        } elseif (auth()->user()->current_role == 'مختبر') {
-            if ($this->searchDateFrom != null && $this->searchDateTo != null) {
-                return Exam::query()
-                    ->search($this->search)
-                    ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                    ->where('tester_id', auth()->id())
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }else{
-                return Exam::query()
-                    ->search($this->search)
-                    ->where('tester_id', auth()->id())
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }
-        } elseif (auth()->user()->current_role == 'اداري') {
-            return $this->getExamsByGrade(LowerSupervisor::where('id', auth()->id())->first()->grade_id);
-        } elseif (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            if (empty($this->searchGradeId)) {
-                if ($this->searchDateFrom != null && $this->searchDateTo != null) {
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }else{
-                    return Exam::query()
-                        ->search($this->search)
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }
-            } else {
-                if (empty($this->searchGroupId)) {
-                    if ($this->searchDateFrom != null && $this->searchDateTo != null) {
-                        return Exam::query()
-                            ->search($this->search)
-                            ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                            ->whereHas('student', function ($q) {
-                                return $q->where('grade_id', '=', $this->searchGradeId);
-                            })
-                            ->orderBy($this->sortBy, $this->sortDirection)
-                            ->paginate($this->perPage);
-                    }else{
-                        return Exam::query()
-                            ->search($this->search)
-                            ->whereHas('student', function ($q) {
-                                return $q->where('grade_id', '=', $this->searchGradeId);
-                            })
-                            ->orderBy($this->sortBy, $this->sortDirection)
-                            ->paginate($this->perPage);
-                    }
-                } else {
-                    if (empty($this->searchStudentId)) {
-                        if ($this->searchDateFrom != null && $this->searchDateTo != null) {
-                            return Exam::query()
-                                ->search($this->search)
-                                ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                                ->whereHas('student', function ($q) {
-                                    return $q->where('grade_id', '=', $this->searchGradeId)
-                                        ->where('group_id', '=', $this->searchGroupId);
-                                })
-                                ->orderBy($this->sortBy, $this->sortDirection)
-                                ->paginate($this->perPage);
-                        }else{
-                            return Exam::query()
-                                ->search($this->search)
-                                ->whereHas('student', function ($q) {
-                                    return $q->where('grade_id', '=', $this->searchGradeId)
-                                        ->where('group_id', '=', $this->searchGroupId);
-                                })
-                                ->orderBy($this->sortBy, $this->sortDirection)
-                                ->paginate($this->perPage);
-                        }
-                    } else {
-                        if ($this->searchDateFrom != null && $this->searchDateTo != null){
-                            return Exam::query()
-                                ->search($this->search)
-                                ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                                ->whereHas('student', function ($q) {
-                                    return $q
-                                        ->where('grade_id', '=', $this->searchGradeId)
-                                        ->where('group_id', '=', $this->searchGroupId)
-                                        ->where('id', '=', $this->searchStudentId);
-                                })
-                                ->orderBy($this->sortBy, $this->sortDirection)
-                                ->paginate($this->perPage);
-                        }else{
-                            return Exam::query()
-                                ->search($this->search)
-                                ->whereHas('student', function ($q) {
-                                    return $q
-                                        ->where('grade_id', '=', $this->searchGradeId)
-                                        ->where('group_id', '=', $this->searchGroupId)
-                                        ->where('id', '=', $this->searchStudentId);
-                                })
-                                ->orderBy($this->sortBy, $this->sortDirection)
-                                ->paginate($this->perPage);
-                        }
-                    }
-                }
-            }
-        }
-        return [];
-    }
-
-    private function getExamsByGrade($grade_id)
-    {
-        if (empty($this->searchGroupId)) {
-            if ($this->searchDateFrom != null && $this->searchDateTo != null){
-                return Exam::query()
-                    ->search($this->search)
-                    ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                    ->whereHas('student', function ($q) use ($grade_id) {
-                        return $q->where('grade_id', '=', $grade_id);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }else{
-                return Exam::query()
-                    ->search($this->search)
-                    ->whereHas('student', function ($q) use ($grade_id) {
-                        return $q->where('grade_id', '=', $grade_id);
-                    })
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }
-        } else {
-            if (empty($this->searchStudentId)) {
-                if ($this->searchDateFrom != null && $this->searchDateTo != null){
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                        ->whereHas('student', function ($q) use ($grade_id) {
-                            return $q->where('grade_id', '=', $grade_id)
-                                ->where('group_id', '=', $this->searchGroupId);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }else{
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereHas('student', function ($q) use ($grade_id) {
-                            return $q->where('grade_id', '=', $grade_id)
-                                ->where('group_id', '=', $this->searchGroupId);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }
-            } else {
-                if ($this->searchDateFrom != null && $this->searchDateTo != null){
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereBetween('exam_date', [$this->searchDateFrom, $this->searchDateTo])
-                        ->whereHas('student', function ($q) use ($grade_id) {
-                            return $q
-                                ->where('grade_id', '=', $grade_id)
-                                ->where('group_id', '=', $this->searchGroupId)
-                                ->where('id', '=', $this->searchStudentId);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }else{
-                    return Exam::query()
-                        ->search($this->search)
-                        ->whereHas('student', function ($q) use ($grade_id) {
-                            return $q
-                                ->where('grade_id', '=', $grade_id)
-                                ->where('group_id', '=', $this->searchGroupId)
-                                ->where('id', '=', $this->searchStudentId);
-                        })
-                        ->orderBy($this->sortBy, $this->sortDirection)
-                        ->paginate($this->perPage);
-                }
-            }
+        $exam = Exam::where('id', $id)->first();
+        if ($exam) {
+            $this->modalId = $id;
+            $this->student_name = $exam->student->user->name;
+            $this->quran_part = $exam->quranPart->name;
+            $this->dispatchBrowserEvent('showModal');
         }
     }
+
+    public function assign_external_exam_mark()
+    {
+        $this->validate(
+            ['exam_mark' => 'required|numeric|between:60,100',
+                'exam_date' => 'required||date|date_format:Y-m-d',]
+        );
+        ExternalExam::create(
+            [
+                'id' => $this->modalId,
+                'mark' => $this->exam_mark,
+                'date' => $this->exam_date,
+            ]
+        );
+        $this->dispatchBrowserEvent('alert',
+            ['type' => 'success', 'message' => 'تمت عملية رصد درجة للإختبار الخارجي بنجاح.']);
+        $this->dispatchBrowserEvent('hideModal');
+        $this->clearForm();
+    }
+
+    public function all_Exams()
+    {
+        return Exam::query()
+            ->with(['student.user:id,name', 'QuranPart:id,name,description', 'examSuccessMark', 'external_exam', 'exam_improvement', 'teacher.user:id,name', 'tester.user:id,name'])
+            ->search($this->search)
+            ->when(!empty($this->selectedExternalExams), function ($q, $v) {
+                $q->whereHas('examSuccessMark', function ($q) {
+                    $q->where(DB::raw('exams.mark'), '>=', DB::raw('exam_success_mark.mark'));
+                })->when($this->selectedExternalExams == 1, function ($q, $v) {
+                    $q->whereHas('external_exam');
+                })->when($this->selectedExternalExams == 2, function ($q, $v) {
+                    $q->whereDoesntHave('external_exam');
+                });
+            })
+            ->whereBetween(DB::raw('DATE(datetime)'), [$this->searchDateFrom, $this->searchDateTo])
+            ->when($this->current_role == 'محفظ', function ($q, $v) {
+                $q->whereHas('student', function ($q) {
+                    $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id ?? null)
+                        ->when(!empty($this->selectedStudentId), function ($q, $v) {
+                            $q->where('id', '=', $this->selectedStudentId);
+                        });
+                });
+            })
+            ->when($this->current_role == 'مختبر', function ($q, $v) {
+                $q->where('tester_id', auth()->id());
+            })
+            ->when($this->current_role == 'مشرف', function ($q, $v) {
+                $q->whereHas('student', function ($q) {
+                    return $q
+                        ->where('grade_id', '=', Supervisor::find(auth()->id())->grade_id)
+                        ->when(!empty($this->selectedTeacherId), function ($q, $v) {
+                            $q->where('group_id', '=', $this->selectedTeacherId);
+                        })
+                        ->when(!empty($this->selectedStudentId), function ($q, $v) {
+                            $q->where('id', '=', $this->selectedStudentId);
+                        });
+                });
+            })
+            ->when($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات', function ($q, $v) {
+                $q->whereHas('student', function ($q) {
+                    return $q
+                        ->when(!empty($this->selectedGradeId), function ($q, $v) {
+                            $q->where('grade_id', '=', $this->selectedGradeId);
+                        })
+                        ->when(!empty($this->selectedTeacherId), function ($q, $v) {
+                            $q->where('group_id', '=', $this->selectedTeacherId);
+                        })
+                        ->when(!empty($this->selectedStudentId), function ($q, $v) {
+                            $q->where('id', '=', $this->selectedStudentId);
+                        });
+                });
+            })
+            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) != 'message'), function ($q, $v) {
+                $q->where('id', \Request::segment(2));
+            })
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate($this->perPage);
+    }
+
+    public function submitSearch()
+    {
+        $this->all_Exams();
+    }
+
+    public function all_External_Exams()
+    {
+        return Exam::query()
+            ->with(['student.user:id,name', 'QuranPart:id,name,description', 'examSuccessMark', 'external_exam', 'exam_improvement', 'teacher.user:id,name', 'tester.user:id,name'])
+            ->whereHas('examSuccessMark', function ($q) {
+                $q->where(DB::raw('exams.mark'), '>=', DB::raw('exam_success_mark.mark'));
+            })
+            ->whereDoesntHave('external_exam')
+            ->get();
+    }
+
 
     public function all_Grades()
     {
-        if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
+        if ($this->current_role == 'مشرف') {
+            $this->grades = Grade::query()->where('id', Supervisor::where('id', auth()->id())->first()->grade_id)->get();
+        } else if ($this->current_role == 'محفظ') {
+            $this->grades = Grade::query()->where('id', Teacher::where('id', auth()->id())->first()->grade_id)->get();
+        } else if ($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات') {
             $this->grades = Grade::all();
-        } else if (auth()->user()->current_role == 'مشرف') {
-            $this->searchGradeId = Supervisor::where('id', auth()->id())->first()->grade_id;
-        } else if (auth()->user()->current_role == 'اداري') {
-            $this->searchGradeId = LowerSupervisor::where('id', auth()->id())->first()->grade_id;
-        } else if (auth()->user()->current_role == 'محفظ') {
-            $this->searchGradeId = Teacher::where('id', auth()->id())->first()->grade_id;
         }
     }
 
-    public function all_Groups()
+    public function getTeachersByGradeId()
     {
-        if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            if ($this->grade_id) {
-                $this->groups = Group::query()->where('grade_id', $this->grade_id)->get();
-            } else if ($this->searchGradeId) {
-                $this->groups = Group::query()->where('grade_id', $this->searchGradeId)->get();
+        $this->reset('students', 'groups', 'selectedTeacherId', 'selectedStudentId', 'quran_parts', 'student_id', 'quran_part_id', 'tester_id', 'exam_mark', 'exam_success_mark_id', 'exam_date');
+
+        if ($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات') {
+            if ($this->selectedGradeId) {
+                $this->groups = Group::query()->with(['teacher.user'])->where('grade_id', $this->selectedGradeId)->get();
             }
-        } else if (auth()->user()->current_role == 'مشرف') {
-            $this->groups = Group::query()
-                ->where('grade_id', '=', Supervisor::where('id', auth()->id())->first()->grade_id)->get();
-        } else if (auth()->user()->current_role == 'اداري') {
-            $this->groups = Group::query()
-                ->where('grade_id', '=', LowerSupervisor::where('id', auth()->id())->first()->grade_id)->get();
-        } else if (auth()->user()->current_role == 'محفظ') {
-            $this->searchGroupId = Group::query()->where('teacher_id', auth()->id())->first()->id;
-        }
-
-    }
-
-    public function all_Students()
-    {
-        if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            if ($this->group_id) {
-                $this->students = Student::query()->where('group_id', $this->group_id)->get();
-            } else if ($this->searchGroupId) {
-                $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
+        } else if ($this->current_role == 'مشرف') {
+            if ($this->selectedGradeId) {
+                $this->groups = Group::query()->with(['teacher.user'])->where('grade_id', $this->selectedGradeId)->get();
             }
-        } else if (auth()->user()->current_role == 'مشرف') {
-            $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
-        } else if (auth()->user()->current_role == 'اداري') {
-            $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
-        } else if (auth()->user()->current_role == 'محفظ') {
-            $this->students = Student::query()->where('group_id', $this->searchGroupId)->get();
+        } else if ($this->current_role == 'محفظ') {
+            if ($this->selectedGradeId) {
+                $this->groups = Group::query()->where('teacher_id', auth()->id())->get();
+            }
+        }
+
+    }
+
+    public function getStudentsByTeacherId()
+    {
+        $this->reset('students', 'selectedStudentId', 'quran_parts', 'student_id', 'quran_part_id');
+
+        if ($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات') {
+            if ($this->selectedTeacherId) {
+                $this->students = Student::query()->with(['user'])->where('group_id', $this->selectedTeacherId)->get();
+            }
+        } else if ($this->current_role == 'مشرف') {
+            $this->students = Student::query()->with(['user'])->where('group_id', $this->selectedTeacherId)->get();
+        } else if ($this->current_role == 'محفظ') {
+            $this->students = Student::query()->with(['user'])->where('group_id', $this->selectedTeacherId)->get();
         }
     }
 
-    public function all_Testers()
+    public function all_ExamSuccessMarks()
     {
-        if (auth()->user()->current_role == 'أمير المركز' ||
-            auth()->user()->current_role == 'مشرف الإختبارات') {
-            $this->testers = Tester::all();
+        if ($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الإختبارات') {
+            $this->exam_success_marks = ExamSuccessMark::get();
         }
     }
 
-
-    public function all_Quran_Parst($id, $isSuccess)
+    public function updatedStudentId($id)
     {
-        if ($id != null) {
-            $this->quran_parts =
-                QuranPart::query()->orderBy('id')->find($isSuccess == true ? $id - 1 : $id)->toArray();
+        $exam = Exam::with(['quranPart'])->where('student_id', $id)->orderBy('created_at', 'desc')->first();
+        if ($exam) {
+            $part_to = $exam->quranPart->arrangement;
+            if ($exam->mark >= $exam->examSuccessMark->mark) {
+                $part_to = $exam->quranPart->arrangement + 1;
+            }
+            $this->quran_parts = QuranPart::query()->whereBetween('arrangement', [1, $part_to])->whereDoesntHave('exams', function ($query) use ($id) {
+                $query->where('student_id', $id);
+            })->orderBy('arrangement')->get();
         } else {
-            $this->quran_parts = QuranPart::query()->orderBy('id')->get();
-        }
-    }
-
-    public function checkLastExamStatus()
-    {
-        if ($this->student_id != null) {
-            $exam = Exam::where('student_id', $this->student_id)->orderBy('exam_date', 'desc')->first();
-            if ($exam) {
-                $sum = 0;
-                for ($i = 1; $i <= count($exam->marks_questions); $i++) {
-                    $sum += $exam->marks_questions[$i];
-                }
-                $exam_mark = round(100 - $sum) - (10 - $exam->another_mark);
-                if ($exam_mark >= $exam->examSuccessMark->mark) {
-                    $this->all_Quran_Parst($exam->quran_part_id, true);
-                } else {
-                    $to = Carbon::createFromFormat('Y-m-d', date('Y-m-d', Carbon::now()->timestamp));
-                    $from = Carbon::createFromFormat('Y-m-d', $exam->exam_date);
-
-                    $diff_in_days = $to->diffInDays($from);
-                    $number_days_exam = ExamSettings::find(1)->number_days_exam;
-                    $days = ($diff_in_days - $number_days_exam);
-                    if ($days > 0) {
-                        $this->all_Quran_Parst($exam->quran_part_id, false);
-                    } else {
-                        if (abs($days) == 0) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب يوم حتى تتمكن من إضافة اختبار جديد';
-                        } else if (abs($days) == 1) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب يومان حتى تتمكن من إضافة اختبار جديد';
-                        } else if (abs($days) == 2) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب ثلاث أيام حتى تتمكن من إضافة اختبار جديد';
-                        } else if (in_array(abs($days), range(3, 10))) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب ' . abs($days) . ' أيام حتى تتمكن من إضافة اختبار جديد';
-                        } else if (in_array(abs($days), range(11, 15))) {
-                            $this->catchError = 'عذرا متبقي لهذا الطالب ' . abs($days) . ' يوم حتى تتمكن من إضافة اختبار جديد';
-                        }
-                        $this->exam_questions_count = null;
-                        $this->quran_part_id = null;
-                    }
-                }
-            } else {
-                $this->all_Quran_Parst(null, null);
-            }
-        }
-    }
-
-    private function read_All_Exams()
-    {
-        $exams = $this->all_Exam();
-
-        if ($exams != null && !empty($exams)) {
-            for ($i = 0; $i < count($exams); $i++) {
-                if (auth()->user()->current_role == 'محفظ') {
-                    if ($exams[$i]->readable['isReadableTeacher'] == false) {
-                        $exam = Exam::find($exams[$i]->id);
-                        $array = $exam->readable;
-                        $array['isReadableTeacher'] = true;
-                        $exam->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مشرف') {
-                    if ($exams[$i]->readable['isReadableSupervisor'] == false) {
-                        $exam = Exam::find($exams[$i]->id);
-                        $array = $exam->readable;
-                        $array['isReadableSupervisor'] = true;
-                        $exam->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'اداري') {
-                    if ($exams[$i]->readable['isReadableLowerSupervisor'] == false) {
-                        $exam = Exam::find($exams[$i]->id);
-                        $array = $exam->readable;
-                        $array['isReadableLowerSupervisor'] = true;
-                        $exam->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مختبر') {
-                    if ($exams[$i]->readable['isReadableTester'] == false) {
-                        $exam = Exam::find($exams[$i]->id);
-                        $array = $exam->readable;
-                        $array['isReadableTester'] = true;
-                        $exam->update(['readable' => $array]);
-                    }
-                } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
-                    if ($exams[$i]->readable['isReadableSupervisorExams'] == false) {
-                        $exam = Exam::find($exams[$i]->id);
-                        $array = $exam->readable;
-                        $array['isReadableSupervisorExams'] = true;
-                        $exam->update(['readable' => $array]);
-                    }
-                }
-            }
-        }
-    }
-
-
-    public function all_questions_exam()
-    {
-        if ($this->quran_part_id != null) {
-            $examCustomQuestion = ExamCustomQuestion::where('quran_part_id', $this->quran_part_id)->first();
-            $examSettings = ExamSettings::find(1);
-            $this->success_mark = $examSettings->exam_success_rate;
-            if ($examCustomQuestion) {
-                $this->exam_questions_min = $examCustomQuestion->exam_question_count;
-                $this->exam_questions_max = $examCustomQuestion->exam_question_count;
-            } else {
-                if ($examSettings) {
-                    $this->exam_questions_min = $examSettings->exam_questions_min;
-                    $this->exam_questions_max = $examSettings->exam_questions_max;
-                }
-            }
-        }
-    }
-
-    private function initializeExamStartInputs()
-    {
-        if ($this->exam_questions_count > 0) {
-            for ($i = 1; $i <= $this->exam_questions_count; $i++) {
-                $this->marks_questions[$i] = 0;
-            }
-
-            for ($i = 1; $i <= $this->exam_questions_count; $i++) {
-                $this->signs_questions[$i] = '';
-            }
+            $this->quran_parts = QuranPart::query()->orderBy('arrangement')->get();
         }
     }
 
     public function examInformationApproval()
     {
         $this->validate();
-        $messageBag = new MessageBag;
-        $messageBagExam = new MessageBag;
-        $messageBag->add('tester_id', 'يجب أن لا يكون المختبر هو نفس المحفظ');
-        $messageBagExam->add('exam_questions_count', 'يجب أن يكون هناك اختيار صالح في حقل عدد أسئلة الإختبار');
-        if ($this->groups->firstWhere('id', $this->group_id)->teacher_id == $this->tester_id) {
-            $this->setErrorBag($messageBag);
-        } else {
-            if ($this->exam_questions_count <= 0) {
-                $this->setErrorBag($messageBagExam);
-            } else {
-                $this->isExamOfStart = true;
-                $this->initializeExamStartInputs();
-            }
-        }
-    }
-
-    public function getFocusId($id)
-    {
-        if (in_array($id, range(1, $this->exam_questions_count))) {
-            $this->focus_id = $id;
-        }
-    }
-
-    public function minus_1()
-    {
-        if ($this->focus_id != null) {
-            if (isset($this->signs_questions[$this->focus_id])) {
-                $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '/';
-            } else {
-                $this->signs_questions[$this->focus_id] = '/';
-            }
-            $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 1;
-            $this->calcAverage();
-        }
-    }
-
-    public function remove()
-    {
-        if ($this->focus_id != null && isset($this->signs_questions[$this->focus_id])) {
-            $length = strlen($this->signs_questions[$this->focus_id]);
-            if (isset($this->signs_questions[$this->focus_id][$length - 1])) {
-                if ($this->signs_questions[$this->focus_id][$length - 1] == '/') {
-                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 1;
-                } else {
-                    $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] - 0.5;
-                }
-                $this->signs_questions[$this->focus_id] = substr($this->signs_questions[$this->focus_id], 0, -1);
-                $this->calcAverage();
-            }
-        }
-    }
-
-    public function minus_0_5()
-    {
-        if ($this->focus_id != null) {
-            if (isset($this->signs_questions[$this->focus_id])) {
-                $this->signs_questions[$this->focus_id] = $this->signs_questions[$this->focus_id] . '-';
-            } else {
-                $this->signs_questions[$this->focus_id] = '-';
-            }
-            $this->marks_questions[$this->focus_id] = $this->marks_questions[$this->focus_id] + 0.5;
-            $this->calcAverage();
-        }
-    }
-
-    private function calcAverage()
-    {
-        $sum = 0;
-        for ($i = 1; $i <= $this->exam_questions_count; $i++) {
-            $sum += $this->marks_questions[$i];
-        }
-        $this->exam_mark = round(100 - $sum) - (10 - $this->another_mark);
-        if ($this->exam_mark >= $this->success_mark) {
-            $this->final_exam_score = 'درجة الطالب : (' . $this->exam_mark . ')' . ' اجتاز الطالب الإختبار بنجاح.';
-        } else {
-            $this->final_exam_score = 'درجة الطالب : (' . $this->exam_mark . ')' . ' لم يجتاز الطالب الإختبار بنجاح.';
-        }
-    }
-
-
-    public function examApproval()
-    {
-        $array = ["isReadableTeacher" => false, "isReadableSupervisor" => false,
-            "isReadableTester" => false, "isReadableLowerSupervisor" => false,
-            "isReadableSupervisorExams" => false];
         DB::beginTransaction();
         try {
-            $examSuccessMark = ExamSuccessMark::where('mark', $this->success_mark)->first();
-            if (!$examSuccessMark) {
-                $examSuccessMark = ExamSuccessMark::create(['mark' => $this->success_mark]);
+            $teacher_id = $this->groups->firstWhere('id', $this->selectedTeacherId)->teacher_id;
+            if ($teacher_id != $this->tester_id) {
+                $exam = Exam::create([
+                    'mark' => $this->exam_mark,
+                    'quran_part_id' => $this->quran_part_id,
+                    'student_id' => $this->student_id,
+                    'teacher_id' => $teacher_id,
+                    'tester_id' => $this->tester_id,
+                    'exam_success_mark_id' => $this->exam_success_mark_id,
+                    'datetime' => $this->exam_date . ' ' . date('H:i:s', time()),
+                    'notes' => null,
+                ]);
+
+                $exam->teacher->user->notify(new NewExamForTeacherNotify($exam));
+                $title = "اختبار جديد معتمد";
+                $message = "لقد تم اعتماد درجة: " . $exam->mark . "%" . " في الجزء: " . $exam->quranPart->name . ' ' . $exam->quranPart->description . " للطالب: " . $exam->student->user->name;
+                $this->push_notification($message, $title, [$exam->teacher->user->user_fcm_token->device_token]);
+
+
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تمت عملية اعتماد اختبار الطالب بنجاح.']);
+                DB::commit();
+                $this->clearForm();
+            } else {
+                $messageBag = new MessageBag();
+                $messageBag->add('tester_id', 'عذرا, لا يمكن أن بكون المختبر هو نفس المحفظ!');
+                $this->setErrorBag($messageBag);
             }
-            Exam::create([
-                'readable' => $array,
-                'signs_questions' => $this->signs_questions,
-                'marks_questions' => $this->marks_questions,
-                'another_mark' => $this->another_mark,
-                'quran_part_id' => $this->quran_part_id,
-                'student_id' => $this->student_id,
-                'teacher_id' => $this->groups->firstWhere('id', $this->group_id)->teacher_id,
-                'tester_id' => $this->tester_id,
-                'exam_success_mark_id' => $examSuccessMark->id,
-                'exam_date' => $this->exam_date,
-                'notes' => $this->exam_notes != null ? $this->exam_notes : null,
-            ]);
-
-            // push notifications
-            $arr_external_user_ids = [];
-            if (auth()->user()->current_role != 'مشرف الإختبارات') {
-                $user_role_supervisor_exams = Role::where('name', 'مشرف الإختبارات')->first();
-                if ($user_role_supervisor_exams != null && $user_role_supervisor_exams->users != null
-                    && $user_role_supervisor_exams->users[0] != null) {
-                    array_push($arr_external_user_ids, "" . $user_role_supervisor_exams->users[0]->id);
-                }
-            }
-
-            array_push($arr_external_user_ids, "" . $this->groups->firstWhere('id', $this->group_id)->teacher_id);
-            $quran_part_name = QuranPart::find($this->quran_part_id, ['name'])->name;
-            $student_name = User::find($this->student_id, ['name'])->name;
-            $message = "لقد تم اعتماد درجة: " . $this->exam_mark . "%" . " في اختبار: " . $quran_part_name . " للطالب: " . $student_name;
-            $url = 'https://memorization-management-system.herokuapp.com/manage_exams';
-
-            $this->push_notifications($arr_external_user_ids, $message, "حالة اختبار الطالب", $url);
-            $this->emit('approval-exam');
-            $this->dispatchBrowserEvent('alert',
-                ['type' => 'success', 'message' => 'تمت عملية اعتماد اختبار الطالب بنجاح.']);
-            DB::commit();
-            $this->clearForm();
         } catch (Exception $e) {
             DB::rollback();
-            session()->flash('failure_message', $e->getMessage());
+            $this->catchError = $e->getMessage();
         }
     }
 
-    public function push_notifications($arr_external_user_ids, $message, $title, $url)
+    public function submitExamImprovementRequest($student_id, $quran_part_id)
     {
-        $fields = array(
-            'app_id' => env("ONE_SIGNAL_APP_ID"),
-            'include_external_user_ids' => $arr_external_user_ids,
-            'channel_for_external_user_ids' => 'push',
-            'data' => array("foo" => "bar"),
-            'headings' => array(
-                "en" => $title,
-                "ar" => $title,
-            ),
-            'url' => $url,
-            'contents' => array(
-                "en" => $message,
-                "ar" => $message,
-            )
-        );
+        if ($this->current_role == 'محفظ') {
+            if ($student_id != null && !empty($student_id) &&
+                $quran_part_id != null && !empty($quran_part_id)) {
+                $exam_order = ExamOrder::where('student_id', $student_id)->first();
+                if (!$exam_order) {
+                    $exam_order = ExamOrder::create([
+                        'type' => ExamOrder::IMPROVEMENT_TYPE,
+                        'status' => ExamOrder::IN_PENDING_STATUS,
+                        'quran_part_id' => $quran_part_id,
+                        'student_id' => $student_id,
+                        'teacher_id' => auth()->id(),
+                        'user_signature_id' => auth()->id(),
+                    ]);
 
-        $fields = json_encode($fields);
+                    // start push notifications to exams supervisor
+                    $role = Role::where('name', User::EXAMS_SUPERVISOR_ROLE)->first();
+                    $role_users = $role->users();
+                    if ($role_users->first()) {
+                        $role_users->first()->notify(new ImproveExamOrderForExamsSupervisorNotify($exam_order));
+                        $title = "طلب تحسبن درجة اختبار";
+                        $message = "لقد قام المحفظ: " . $exam_order->teacher->user->name . " بطلب تحسين درجة اختبار للطالب " . $exam_order->student->user->name . " في الجزء: " . $exam_order->quranPart->name . ' ' . $exam_order->quranPart->description;
+                        $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token]);
+                    }
+                    // end push notifications to exams supervisor
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
-            'Authorization: Basic ' . env('ONE_SIGNAL_AUTHORIZE')));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HEADER, FALSE);
-        curl_setopt($ch, CURLOPT_POST, TRUE);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return $response;
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'تمت عملية طلب تحسين درجة الإختبار بنجاح.']);
+                } else {
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'error', 'message' => 'عذرا يوجد طلب تحسين درجة مسبق لهذا الاختبار.']);
+                }
+            }
+        }
     }
+
+    public function import()
+    {
+        $this->validate(
+            ['file' => 'required|mimes:xlsx,xls']
+        );
+        \Maatwebsite\Excel\Facades\Excel::import(new ExternalExamsImport(), $this->file);
+    }
+
 
     public function clearForm()
     {
-        $this->isAddExam = false;
-        $this->isExamOfStart = false;
-        $this->groups = null;
-        $this->students = null;
-        $this->quran_parts = null;
-        $this->grade_id = null;
-        $this->group_id = null;
-        $this->student_id = null;
+        $this->groups = [];
+        $this->students = [];
+        $this->quran_parts = [];
+        $this->exam_success_mark_id = null;
+        $this->selectedGradeId = null;
+        $this->selectedTeacherId = null;
         $this->quran_part_id = null;
         $this->tester_id = null;
-        $this->catchError = null;
-        $this->success_mark = null;
-        $this->exam_questions_count = null;
-        $this->exam_questions_max = null;
-        $this->exam_questions_min = null;
-        $this->signs_questions = [];
-        $this->marks_questions = [];
+        $this->catchError = '';
         $this->exam_date = null;
-        $this->focus_id = null;
-        $this->final_exam_score = null;
-        $this->exam_mark = 100;
-        $this->another_mark = 10;
-        $this->exam_notes = null;
+        $this->exam_mark = null;
     }
 
     public function export()
     {
-        return (new ExamsExport($this->all_Exam()))->download('exams report.xlsx', Excel::XLSX);
+        return (new ExamsExport($this->all_Exams()))->download('Exams Report.xlsx', Excel::XLSX);
+    }
+
+    public function export_external_exams()
+    {
+        return (new ExternalExamsExport($this->all_External_Exams()))->download('External Exams Report.xlsx', Excel::XLSX);
     }
 }

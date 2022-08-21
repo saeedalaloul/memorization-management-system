@@ -1,9 +1,6 @@
 @extends('layouts.master')
-@section('css')
-    @toastr_css
 @section('title')
     إدارة الحلقات
-@stop
 @endsection
 @section('page-header')
     <!-- breadcrumb -->
@@ -20,32 +17,16 @@
 
 @section('js')
     @livewireScripts
-    @toastr_js
     @toastr_render
+
     <script>
-        window.livewire.on('groupMove', () => {
-            $('#groupMove').modal('show');
-        });
-
-        window.livewire.on('groupMoveClose', () => {
-            $('#groupMove').modal('hide');
-        });
-
-        window.livewire.on('groupDeleted', () => {
+        window.addEventListener('hideDialog', _ => {
             $('#groupDeleted').modal('hide');
-        });
-
-        window.livewire.on('groupPullTeacher', () => {
             $('#groupPullTeacher').modal('hide');
         });
-    </script>
 
-    <script>
-        window.addEventListener('alert', event => {
-            toastr[event.detail.type](event.detail.message,
-                event.detail.title ?? ''), toastr.options = {
-                "progressBar": true,
-            }
+        window.addEventListener('showDialog', _ => {
+            $('#groupMove').modal('show');
         });
     </script>
 @endsection

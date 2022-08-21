@@ -1,53 +1,92 @@
 <div class="card-body">
-    <div class="row">
-        <div class="form-group">
-            <div class="col">
-                <label for="name"
-                       class="mr-sm-2">اختر المرحلة
-                    :</label>
-
-                <div class="box">
-                    <select class="fancyselect" name="grade_id" wire:model="grade_id">
-                        <option selected>اختيار من القائمة...</option>
-                        @foreach ($grades as $grade)
+    @if (isset($roles))
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-md-3">
+                    <label style="font-size: 15px; color: #1e7e34">الأدوار*</label>
+                    <select style="width: 100%;" wire:model="selectedRoleId" id="role"
+                            class="custom-select mr-sm-2 select2">
+                        <option value="">الكل</option>
+                        @foreach ($roles as $role)
                             <option
-                                value="{{ $grade->id }}">{{ $grade->name }}</option>
+                                value="{{ $role->id }}">{{ $role->name}}</option>
                         @endforeach
                     </select>
-                    @error('grade_id')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                    @enderror
                 </div>
-
             </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col">
-                <label for="name"
-                       class="mr-sm-2">اختر المحفظ
-                    :</label>
-
-                <div class="box">
-                    <select class="fancyselect" name="teacher_id" wire:model="teacher_id">
-                        <option selected>اختيار من القائمة...</option>
-                        @if (!is_null($teachers))
-                            @foreach ($teachers as $teacher)
-                                <option
-                                    value="{{ $teacher->id }}">{{ $teacher->user->name }}</option>
-                            @endforeach
+        </li>
+    @endif
+    <br>
+    <x-search_></x-search_>
+    <div class="table-responsive mt-15">
+        <table class="table center-aligned-table mb-0">
+            <thead>
+            <tr class="text-dark table-success">
+                <th>#</th>
+                <th>الاسم</th>
+                <th>العمليات</th>
+            </tr>
+            </thead>
+            <tbody>
+            @forelse($users as $user)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{$user->name}}</td>
+                    <td>
+                        @if ($user->tester == null)
+                            <button class="btn btn-outline-success btn-sm" wire:click="store({{$user->id}})">تعيين
+                                كمختبر
+                            </button>
+                        @else
+                            <button class="btn btn-outline-danger btn-sm" wire:click="destroy({{$user->id}})">إزالته
+                                كمختبر
+                            </button>
                         @endif
-                    </select>
-                    @error('teacher_id')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                    @enderror
+                    </td>
+                </tr>
+            @empty
+                <tr style="text-align: center">
+                    <td colspan="3">No data available in table</td>
+                </tr>
+            @endforelse
+            </tbody>
+            <tfoot>
+            <tr class="text-dark table-success">
+                <th>#</th>
+                <th>الاسم</th>
+                <th>العمليات</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+    @if (!empty($users))
+        <div id="datatable_wrapper"
+             class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+            <div class="row">
+                <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info" id="datatable_info" role="status"
+                         aria-live="polite">
+                        Showing {{$users->firstItem()}} to {{$users->lastItem()}}
+                        of {{$users->total()}} entries
+                    </div>
                 </div>
-
+                <div class="col-sm-12 col-md-7">
+                    <div class="dataTables_paginate paging_simple_numbers"
+                         id="datatable_paginate">
+                        <ul class="pagination">
+                            {{$users->links()}}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <button wire:click.prevent="store()"
-            class="btn btn-success btn-sm nextBtn btn-lg pull-right"
-            type="button">حفظ البيانات
-    </button>
+    @endif
 </div>
+@push('js')
+    <script>
+        $("#role").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedRoleId', id);
+        });
+    </script>
+@endpush

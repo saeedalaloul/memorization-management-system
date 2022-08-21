@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('css')
-    @toastr_css
 @section('title')
     حضور وغياب المحفظين
 @stop
@@ -27,15 +26,5 @@
 @endsection
 @section('js')
     @livewireScripts
-    @toastr_js
     @toastr_render
-
-    <script>
-        window.addEventListener('alert', event => {
-            toastr[event.detail.type](event.detail.message,
-                event.detail.title ?? ''), toastr.options = {
-                "progressBar": true,
-            }
-        });
-    </script>
 @endsection

@@ -3,60 +3,49 @@
 namespace App\Http\Livewire;
 
 use App\Models\Grade;
-use App\Models\Group;
-use App\Models\LowerSupervisor;
 use App\Models\Supervisor;
 use App\Models\Teacher;
 use App\Models\TeacherAttendance;
-use Livewire\Component;
-use Livewire\WithPagination;
+use Carbon\Carbon;
 
-class TeachersAttendance extends Component
+class TeachersAttendance extends HomeComponent
 {
-    use WithPagination;
+    public $groups, $grades, $selectedTeachers = [];
+    public $selectedGradeId, $isSelectedRadioBtn1 = false, $isSelectedRadioBtn2 = false, $isSelectedRadioBtn3 = false, $isSelectedRadioBtn0 = false;
 
-    public $successMessage = '';
-
-    public $catchError, $groups, $grades, $selectedTeachers = [];
-    public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
-
-    public $searchGradeId, $isSelectedRadioBtn1 = false,$isSelectedRadioBtn2 = false, $isSelectedRadioBtn0 = false;
-    protected $paginationTheme = 'bootstrap';
-
+    public function mount()
+    {
+        $this->current_role = auth()->user()->current_role;
+        $this->all_Grades();
+    }
 
     public function render()
     {
-        $this->all_Grades();
-
         return view('livewire.teachers-attendance', ['teachers' => $this->all_Teachers(),]);
-    }
-
-    public function updatedSearch()
-    {
-        $this->resetPage();
     }
 
     public function checkAllRadioBtn($type)
     {
-        if ($type == 0) {
+        if ($type == TeacherAttendance::ABSENCE_STATUS) {
             $this->isSelectedRadioBtn0 = !$this->isSelectedRadioBtn0;
             if ($this->isSelectedRadioBtn0 == true) {
                 $this->isSelectedRadioBtn1 = !$this->isSelectedRadioBtn0;
                 $this->isSelectedRadioBtn2 = !$this->isSelectedRadioBtn0;
+                $this->isSelectedRadioBtn3 = !$this->isSelectedRadioBtn0;
                 $this->selectedTeachers = [];
                 for ($i = 0; $i < count($this->all_Teachers()); $i++) {
                     if ($this->all_Teachers()[$i]->attendance()->count() == 0) {
                         array_push($this->selectedTeachers, [
                             'id' => $this->all_Teachers()[$i]->id,
                             'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                            'status' => false
+                            'status' => TeacherAttendance::ABSENCE_STATUS,
                         ]);
                     } else {
-                        if ($this->all_Teachers()[$i]->attendance()->latest()->first()->attendance_date != date('Y-m-d')) {
+                        if (Carbon::parse($this->all_Teachers()[$i]->attendance()->latest()->first()->datetime)->format('Y-m-d') != date('Y-m-d')) {
                             array_push($this->selectedTeachers, [
                                 'id' => $this->all_Teachers()[$i]->id,
                                 'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                                'status' => false
+                                'status' => TeacherAttendance::ABSENCE_STATUS,
                             ]);
                         }
                     }
@@ -68,25 +57,26 @@ class TeachersAttendance extends Component
                     }
                 }
             }
-        } else if ($type == 1) {
+        } else if ($type == TeacherAttendance::PRESENCE_STATUS) {
             $this->isSelectedRadioBtn1 = !$this->isSelectedRadioBtn1;
             if ($this->isSelectedRadioBtn1 == true) {
                 $this->isSelectedRadioBtn0 = !$this->isSelectedRadioBtn1;
                 $this->isSelectedRadioBtn2 = !$this->isSelectedRadioBtn1;
+                $this->isSelectedRadioBtn3 = !$this->isSelectedRadioBtn1;
                 $this->selectedTeachers = [];
                 for ($i = 0; $i < count($this->all_Teachers()); $i++) {
                     if ($this->all_Teachers()[$i]->attendance()->count() == 0) {
                         array_push($this->selectedTeachers, [
                             'id' => $this->all_Teachers()[$i]->id,
                             'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                            'status' => true
+                            'status' => TeacherAttendance::PRESENCE_STATUS
                         ]);
                     } else {
-                        if ($this->all_Teachers()[$i]->attendance()->latest()->first()->attendance_date != date('Y-m-d')) {
+                        if (Carbon::parse($this->all_Teachers()[$i]->attendance()->latest()->first()->datetime)->format('Y-m-d') != date('Y-m-d')) {
                             array_push($this->selectedTeachers, [
                                 'id' => $this->all_Teachers()[$i]->id,
                                 'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                                'status' => true
+                                'status' => TeacherAttendance::PRESENCE_STATUS
                             ]);
                         }
                     }
@@ -98,25 +88,57 @@ class TeachersAttendance extends Component
                     }
                 }
             }
-        } else if ($type == 2) {
+        } else if ($type == TeacherAttendance::LATE_STATUS) {
             $this->isSelectedRadioBtn2 = !$this->isSelectedRadioBtn2;
             if ($this->isSelectedRadioBtn2 == true) {
                 $this->isSelectedRadioBtn0 = !$this->isSelectedRadioBtn2;
                 $this->isSelectedRadioBtn1 = !$this->isSelectedRadioBtn2;
+                $this->isSelectedRadioBtn3 = !$this->isSelectedRadioBtn2;
                 $this->selectedTeachers = [];
                 for ($i = 0; $i < count($this->all_Teachers()); $i++) {
                     if ($this->all_Teachers()[$i]->attendance()->count() == 0) {
                         array_push($this->selectedTeachers, [
                             'id' => $this->all_Teachers()[$i]->id,
                             'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                            'status' => 2
+                            'status' => TeacherAttendance::LATE_STATUS
                         ]);
                     } else {
-                        if ($this->all_Teachers()[$i]->attendance()->latest()->first()->attendance_date != date('Y-m-d')) {
+                        if (Carbon::parse($this->all_Teachers()[$i]->attendance()->latest()->first()->datetime)->format('Y-m-d') != date('Y-m-d')) {
                             array_push($this->selectedTeachers, [
                                 'id' => $this->all_Teachers()[$i]->id,
                                 'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                                'status' => 2
+                                'status' => TeacherAttendance::LATE_STATUS
+                            ]);
+                        }
+                    }
+                }
+            } else {
+                foreach ($this->selectedTeachers as $key => $value) {
+                    if ($this->selectedTeachers[$key]['status'] == 2) {
+                        unset($this->selectedTeachers[$key]);
+                    }
+                }
+            }
+        } else if ($type == TeacherAttendance::AUTHORIZED_STATUS) {
+            $this->isSelectedRadioBtn3 = !$this->isSelectedRadioBtn3;
+            if ($this->isSelectedRadioBtn3 == true) {
+                $this->isSelectedRadioBtn0 = !$this->isSelectedRadioBtn3;
+                $this->isSelectedRadioBtn1 = !$this->isSelectedRadioBtn3;
+                $this->isSelectedRadioBtn2 = !$this->isSelectedRadioBtn3;
+                $this->selectedTeachers = [];
+                for ($i = 0; $i < count($this->all_Teachers()); $i++) {
+                    if ($this->all_Teachers()[$i]->attendance()->count() == 0) {
+                        array_push($this->selectedTeachers, [
+                            'id' => $this->all_Teachers()[$i]->id,
+                            'grade_id' => $this->all_Teachers()[$i]->grade_id,
+                            'status' => TeacherAttendance::AUTHORIZED_STATUS
+                        ]);
+                    } else {
+                        if (Carbon::parse($this->all_Teachers()[$i]->attendance()->latest()->first()->datetime)->format('Y-m-d') != date('Y-m-d')) {
+                            array_push($this->selectedTeachers, [
+                                'id' => $this->all_Teachers()[$i]->id,
+                                'grade_id' => $this->all_Teachers()[$i]->grade_id,
+                                'status' => TeacherAttendance::AUTHORIZED_STATUS
                             ]);
                         }
                     }
@@ -137,8 +159,8 @@ class TeachersAttendance extends Component
             TeacherAttendance::updateOrCreate([
                 'teacher_id' => $this->selectedTeachers[$i]['id'],
                 'grade_id' => $this->selectedTeachers[$i]['grade_id'],
-                'attendance_date' => date('Y-m-d'),
-                'attendance_status' => $this->selectedTeachers[$i]['status']
+                'datetime' => now(),
+                'status' => $this->selectedTeachers[$i]['status']
             ]);
             $this->dispatchBrowserEvent('alert',
                 ['type' => 'success', 'message' => 'تمت عملية اعتماد حضور وغياب المحفظين بنجاح.']);
@@ -146,6 +168,7 @@ class TeachersAttendance extends Component
         $this->isSelectedRadioBtn0 = false;
         $this->isSelectedRadioBtn1 = false;
         $this->isSelectedRadioBtn2 = false;
+        $this->isSelectedRadioBtn3 = false;
         $this->selectedTeachers = [];
     }
 
@@ -183,56 +206,31 @@ class TeachersAttendance extends Component
     public
     function all_Grades()
     {
-        if (auth()->user()->current_role == 'مشرف') {
-            $this->searchGradeId = Supervisor::where('id', auth()->id())->first()->grade_id;
-        } else if (auth()->user()->current_role == 'اداري') {
-            $this->searchGradeId = LowerSupervisor::where('id', auth()->id())->first()->grade_id;
+        if ($this->current_role == 'مشرف') {
+            $this->selectedGradeId = Supervisor::where('id', auth()->id())->first()->grade_id;
+            $this->grades = Grade::where('id', $this->selectedGradeId)->get();
         } else {
             $this->grades = Grade::all();
         }
     }
 
-    public
-    function all_Teachers()
+    public function all_Teachers()
     {
-        if (auth()->user()->current_role == 'مشرف') {
-            return Teacher::query()
-                ->search($this->search)
-                ->where('grade_id', '=', $this->searchGradeId)
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        } else if (auth()->user()->current_role == 'اداري') {
-            return Teacher::query()
-                ->search($this->search)
-                ->where('grade_id', '=', $this->searchGradeId)
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        } else {
-            if (empty($this->searchGradeId)) {
-                return Teacher::query()
-                    ->search($this->search)
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            } else {
-                return Teacher::query()
-                    ->search($this->search)
-                    ->where('grade_id', '=', $this->searchGradeId)
-                    ->orderBy($this->sortBy, $this->sortDirection)
-                    ->paginate($this->perPage);
-            }
-        }
+        return Teacher::query()
+            ->with(['user', 'grade', 'attendance_today'])
+            ->search($this->search)
+            ->when($this->current_role == 'مشرف', function ($q, $v) {
+                $q->where('grade_id', Supervisor::where('id', auth()->id())->first()->grade_id);
+            })
+            ->when($this->current_role == 'أمير المركز' && !empty($this->selectedGradeId), function ($q, $v) {
+                $q->where('grade_id', '=', $this->selectedGradeId);
+            })
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate($this->perPage);
     }
 
-    public
-    function sortBy($field)
-    {
-        if ($this->sortDirection == 'asc') {
-            $this->sortDirection = 'desc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-
-        return $this->sortBy = $field;
+    public function submitSearch(){
+        $this->all_Teachers();
     }
 
 }

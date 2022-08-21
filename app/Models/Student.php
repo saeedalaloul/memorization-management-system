@@ -2,16 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Traits\HasRoles;
 
 class Student extends Model
 {
-    use HasFactory;
-
     protected $fillable = ['id', 'father_id', 'grade_id', 'group_id'];
-    public $timestamps = false;
 
     public function scopeSearch($query, $val)
     {
@@ -45,16 +40,23 @@ class Student extends Model
     {
         return $this->belongsTo('App\Models\Group', 'group_id');
     }
+
     // علاقة بين جدول الطلاب وجدول الحضور والغياب
-    public function daily_preservation()
+    public function daily_memorization()
     {
-        return $this->hasMany('App\Models\StudentDailyPreservation', 'student_id');
+        return $this->hasMany('App\Models\StudentDailyMemorization', 'student_id');
     }
 
     // علاقة بين جدول الطلاب وجدول الحضور والغياب
     public function attendance()
     {
         return $this->hasMany('App\Models\StudentAttendance', 'student_id');
+    }
+
+    // علاقة بين جدول الطلاب وجدول الحضور والغياب اليوم
+    public function attendance_today()
+    {
+        return $this->hasMany('App\Models\StudentAttendance', 'student_id')->whereDate('datetime', date('Y-m-d'));
     }
 
     // علاقة بين جدول الطلاب وجدول طلبات الإختبارات
@@ -72,30 +74,24 @@ class Student extends Model
     // علاقة بين الإنذارات التي لم يتم إلغائها والطلاب لعرض الإنذار في جدول الطلاب
     public function student_is_warning()
     {
-        return $this->hasOne('App\Models\StudentWarning', 'student_id','id')->whereNull('warning_expiry_date');
+        return $this->hasOne('App\Models\StudentWarning', 'student_id', 'id')->whereNull('warning_expiry_date');
     }
 
     // علاقة بين الإنذارات والطلاب لعرض الإنذار في جدول الطلاب
     public function student_warning()
     {
-        return $this->hasOne('App\Models\StudentWarning', 'student_id','id');
+        return $this->hasOne('App\Models\StudentWarning', 'student_id', 'id');
     }
 
     // علاقة بين الحظر الذي لم يتم إلغائه والطلاب لعرض الحظر في جدول الطلاب
     public function student_is_block()
     {
-        return $this->hasOne('App\Models\StudentBlock', 'student_id','id')->whereNull('block_expiry_date');
+        return $this->hasOne('App\Models\StudentBlock', 'student_id', 'id')->whereNull('block_expiry_date');
     }
 
     // علاقة بين الحظر والطلاب لعرض الحظر في جدول الطلاب
     public function student_block()
     {
-        return $this->hasOne('App\Models\StudentBlock', 'student_id','id');
-    }
-
-    // علاقة بين جدول حالة منع الطالب والطلاب لعرض حالة منع الطالب في جدول الطلاب
-    public function student_prevent_status()
-    {
-        return $this->hasOne('App\Models\PreventStatusStudent', 'student_id','id');
+        return $this->hasOne('App\Models\StudentBlock', 'student_id', 'id');
     }
 }

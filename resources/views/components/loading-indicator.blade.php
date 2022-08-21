@@ -8,7 +8,6 @@
         </div>
     </div>
 </div>
-
 <style>
     .la-ball-fall,
     .la-ball-fall > div {

@@ -10,5 +10,26 @@
         </li>
         <!-- menu title -->
         <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">نظام إدارة التحفيظ لمركز الأنصار</li>
+
+        <li>
+            <a href="{{url('manage_activity_members',null,true)}}"><i class="fas fa-users"></i><span
+                    class="right-nav-text">أعضاء الأنشطة</span></a>
+        </li>
+
+        <li>
+            <a href="{{url('manage_activities_types',null,true)}}"><i class="fas fa-chalkboard"></i><span
+                    class="right-nav-text">أنواع الأنشطة</span></a>
+        </li>
+
+        <li>
+            <a href="{{url('manage_activities_orders',null,true)}}"><i class="fas fa-watch"></i><span
+                    class="right-nav-text">طلبات الأنشطة</span></a>
+        </li>
+
+        <li>
+            <a href="{{url('manage_activities',null,true)}}"><i class="fas fa-flag"></i><span
+                    class="right-nav-text">الأنشطة</span></a>
+        </li>
+
     </ul>
 </div>

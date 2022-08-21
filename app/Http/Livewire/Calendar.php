@@ -14,10 +14,10 @@ class Calendar extends Component
     public function getevent()
     {
         $exams = ExamOrder::query()->
-        select('id', 'exam_date as start', 'student_id', 'quran_part_id')
-            ->whereNotNull('exam_date')
+        select('id', 'date as start', 'student_id', 'quran_part_id')
+            ->whereNotNull('date')
             ->where('status', '=', 2)
-            ->orderByDesc('exam_date')->limit(10)->get();
+            ->orderByDesc('date')->limit(10)->get();
         $events = [];
 
         if ($exams) {
@@ -66,10 +66,10 @@ class Calendar extends Component
     {
 
         $exams = ExamOrder::query()->
-        select('id', 'exam_date as start', 'student_id', 'quran_part_id')
-            ->whereNotNull('exam_date')
+        select('id', 'date as start', 'student_id', 'quran_part_id')
+            ->whereNotNull('date')
             ->where('status', '=', 2)
-            ->orderByDesc('exam_date')->limit(10)->get();
+            ->orderByDesc('date')->limit(10)->get();
         $events = [];
 
         if ($exams) {

@@ -11,23 +11,22 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label class="control-label">اسم الطالب</label>
-                            <input type="text" wire:model="student_name" readonly class="form-control">
+                            <input type="text" wire:model.defer="student_name" readonly class="form-control">
                             @error('student_id')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="control-label">جزء الإختبار</label>
-                            <input type="text" wire:model="quran_part" readonly class="form-control">
+                            <input type="text" wire:model.defer="quran_part" readonly class="form-control">
                             @error('student_id')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="control-label">اختر المختبر</label>
-                            <select class="form-control form-white" wire:model="tester_id"
-                                    data-placeholder="اختر المختبر..." name="tester_id" style="padding: 10px;">
-                                <option selected value="{{0}}">اختر المختبر...</option>
+                            <select wire:model.defer="tester_id" class="form-control form-white" style="padding: 10px;">
+                                <option selected value="">اختر المختبر...</option>
                                 @foreach($testers as $tester)
                                     @if($tester->id != $teacher_id)
                                         <option
@@ -42,7 +41,7 @@
                         <div class="col">
                             <label for="title">تاريخ الإختبار</label>
                             <div class='input-group date'>
-                                <input class="form-control" wire:model="exam_date" type="date"
+                                <input class="form-control" wire:model.defer="exam_date" type="date"
                                        data-date-format="yyyy-mm-dd">
                             </div>
                             @error('exam_date')
@@ -54,7 +53,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger ripple" data-dismiss="modal">إغلاق</button>
-                <button type="button" wire:click="examOrderApproval({{$modalId}})" class="btn btn-success ripple">اعتماد
+                <button type="button" wire:click="examOrderApproval('{{$modalId}}')" class="btn btn-success ripple">
+                    اعتماد
                     طلب الإختبار
                 </button>
             </div>

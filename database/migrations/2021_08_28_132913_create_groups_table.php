@@ -15,10 +15,11 @@ class CreateGroupsTable extends Migration
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name')->index()->unique();
-            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('teacher_id')->nullable()->unique()->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->timestamps();
+            $table->string('name',50)->index()->unique();
+            $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->restrictOnDelete();
+            $table->foreignId('teacher_id')->nullable()->unique()->index()->references('id')->on('teachers')->restrictOnDelete();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

@@ -8,21 +8,14 @@ use App\Models\QuranPart;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\MessageBag;
-use Livewire\Component;
-use Livewire\WithPagination;
 
-class ExamsSettings extends Component
+class ExamsSettings extends HomeComponent
 {
-    use WithPagination;
+    public $quran_part_id, $exam_question_count, $exam_question_count_update;
 
-    public $quran_part_id, $exam_question_count, $exam_question_count_update, $modalId;
-    public $updateMode = false, $isOpenTabFirst = true, $isOpenTabSecond = false;
-
-    public $allow_exams_update, $exam_questions_min, $exam_questions_max,
-        $exam_questions_summative_three_part,$exam_questions_summative_five_part,
-        $exam_questions_summative_ten_part,$exam_questions_summative_fifteen_part,
-        $number_days_exam, $exam_success_rate;
-    protected $paginationTheme = 'bootstrap';
+    public $allow_exams_update, $exam_questions_min, $exam_questions_max, $exam_questions_summative_three_part,
+        $exam_questions_summative_five_part, $exam_questions_summative_ten_part,
+        $number_days_exam, $exam_success_rate, $summative_exam_success_rate;
 
     public function render()
     {
@@ -32,39 +25,10 @@ class ExamsSettings extends Component
         ]);
     }
 
-    public function setOpenTab($isOpen)
-    {
-        if ($isOpen == 1) {
-            $this->isOpenTabFirst = !$this->isOpenTabFirst;
-            $this->isOpenTabSecond = false;
-        } else {
-            $this->isOpenTabSecond = !$this->isOpenTabSecond;
-            $this->isOpenTabFirst = false;
-        }
-    }
-
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
         $this->get_Exams_Settings();
-    }
-
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName, [
-            'exam_questions_min' => 'required|numeric|between:7,10',
-            'exam_questions_max' => 'required|numeric|between:7,10',
-            'number_days_exam' => 'required|numeric|between:1,15',
-            'exam_success_rate' => 'required|numeric|between:80,90',
-            'exam_questions_summative_three_part' => 'required|numeric|between:3,4',
-            'exam_questions_summative_five_part' => 'required|numeric|between:5,6',
-            'exam_questions_summative_ten_part' => 'required|numeric|between:7,8',
-            'exam_questions_summative_fifteen_part' => 'required|numeric|between:10,11',
-
-            'quran_part_id' => 'required|unique:exam_custom_questions,quran_part_id,' . $this->modalId,
-            'exam_question_count' => 'required|numeric|between:7,12',
-
-            'exam_question_count_update' => 'required|numeric|between:7,12',
-        ]);
     }
 
     public function store()
@@ -84,9 +48,9 @@ class ExamsSettings extends Component
                     'exam_questions_summative_three_part' => $this->exam_questions_summative_three_part,
                     'exam_questions_summative_five_part' => $this->exam_questions_summative_five_part,
                     'exam_questions_summative_ten_part' => $this->exam_questions_summative_ten_part,
-                    'exam_questions_summative_fifteen_part' => $this->exam_questions_summative_fifteen_part,
                     'number_days_exam' => $this->number_days_exam,
                     'exam_success_rate' => $this->exam_success_rate,
+                    'summative_exam_success_rate' => $this->summative_exam_success_rate,
                 ]);
             } else {
                 ExamSettings::create([
@@ -96,9 +60,9 @@ class ExamsSettings extends Component
                     'exam_questions_summative_three_part' => $this->exam_questions_summative_three_part,
                     'exam_questions_summative_five_part' => $this->exam_questions_summative_five_part,
                     'exam_questions_summative_ten_part' => $this->exam_questions_summative_ten_part,
-                    'exam_questions_summative_fifteen_part' => $this->exam_questions_summative_fifteen_part,
                     'number_days_exam' => $this->number_days_exam,
                     'exam_success_rate' => $this->exam_success_rate,
+                    'summative_exam_success_rate' => $this->summative_exam_success_rate,
                 ]);
             }
             $this->dispatchBrowserEvent('alert',
@@ -112,11 +76,11 @@ class ExamsSettings extends Component
             'exam_questions_min' => 'required|numeric|between:7,10',
             'exam_questions_max' => 'required|numeric|between:7,10',
             'exam_questions_summative_three_part' => 'required|numeric|between:3,4',
-            'exam_questions_summative_five_part' => 'required|numeric|between:5,6',
-            'exam_questions_summative_ten_part' => 'required|numeric|between:7,8',
-            'exam_questions_summative_fifteen_part' => 'required|numeric|between:10,11',
+            'exam_questions_summative_five_part' => 'required|numeric|between:4,5',
+            'exam_questions_summative_ten_part' => 'required|numeric|between:4,5',
             'number_days_exam' => 'required|numeric|between:1,15',
             'exam_success_rate' => 'required|numeric|between:80,90',
+            'summative_exam_success_rate' => 'required|numeric|between:80,90',
         ];
     }
 
@@ -134,18 +98,16 @@ class ExamsSettings extends Component
             'exam_questions_summative_three_part.between' => 'يجب أن يكون الرقم بين 3 أو 4 أسئلة',
             'exam_questions_summative_five_part.required' => 'يجب تحديد عدد أسئلة اختبار التجميعي (5) أجزاء',
             'exam_questions_summative_five_part.numeric' => 'يجب أن يكون رقم',
-            'exam_questions_summative_five_part.between' => 'يجب أن يكون الرقم بين 5 أو 6 أسئلة',
+            'exam_questions_summative_five_part.between' => 'يجب أن يكون الرقم بين 4 أو 5 أسئلة',
             'exam_questions_summative_ten_part.required' => 'يجب تحديد عدد أسئلة اختبار التجميعي (10) أجزاء',
             'exam_questions_summative_ten_part.numeric' => 'يجب أن يكون رقم',
-            'exam_questions_summative_ten_part.between' => 'يجب أن يكون الرقم بين 7 أو 8 أسئلة',
-            'exam_questions_summative_fifteen_part.required' => 'يجب تحديد عدد أسئلة اختبار التجميعي (15) أجزاء',
-            'exam_questions_summative_fifteen_part.numeric' => 'يجب أن يكون رقم',
-            'exam_questions_summative_fifteen_part.between' => 'يجب أن يكون الرقم بين 10 أو 11 أسئلة',
+            'exam_questions_summative_ten_part.between' => 'يجب أن يكون الرقم بين 4 أو 5 أسئلة',
             'number_days_exam.numeric' => 'يجب أن يكون رقم',
             'number_days_exam.between' => 'يجب أن يكون الرقم بين 1 أو 15 يوم',
             'exam_success_rate.numeric' => 'يجب أن يكون رقم',
             'exam_success_rate.between' => 'يجب أن يكون الرقم بين 80 أو 90 علامة',
-
+            'summative_exam_success_rate.numeric' => 'يجب أن يكون رقم',
+            'summative_exam_success_rate.between' => 'يجب أن يكون الرقم بين 80 أو 90 علامة',
             'quran_part_id.required' => 'يجب اختيار الجزء',
             'quran_part_id.unique' => 'الجزء المحدد موجود مسبقا',
             'exam_question_count.required' => 'حقل عدد أسئلة جزء الإختبار مطلوب',
@@ -160,7 +122,7 @@ class ExamsSettings extends Component
 
     public function clearForm()
     {
-        $this->modalId = null;
+        $this->modalId = '';
         $this->quran_part_id = null;
         $this->exam_question_count = null;
         $this->resetValidation();
@@ -176,9 +138,9 @@ class ExamsSettings extends Component
             $this->exam_questions_summative_three_part = $exams_settings->exam_questions_summative_three_part;
             $this->exam_questions_summative_five_part = $exams_settings->exam_questions_summative_five_part;
             $this->exam_questions_summative_ten_part = $exams_settings->exam_questions_summative_ten_part;
-            $this->exam_questions_summative_fifteen_part = $exams_settings->exam_questions_summative_fifteen_part;
             $this->number_days_exam = $exams_settings->number_days_exam;
             $this->exam_success_rate = $exams_settings->exam_success_rate;
+            $this->summative_exam_success_rate = $exams_settings->summative_exam_success_rate;
         }
     }
 
@@ -190,14 +152,14 @@ class ExamsSettings extends Component
         ]);
         DB::beginTransaction();
         try {
-            ExamCustomQuestion::create(['quran_part_id' => $this->quran_part_id, 'exam_question_count' => $this->exam_question_count]);
-            $this->resetInputFields();
+            ExamCustomQuestion::create(['quran_part_id' => $this->quran_part_id, 'question_count' => $this->exam_question_count]);
             $this->dispatchBrowserEvent('alert',
                 ['type' => 'success', 'message' => 'تمت عملية حفظ البيانات بنجاح.']);
             DB::commit();
+            $this->resetInputFields();
         } catch (Exception $e) {
             DB::rollback();
-            session()->flash('failure_message', '' . $e->getMessage());
+            $this->catchError = $e->getMessage();
         }
     }
 
@@ -213,7 +175,6 @@ class ExamsSettings extends Component
 
     public function edit($id, $count)
     {
-        $this->updateMode = true;
         $this->modalId = $id;
         $this->exam_question_count_update = $count;
     }
@@ -225,7 +186,7 @@ class ExamsSettings extends Component
         ]);
         $examCustomQuestion = ExamCustomQuestion::find($this->modalId);
         if ($examCustomQuestion) {
-            $examCustomQuestion->update(['exam_question_count' => $this->exam_question_count_update]);
+            $examCustomQuestion->update(['question_count' => $this->exam_question_count_update]);
             $this->dispatchBrowserEvent('alert',
                 ['type' => 'success', 'message' => 'تمت عملية تحديث البيانات بنجاح.']);
             $this->resetInputFieldsUpdated();
@@ -239,20 +200,20 @@ class ExamsSettings extends Component
         $this->resetValidation();
     }
 
-    public function resetInputFieldsUpdated(){
-        $this->updateMode = false;
-        $this->modalId = null;
+    public function resetInputFieldsUpdated()
+    {
+        $this->modalId = '';
         $this->exam_question_count_update = null;
         $this->resetValidation();
     }
 
     public function all_Exams_Custom_Question()
     {
-        return ExamCustomQuestion::all();
+        return ExamCustomQuestion::with(['quranPart'])->get();
     }
 
     public function all_Quran_Parst()
     {
-        return QuranPart::query()->whereDoesntHave('examCustomQuestion')->orderBy('id')->get();
+        return QuranPart::query()->where('type', '!=', QuranPart::DESERVED_TYPE)->whereDoesntHave('examCustomQuestion')->orderBy('id')->get();
     }
 }

@@ -11,11 +11,11 @@
                     <div class="row">
                         <div class="col-md-12">
                             <label class="control-label">اسم الطالب</label>
-                            <input type="text" wire:model="student_name" readonly class="form-control">
+                            <input type="text" wire:model.defer="student_name" readonly class="form-control">
                         </div>
                         <div class="col-md-12">
                             <label class="control-label">ملاحظات</label>
-                            <input type="text" wire:model="warning_cancel_notes" class="form-control">
+                            <input type="text" wire:model.defer="warning_cancel_notes" class="form-control">
                             @error('warning_cancel_notes')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror

@@ -11,10 +11,22 @@ class StudentAttendance extends Model
 
     protected $fillable = [
         'student_id',
-        'grade_id',
-        'group_id',
         'teacher_id',
-        'attendance_date',
-        'attendance_status',
+        'datetime',
+        'status',
     ];
+
+    const PRESENCE_STATUS = "presence";
+    const ABSENCE_STATUS = "absence";
+    const LATE_STATUS = "late";
+    const AUTHORIZED_STATUS = "authorized";
+
+    public static function status(){
+        return [
+            self::PRESENCE_STATUS => 'حضور',
+            self::ABSENCE_STATUS => 'غياب',
+            self::LATE_STATUS => 'متأخر',
+            self::AUTHORIZED_STATUS => 'مأذون',
+        ];
+    }
 }

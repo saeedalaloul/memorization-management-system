@@ -6,30 +6,61 @@
                     <h5 class="card-title">تقديم شكوى/اقتراح </h5>
                     <div class="form-group">
                         <label for="exampleFormControlSelect1">حدد نوع الشكوى/الاقتراح</label>
-                        <select style="padding: 1px;" class="form-control" id="exampleFormControlSelect1">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
+                        <select style="padding: 1px;" wire:model.defer="category" class="form-control"
+                                id="exampleFormControlSelect1">
+                            <option value="">حدد نوع الشكوى/الاقتراح</option>
+                            @foreach(\App\Models\BoxComplaintSuggestion::categories() as $category => $value)
+                                <option value="{{$category}}">{{$value}}</option>
+                            @endforeach
                         </select>
+                        @error('category')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-group">
                         <label for="exampleFormControlSelect2">حدد جهة الشكوى/الاقتراح</label>
-                        <select style="padding: 1px;" multiple="" class="form-control" id="exampleFormControlSelect2">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
+                        <select style="padding: 1px;" wire:model.defer="role_id" multiple class="form-control"
+                                id="exampleFormControlSelect2">
+                            @foreach($roles as $role)
+                                <option value="{{$role->id}}">{{$role->name}}</option>
+                            @endforeach
                         </select>
+                        @error('role_id')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
                     </div>
-                    <div wire:ignore class="form-group">
-                        <label for="exampleFormControlInput1">موضوع الشكوى/الاقتراح</label>
-                        <textarea wire:model="subject" class="form-control" name="summernote"
-                                  id="summernote"></textarea>
+                    <div class="form-group" wire:ignore>
+                        <label>موضوع الشكوى/الاقتراح</label>
+                        <textarea wire:model.defer="subject" data-subject="@this" class="form-control"
+                                  id="subject"></textarea>
                     </div>
+                    @error('subject')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
                     <div class="form-group">
-                        <a class="button button-border" wire:click="store()">تقديم الشكوى/الاقتراح</a>
+                        <a class="button button-border" id="submit" wire:click="store()">تقديم الشكوى/الاقتراح</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="https://cdn.ckeditor.com/ckeditor5/33.0.0/classic/ckeditor.js"></script>
+<script>
+    ClassicEditor
+        .create(document.querySelector('#subject'))
+        .then(editor => {
+            // editor.model.document.on('change:data', () => {
+            //     let subject = $('#subject').data('subject')
+            //     eval(subject).set('subject', editor.getData());
+            // });
+
+            document.querySelector('#submit').addEventListener('click', () => {
+                let subject = $('#subject').data('subject');
+                eval(subject).set('subject', editor.getData());
+            });
+        })
+        .catch(error => {
+            console.error(error);
+        });
+</script>

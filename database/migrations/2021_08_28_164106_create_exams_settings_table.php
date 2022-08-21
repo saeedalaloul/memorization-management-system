@@ -15,16 +15,16 @@ class CreateExamsSettingsTable extends Migration
     {
         Schema::create('exam_settings', function (Blueprint $table) {
             $table->id();
-            $table->boolean('allow_exams_update');
             $table->unsignedTinyInteger('exam_questions_summative_three_part');
             $table->unsignedTinyInteger('exam_questions_summative_five_part');
             $table->unsignedTinyInteger('exam_questions_summative_ten_part');
-            $table->unsignedTinyInteger('exam_questions_summative_fifteen_part');
             $table->unsignedTinyInteger('exam_questions_min');
             $table->unsignedTinyInteger('exam_questions_max');
             $table->unsignedTinyInteger('number_days_exam');
             $table->unsignedTinyInteger('exam_success_rate');
-            $table->timestamps();
+            $table->unsignedTinyInteger('summative_exam_success_rate');
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

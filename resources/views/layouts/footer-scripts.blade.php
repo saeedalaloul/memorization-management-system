@@ -34,6 +34,24 @@
     });
 </script>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+    window.addEventListener('alert', event => {
+        toastr[event.detail.type](event.detail.message,
+            event.detail.title ?? ''), toastr.options = {
+            "progressBar": true,
+        }
+    });
+
+    $(document).ready(function () {
+        $('.select2').select2();
+    });
+    window.addEventListener('render-select2', _ => {
+        console.log('fired');
+        $('.select2').select2();
+    })
+</script>
 
 <script src="{{ URL::asset('assets/js/bootstrap-datatables/jquery.dataTables.min.js',true) }}"></script>
 <script src="{{ URL::asset('assets/js/bootstrap-datatables/dataTables.bootstrap4.min.js',true) }}"></script>

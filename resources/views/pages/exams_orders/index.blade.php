@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('css')
-    @toastr_css
 @section('title')
     طلبات الإختبارات
 @stop
@@ -24,28 +23,15 @@
 
 @section('js')
     @livewireScripts
-    @toastr_js
     @toastr_render
-    <script>
-        window.livewire.on('refusal-exam', () => {
-            $('#refusal-exam').modal('hide');
-        });
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 
-        window.livewire.on('approval-exam', () => {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        window.addEventListener('hideDialog', _ => {
             $('#approval-exam').modal('hide');
-        });
-
-        window.livewire.on('delete-exam-order', () => {
+            $('#refusal-exam').modal('hide');
             $('#delete-exam-order').modal('hide');
-        });
-    </script>
-
-    <script>
-        window.addEventListener('alert', event => {
-            toastr[event.detail.type](event.detail.message,
-                event.detail.title ?? ''), toastr.options = {
-                "progressBar": true,
-            }
         });
     </script>
 @endsection

@@ -2,11 +2,10 @@
 
 namespace App\Http\Livewire;
 
-use App\Exports\UsersExport;
 use App\Models\Father;
 use App\Models\Grade;
 use App\Models\Group;
-use App\Models\LowerSupervisor;
+use App\Models\OversightMember;
 use App\Models\Student;
 use App\Models\Supervisor;
 use App\Models\Teacher;
@@ -15,43 +14,25 @@ use App\Models\User;
 use Exception;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\MessageBag;
-use Livewire\Component;
-use Livewire\WithFileUploads;
-use Livewire\WithPagination;
-use Maatwebsite\Excel\Excel;
 use Spatie\Permission\Models\Role;
 
-class Users extends Component
+class Users extends HomeComponent
 {
-    use WithPagination, WithFileUploads;
-
     public $email;
     public $phone;
     public $identification_number;
     public $dob;
-    public $address;
-    public $photo;
-    public $user_permissions;
-    public $roles, $ret_Roles, $grades, $groups;
-    public $role_id, $searchRoleId;
+    public $photo, $photo_ret;
+    public $user_permissions = [];
+    public $roles = [], $ret_Roles = [], $grades = [], $groups = [];
+    public $role_id, $selectedRoleId;
     public $grade_id, $group_id, $father_id, $father_name, $father_identification_number;
-    public $show_table = true, $catchError, $successMessage, $tab_id;
-    public $modalId, $name, $password, $password_confirm, $process_type;
-    public $sortBy = 'id', $sortDirection = 'desc', $perPage = 10, $search = '';
-    protected $paginationTheme = 'bootstrap';
+    public $name;
 
     public function render()
     {
-        $this->getDataByRoleUser();
-        $this->all_Groups();
         return view('livewire.users', ['users' => $this->all_Users()]);
-    }
-
-    public function updatedSearch()
-    {
-        $this->resetPage();
     }
 
 
@@ -65,29 +46,16 @@ class Users extends Component
         }
     }
 
-    public function update_index_tab($id)
-    {
-        $this->tab_id = $id;
-    }
-
-    public function getDataByRoleUser()
+    public function updatedRoleId()
     {
         if ($this->role_id) {
             if ($this->roles->firstWhere('id', $this->role_id)) {
                 $role_name = $this->roles->firstWhere('id', $this->role_id)->name;
                 if ($role_name == "مشرف") {
-                    toastr()->success('ejiorejo');
                     $supervisor = Supervisor::find($this->modalId);
                     if ($supervisor) {
                         if ($this->grade_id == null) {
                             $this->grade_id = $supervisor->grade_id;
-                        }
-                    }
-                } else if ($role_name == "إداري") {
-                    $lower_supervisor = LowerSupervisor::find($this->modalId);
-                    if ($lower_supervisor) {
-                        if ($this->grade_id == null) {
-                            $this->grade_id = $lower_supervisor->grade_id;
                         }
                     }
                 } else if ($role_name == "محفظ") {
@@ -133,7 +101,6 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية تعيين دور أمير المركز إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
                     }
                 } else if ($role_name == "مشرف الإختبارات") {
                     $user = User::find($this->modalId);
@@ -142,7 +109,6 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف الإختبارات إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
                     }
                 } else if ($role_name == "مشرف الدورات") {
                     $user = User::find($this->modalId);
@@ -151,7 +117,6 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف الدورات إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
                     }
                 } else if ($role_name == "مشرف الأنشطة") {
                     $user = User::find($this->modalId);
@@ -160,7 +125,6 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف الأنشطة إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
                     }
                 } else if ($role_name == "مشرف الرقابة") {
                     $user = User::find($this->modalId);
@@ -169,7 +133,15 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية تعيين دور مشرف الرقابة إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
+                    }
+                } else if ($role_name == "مراقب") {
+                    $user = User::find($this->modalId);
+                    if ($user) {
+                        OversightMember::updateOrCreate(['id' => $this->modalId]);
+                        $user->assignRole([$this->role_id]);
+                        $this->dispatchBrowserEvent('alert',
+                            ['type' => 'success', 'message' => 'تمت عملية تعيين دور مراقب إلى المستخدم بنجاح.']);
+                        $this->modalFormReset();
                     }
                 } else if ($role_name == "مختبر") {
                     $user = User::find($this->modalId);
@@ -179,7 +151,6 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية تعيين دور مختبر إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
                     }
                 } else if ($role_name == "مشرف") {
                     $user = User::find($this->modalId);
@@ -196,24 +167,6 @@ class Users extends Component
                         }
                         $user->assignRole([$this->role_id]);
                         $this->modalFormReset();
-                        $this->show_table = true;
-                    }
-                } else if ($role_name == "إداري") {
-                    $user = User::find($this->modalId);
-                    if ($user) {
-                        $lowerSupervisor = LowerSupervisor::find($this->modalId);
-                        if ($lowerSupervisor == null) {
-                            LowerSupervisor::create(['id' => $this->modalId, 'grade_id' => $this->grade_id]);
-                            $this->dispatchBrowserEvent('alert',
-                                ['type' => 'success', 'message' => 'تمت عملية تعيين دور إداري إلى المستخدم بنجاح.']);
-                        } else {
-                            $lowerSupervisor->update(['grade_id' => $this->grade_id]);
-                            $this->dispatchBrowserEvent('alert',
-                                ['type' => 'success', 'message' => 'تمت عملية تحديث دور إداري إلى المستخدم بنجاح.']);
-                        }
-                        $user->assignRole([$this->role_id]);
-                        $this->modalFormReset();
-                        $this->show_table = true;
                     }
                 } else if ($role_name == "محفظ") {
                     $this->validate(
@@ -222,7 +175,6 @@ class Users extends Component
                         ]);
                     $messageBag = new MessageBag;
                     $teacher = Teacher::find($this->modalId);
-
                     if ($teacher != null) {
                         if ($this->grade_id != $teacher->grade_id) {
                             if ($teacher->group != null) {
@@ -234,14 +186,12 @@ class Users extends Component
                                 $this->dispatchBrowserEvent('alert',
                                     ['type' => 'success', 'message' => 'تمت عملية تحديث دور محفظ إلى المستخدم بنجاح.']);
                                 $this->modalFormReset();
-                                $this->show_table = true;
                             }
                         } else {
                             $teacher->user->assignRole([$this->role_id]);
                             $this->dispatchBrowserEvent('alert',
                                 ['type' => 'success', 'message' => 'تمت عملية تحديث دور محفظ إلى المستخدم بنجاح.']);
                             $this->modalFormReset();
-                            $this->show_table = true;
                         }
                     } else {
                         Teacher::create(['id' => $this->modalId, 'grade_id' => $this->grade_id]);
@@ -250,7 +200,6 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية تعيين دور محفظ إلى المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
                     }
 
                 } else if ($role_name == "طالب") {
@@ -281,7 +230,6 @@ class Users extends Component
                                     $this->dispatchBrowserEvent('alert',
                                         ['type' => 'success', 'message' => 'تمت عملية تحديث دور طالب إلى المستخدم بنجاح.']);
                                     $this->modalFormReset();
-                                    $this->show_table = true;
                                 }
                             }
                         } else {
@@ -291,7 +239,6 @@ class Users extends Component
                                 $this->dispatchBrowserEvent('alert',
                                     ['type' => 'success', 'message' => 'تمت عملية تحديث دور طالب إلى المستخدم بنجاح.']);
                                 $this->modalFormReset();
-                                $this->show_table = true;
                             } else {
                                 $messageBag->add('grade_id', 'عذرا, لا يمكن تغيير المرحلة لأن الحلقة ليست في نفس المرحلة');
                                 $this->setErrorBag($messageBag);
@@ -315,7 +262,6 @@ class Users extends Component
                             $this->dispatchBrowserEvent('alert',
                                 ['type' => 'success', 'message' => 'تمت عملية تعيين دور طالب إلى المستخدم بنجاح.']);
                             $this->modalFormReset();
-                            $this->show_table = true;
                         }
                     }
                 }
@@ -325,6 +271,8 @@ class Users extends Component
 
     public function pullUserRole()
     {
+        $messageBag = new MessageBag();
+
         if ($this->role_id) {
             if ($this->roles->firstWhere('id', $this->role_id)) {
                 $role_name = $this->roles->firstWhere('id', $this->role_id)->name;
@@ -335,7 +283,6 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية سحب دور أمير المركز من المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
                     } else {
                         $this->catchError = 'عذرا لا يمكنك سحب صلاحيتك أمير المركز ..';
                     }
@@ -345,36 +292,58 @@ class Users extends Component
                     $this->dispatchBrowserEvent('alert',
                         ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الإختبارات من المستخدم بنجاح.']);
                     $this->modalFormReset();
-                    $this->show_table = true;
                 } else if ($role_name == "مشرف الدورات") {
                     $user = User::find($this->modalId);
                     $user?->removeRole($this->role_id);
                     $this->dispatchBrowserEvent('alert',
                         ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الدورات من المستخدم بنجاح.']);
                     $this->modalFormReset();
-                    $this->show_table = true;
                 } else if ($role_name == "مشرف الأنشطة") {
                     $user = User::find($this->modalId);
                     $user?->removeRole($this->role_id);
                     $this->dispatchBrowserEvent('alert',
                         ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الأنشطة من المستخدم بنجاح.']);
                     $this->modalFormReset();
-                    $this->show_table = true;
                 } else if ($role_name == "مشرف الرقابة") {
                     $user = User::find($this->modalId);
                     $user?->removeRole($this->role_id);
                     $this->dispatchBrowserEvent('alert',
                         ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف الرقابة من المستخدم بنجاح.']);
                     $this->modalFormReset();
-                    $this->show_table = true;
+                } else if ($role_name == "مراقب") {
+                    $user = User::find($this->modalId);
+                    if ($user->oversight_member->visits->count() > 0) {
+                        $messageBag->add('role_id', 'عذرا لا يمكن حذف المراقب بسبب وجود زيارات مسجلة باسم المراقب');
+                        $this->setErrorBag($messageBag);
+                    } else {
+                        if ($user->oversight_member->visits_orders->count() > 0) {
+                            $messageBag->add('role_id', 'عذرا لا يمكن حذف المراقب بسبب وجود طلبات زيارات لديه يرجى إجرائها أو حذفها');
+                            $this->setErrorBag($messageBag);
+                        } else {
+                            $user?->removeRole($this->role_id);
+                            OversightMember::destroy($this->modalId);
+                            $this->dispatchBrowserEvent('alert',
+                                ['type' => 'success', 'message' => 'تمت عملية سحب دور مراقب من المستخدم بنجاح.']);
+                            $this->modalFormReset();
+                        }
+                    }
                 } else if ($role_name == "مختبر") {
                     $user = User::find($this->modalId);
-                    $user?->removeRole($this->role_id);
-                    Tester::destroy($this->modalId);
-                    $this->dispatchBrowserEvent('alert',
-                        ['type' => 'success', 'message' => 'تمت عملية سحب دور مختبر من المستخدم بنجاح.']);
-                    $this->modalFormReset();
-                    $this->show_table = true;
+                    if ($user->tester->exams->count() > 0) {
+                        $messageBag->add('role_id', 'عذرا لا يمكن حذف المختبر بسبب وجود اختبارات مسجلة باسم المختبر');
+                        $this->setErrorBag($messageBag);
+                    } else {
+                        if ($user->tester->exams_orders->count() > 0) {
+                            $messageBag->add('role_id', 'عذرا لا يمكن حذف المختبر بسبب وجود طلبات اختبارات لديه يرجى إجرائها أو حذفها');
+                            $this->setErrorBag($messageBag);
+                        } else {
+                            $user?->removeRole($this->role_id);
+                            Tester::destroy($this->modalId);
+                            $this->dispatchBrowserEvent('alert',
+                                ['type' => 'success', 'message' => 'تمت عملية سحب دور مختبر من المستخدم بنجاح.']);
+                            $this->modalFormReset();
+                        }
+                    }
                 } else if ($role_name == "مشرف") {
                     $user = User::find($this->modalId);
                     $user?->removeRole($this->role_id);
@@ -382,15 +351,6 @@ class Users extends Component
                     $this->dispatchBrowserEvent('alert',
                         ['type' => 'success', 'message' => 'تمت عملية سحب دور مشرف من المستخدم بنجاح.']);
                     $this->modalFormReset();
-                    $this->show_table = true;
-                } else if ($role_name == "إداري") {
-                    $user = User::find($this->modalId);
-                    $user?->removeRole($this->role_id);
-                    LowerSupervisor::destroy($this->modalId);
-                    $this->dispatchBrowserEvent('alert',
-                        ['type' => 'success', 'message' => 'تمت عملية سحب دور إداري من المستخدم بنجاح.']);
-                    $this->modalFormReset();
-                    $this->show_table = true;
                 } else if ($role_name == "محفظ") {
                     $this->pullTeacherRole();
                 } else if ($role_name == "طالب") {
@@ -424,7 +384,7 @@ class Users extends Component
                             $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور المحفظ بسبب وجود سجل حضور وغياب مسجل باسمه لدى طلابه');
                             $this->setErrorBag($messageBag);
                         } else {
-                            if ($teacher->student_daily_preservation->count() > 0) {
+                            if ($teacher->student_daily_memorization->count() > 0) {
                                 $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور المحفظ بسبب وجود سجل متابعة الحفظ والمراجعة مسجل باسمه لدى طلابه');
                                 $this->setErrorBag($messageBag);
                             } else {
@@ -434,7 +394,6 @@ class Users extends Component
                                 $this->dispatchBrowserEvent('alert',
                                     ['type' => 'success', 'message' => 'تمت عملية سحب دور محفظ من المستخدم بنجاح.']);
                                 $this->modalFormReset();
-                                $this->show_table = true;
                             }
                         }
                     }
@@ -451,7 +410,7 @@ class Users extends Component
             $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور الطالب بسبب وجود طلبات اختبارات يجب إجرائها أو حذفها');
             $this->setErrorBag($messageBag);
         } else {
-            if ($student->exam->count() > 0) {
+            if ($student->exams->count() > 0) {
                 $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور الطالب إطلاقا بسبب وجود اختبارات قرآنية مسجلة باسمه');
                 $this->setErrorBag($messageBag);
             } else {
@@ -459,7 +418,7 @@ class Users extends Component
                     $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور الطالب بسبب وجود سجل حضور وغياب لديه');
                     $this->setErrorBag($messageBag);
                 } else {
-                    if ($student->daily_preservation->count() > 0) {
+                    if ($student->daily_memorization->count() > 0) {
                         $messageBag->add('role_id', 'عذرا, لا يمكن سحب دور الطالب بسبب وجود سجل متابعة الحفظ والمراجعة مسجل باسمه');
                         $this->setErrorBag($messageBag);
                     } else {
@@ -469,18 +428,10 @@ class Users extends Component
                         $this->dispatchBrowserEvent('alert',
                             ['type' => 'success', 'message' => 'تمت عملية سحب دور طالب من المستخدم بنجاح.']);
                         $this->modalFormReset();
-                        $this->show_table = true;
                     }
                 }
             }
         }
-    }
-
-
-    public function resetMessage()
-    {
-        $this->successMessage = null;
-        $this->catchError = null;
     }
 
     public function findStudentFather()
@@ -505,25 +456,6 @@ class Users extends Component
                 $this->successMessage = null;
             }
         }
-    }
-
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName, [
-            'password' => 'required|min:8|max:10',
-            'password_confirm' => 'required|same:password',
-            'email' => 'required|email|unique:users,email,' . $this->modalId,
-            'name' => 'required|string|unique:users,name,' . $this->modalId,
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
-            'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
-            'father_identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9',
-            'dob' => 'required|date|date_format:Y-m-d',
-            'address' => 'required',
-            'photo' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'grade_id' => 'required',
-            'group_id' => 'required',
-            'father_id' => 'required',
-        ]);
     }
 
     public function messages()
@@ -559,7 +491,6 @@ class Users extends Component
             'father_identification_number.regex' => 'حقل رقم الهوية يجب أن يكون رقم',
             'father_identification_number.min' => 'يجب أن لا يقل طول رقم الهوية عن 9 أرقام',
             'father_identification_number.max' => 'يجب أن لا يزيد طول رقم الهوية عن 9 أرقام',
-            'address.required' => 'حقل العنوان مطلوب',
             'photo.image' => 'حقل الصورة يجب أن يحتوي على صورة',
             'photo.mimes' => 'يجب أن تكون صيغة الصورة إما jpeg أو png أو jpg',
             'photo.max' => 'يجب أن لا يزيد حجم الصورة عن 2048 كيلو بايت',
@@ -570,23 +501,27 @@ class Users extends Component
     {
         return [
             'password' => 'required|min:8|max:10',
-            'password_confirm' => 'required|same:password'
+            'password_confirm' => 'required|same:password',
         ];
     }
 
     public function resetPasswordUser()
     {
-        $this->validate();
         DB::beginTransaction();
         try {
-            User::find($this->modalId)->update([
-                'password' => Hash::make($this->password)
-            ]);
+            if ($this->modalId != auth()->id()) {
+                User::find($this->modalId)->update([
+                    'password' => null,
+                ]);
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'success', 'message' => 'تمت عملية إعادة تعيين كلمة المرور بنجاح.']);
+                DB::commit();
+            } else {
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'error', 'message' => 'عذرا لا يمكنك إعادة تعيين كلمة مرور حسابك.']);
+            }
             $this->modalFormReset();
-            $this->show_table = true;
-            $this->dispatchBrowserEvent('alert',
-                ['type' => 'success', 'message' => 'تمت عملية إعادة تعيين كلمة المرور بنجاح.']);
-            DB::commit();
+            $this->dispatchBrowserEvent('hideModal');
         } catch (Exception $e) {
             DB::rollback();
             $this->catchError = $e->getMessage();
@@ -595,44 +530,13 @@ class Users extends Component
 
     public function modelUser()
     {
-        if ($this->modalId == null) {
-            return [
-                'name' => $this->name,
-                'email' => $this->email,
-                'password' => Hash::make($this->password),
-                'phone' => $this->phone,
-                'identification_number' => $this->identification_number,
-                'address' => $this->address,
-                'dob' => $this->dob,
-            ];
-        } else {
-            return [
-                'name' => $this->name,
-                'email' => $this->email,
-                'phone' => $this->phone,
-                'identification_number' => $this->identification_number,
-                'address' => $this->address,
-                'dob' => $this->dob,
-            ];
-        }
-    }
-
-    public function export()
-    {
-        $users = [];
-        foreach ($this->all_Users()->toArray()['data'] as $key => $item) {
-            $user = ['id' => $key + 1, 'name' => $item['name']
-                , 'email' => $item['email'], 'phone' => intval($item['phone'])
-                , 'identification_number' => intval($item['identification_number']), 'address' => $item['address']
-                , 'dob' => $item['dob']];
-            $users[$key] = $user;
-//            if ($item['status'] == 0) {
-//                $users[$key]['status'] = "معلق";
-//            } else {
-//                $users[$key]['status'] = "مفعل";
-//            }
-        }
-        return (new UsersExport($users))->download('users.xlsx', Excel::XLSX);
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'identification_number' => $this->identification_number,
+            'dob' => $this->dob,
+        ];
     }
 
 
@@ -643,15 +547,16 @@ class Users extends Component
         $data = User::find($id);
         $this->modalId = $data->id;
         $this->name = $data->name;
-        $this->show_table = false;
         if ($process_type == 'edit') {
             $this->email = $data->email;
             $this->phone = $data->phone;
             $this->identification_number = $data->identification_number;
-            $this->address = $data->address;
             $this->dob = $data->dob;
+            $this->photo_ret = $data->profile_photo_url;
         } else if ($process_type == 'edit_permission') {
             $this->user_permissions = $data->getDirectPermissions()->toArray();
+        } else if ($process_type == 'reset') {
+            $this->dispatchBrowserEvent('showDialogResetPassword');
         } else {
             if ($data->roles->count() == 1) {
                 if ($data->roles[0]->name != "ولي أمر الطالب") {
@@ -667,7 +572,6 @@ class Users extends Component
                     }
                 } else {
                     $this->modalFormReset();
-                    $this->show_table = true;
                 }
             } else if ($data->roles->count() > 1) {
                 $this->all_Roles(1); // سيتم اظهار كافة الصلاحيات ما عدا صلاحية ولي الأمر
@@ -681,9 +585,9 @@ class Users extends Component
 
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
         $this->all_Grades();
         $this->all_Roles(-1);
-        $this->tab_id = "grade-02";
     }
 
     public function activeEmail($id)
@@ -733,24 +637,20 @@ class Users extends Component
     function modalFormReset()
     {
         $this->resetValidation();
-        $this->roles = null;
-        $this->ret_Roles = null;
-        $this->user_permissions = null;
-        $this->tab_id = "grade-02";
-        $this->modalId = null;
+        $this->roles = [];
+        $this->ret_Roles = [];
+        $this->user_permissions = [];
+        $this->modalId = '';
         $this->name = null;
         $this->email = null;
         $this->phone = null;
         $this->identification_number = null;
         $this->dob = null;
-        $this->address = null;
         $this->photo = null;
-        $this->show_table = false;
-        $this->process_type = null;
-        $this->catchError = null;
-        $this->password = null;
-        $this->password_confirm = null;
-        $this->search = null;
+        $this->photo_ret = null;
+        $this->process_type = '';
+        $this->catchError = '';
+        $this->search = '';
         $this->grade_id = null;
         $this->group_id = null;
         $this->father_name = null;
@@ -759,23 +659,14 @@ class Users extends Component
         $this->role_id = null;
     }
 
-    public
-    function showformadd($isShow)
-    {
-        $this->show_table = $isShow;
-    }
-
-    public
-    function store()
+    public function store()
     {
         $this->validate(
             [
                 'name' => 'required|string|unique:users,name,' . $this->modalId,
                 'email' => 'required|email|unique:users,email,' . $this->modalId,
-                'password' => 'required|min:8|max:10',
                 'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
                 'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
-                'address' => 'required',
                 'dob' => 'required|date|date_format:Y-m-d',
             ]
         );
@@ -784,10 +675,9 @@ class Users extends Component
         try {
             $user = User::create($this->modelUser());
             if (!empty($this->photo)) {
-                $this->photo->storeAs($this->identification_number, $this->photo->getClientOriginalName(), $disk = 'users_images');
-                $user->update([
-                    'profile_photo_path' => $this->photo->getClientOriginalName(),
-                ]);
+                $this->uploadImage($this->photo,
+                    $this->identification_number . '.' . $this->photo->getClientOriginalExtension(),
+                    $user->id);
             }
             $this->modalFormReset();
             $this->dispatchBrowserEvent('alert',
@@ -799,8 +689,7 @@ class Users extends Component
         }
     }
 
-    public
-    function update()
+    public function update()
     {
         $this->validate(
             [
@@ -808,7 +697,6 @@ class Users extends Component
                 'email' => 'required|email|unique:users,email,' . $this->modalId,
                 'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10|unique:users,phone,' . $this->modalId,
                 'identification_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:9|unique:users,identification_number,' . $this->modalId,
-                'address' => 'required',
                 'dob' => 'required|date|date_format:Y-m-d',
             ]
         );
@@ -818,15 +706,15 @@ class Users extends Component
             $user = User::where('id', $this->modalId)->first();
             $user->update($this->modelUser());
             if (!empty($this->photo)) {
-                $this->photo->storeAs($this->identification_number, $this->photo->getClientOriginalName(), $disk = 'users_images');
-                $user->update([
-                    'profile_photo_path' => $this->photo->getClientOriginalName(),
-                ]);
+                $this->deleteImage($user->profile_photo);
+                $this->uploadImage($this->photo,
+                    $user->identification_number . '.' . $this->photo->getClientOriginalExtension(),
+                    $this->modalId);
             }
+
             $this->modalFormReset();
-            $this->show_table = true;
             $this->dispatchBrowserEvent('alert',
-                ['type' => 'error', 'message' => 'تم تحديث معلومات المستخدم بنجاح.']);
+                ['type' => 'success', 'message' => 'تم تحديث معلومات المستخدم بنجاح.']);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
@@ -834,44 +722,28 @@ class Users extends Component
         }
     }
 
-
-    public
-    function sortBy($field)
+    public function all_Users()
     {
-        if ($this->sortDirection == 'asc') {
-            $this->sortDirection = 'desc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-
-        return $this->sortBy = $field;
+        return User::query()
+            ->with(['roles'])
+            ->when(!empty($this->selectedRoleId), function ($q, $v) {
+                $q->whereRelation('roles', 'id', '=', $this->selectedRoleId);
+            })
+            ->search($this->search)
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate($this->perPage);
     }
 
-    public
-    function all_Users()
-    {
-        if ($this->searchRoleId) {
-            return User::query()
-                ->whereRelation('roles', 'id', '=', $this->searchRoleId)
-                ->search($this->search)
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        } else {
-            return User::query()
-                ->search($this->search)
-                ->orderBy($this->sortBy, $this->sortDirection)
-                ->paginate($this->perPage);
-        }
+    public function submitSearch(){
+        $this->all_Users();
     }
 
-    public
-    function all_Grades()
+    public function all_Grades()
     {
         $this->grades = Grade::all();
     }
 
-    public
-    function all_Groups()
+    public function updatedGradeId()
     {
         if ($this->grade_id) {
             $this->groups = Group::query()->where('grade_id', $this->grade_id)->get();
@@ -887,7 +759,7 @@ class Users extends Component
         } else if ($status == 2) {
             $this->roles = Role::query()->whereIn('name', ['طالب', 'محفظ'])->get();
         } else {
-            $this->roles = Role::all();
+            $this->roles = Role::query()->whereNotIn('name', ['طالب', 'ولي أمر الطالب'])->get();
         }
     }
 }

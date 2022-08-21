@@ -15,15 +15,17 @@ class CreateExamOrdersTable extends Migration
     {
         Schema::create('exam_orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->tinyInteger('status')->default(0)->index();
-            $table->json('readable');
-            $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->date('exam_date')->nullable()->index();
+            $table->enum('status',['in-pending','rejected','acceptable','failure'])->default('in-pending')->index();
+            $table->enum('type',['new','improvement'])->default('new')->index();
+            $table->foreignId('user_signature_id')->index()->references('id')->on('users')->cascadeOnDelete();
+            $table->foreignId('quran_part_id')->index()->references('id')->on('quran_parts')->cascadeOnDelete();
+            $table->foreignId('student_id')->unique()->index()->references('id')->on('students')->cascadeOnDelete();
+            $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->cascadeOnDelete();
+            $table->foreignId('tester_id')->nullable()->index()->references('id')->on('testers')->cascadeOnDelete();
+            $table->dateTime('datetime')->nullable()->index();
             $table->string('notes', 50)->nullable();
-            $table->timestamps();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

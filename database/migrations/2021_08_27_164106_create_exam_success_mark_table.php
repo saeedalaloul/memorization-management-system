@@ -16,7 +16,8 @@ class CreateExamSuccessMarkTable extends Migration
         Schema::create('exam_success_mark', function (Blueprint $table) {
             $table->id();
             $table->unsignedTinyInteger('mark')->unique();
-            $table->timestamps();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

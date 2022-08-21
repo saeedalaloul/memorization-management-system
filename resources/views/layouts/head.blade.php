@@ -13,6 +13,7 @@
       integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
 
 <link href="{{ URL::asset('css/wizard.css',true) }}" rel="stylesheet" id="bootstrap-css">
+<meta name="csrf-token" content="{{csrf_token()}}"/>
 
 @yield('css')
 <!--- Style css -->
@@ -25,39 +26,79 @@
     <link href="{{ URL::asset('assets/css/rtl.css',true) }}" rel="stylesheet">
 @endif
 
-<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase.js"></script>
 <script>
-    window.OneSignal = window.OneSignal || [];
-    OneSignal.push(function () {
-        OneSignal.init({
-            appId: "c99992cc-e40f-46d1-8f7c-a5e4efd99c88",
-            external_user_id: "{{auth()->id()}}",
-            autoResubscribe: true,
-            notifyButton: {
-                enable: true,
-            },
-        });
+    const firebaseConfig = {
+        apiKey: "AIzaSyCnDkYAfzlrYwjXVG9Csx2OYZ8tJzkPXvM",
+        authDomain: "alansarcenter-c93d5.firebaseapp.com",
+        databaseURL: "https://alansarcenter-c93d5.firebaseio.com",
+        projectId: "alansarcenter-c93d5",
+        storageBucket: "alansarcenter-c93d5.appspot.com",
+        messagingSenderId: "520516617212",
+        appId: "1:520516617212:web:2e876da05504afd12ae879",
+        measurementId: "G-3ER6SP33B6"
+    };
 
-        OneSignal.getUserId(function ($player_id) {
-            $.ajax({
-                type: "POST",
-                url: "/check_user_subscribe_notifications",
-                data: {
-                    "player_id": $player_id, _token: "{{csrf_token()}}",
-                },
-                success: function () {
-                    console.log('success');
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+
+    function startFCM() {
+        messaging
+            .requestPermission()
+            .then(function () {
+                return messaging.getToken()
+            })
+            .then(function (response) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: '{{ route("store.token") }}',
+                    type: 'POST',
+                    data: {
+                        token: response
+                    },
+                    dataType: 'JSON',
+                    success: function () {
+                        toastr.options =
+                            {
+                                "closeButton": false,
+                                "progressBar": true
+                            }
+                        toastr.success("تمت عملية تفعيل الإشعارات على هذا الجهاز بنجاح.");
+                    },
+                    error: function (error) {
+                        toastr.options =
+                            {
+                                "closeButton": false,
+                                "progressBar": true
+                            }
+                        toastr.error(error);
+                    },
+                });
+            }).catch(function (error) {
+            toastr.options =
+                {
+                    "closeButton": false,
+                    "progressBar": true
                 }
-            });
+            toastr.error(error);
         });
+    }
 
-
-        OneSignal.getExternalUserId().then(function (id) {
-            console.log(id);
-            if (id == null || id === "{{auth()->id()}}") {
-                OneSignal.setExternalUserId("{{auth()->id()}}");
-            }
-        });
-
-    });
+    // messaging.onMessage(function (payload) {
+    //     const title = payload.notification.title;
+    //     const options = {
+    //         body: payload.notification.body,
+    //         icon: payload.notification.icon,
+    //         requireInteraction: true,
+    //         dir:'rtl',
+    //     };
+    //     new Notification(title, options);
+    // });
 </script>

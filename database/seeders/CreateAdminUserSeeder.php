@@ -23,8 +23,25 @@ class CreateAdminUserSeeder extends Seeder
             'phone' => '0593654277',
             'identification_number' => '123456784',
             'password' => bcrypt('12345678'),
-            'address' => 'ejneoo',
         ]);
+
+        $roles = [
+            ['name' => 'مشرف'],
+            ['name' => 'محفظ'],
+            ['name' => 'مختبر'],
+            ['name' => 'مشرف الإختبارات'],
+            ['name' => 'مشرف الرقابة'],
+            ['name' => 'مشرف الأنشطة'],
+            ['name' => 'مشرف الدورات'],
+            ['name' => 'منشط'],
+            ['name' => 'مراقب'],
+            ['name' => 'طالب'],
+            ['name' => 'ولي أمر الطالب'],
+        ];
+
+        foreach ($roles as $role){
+            Role::create($role);
+        }
 
         $role = Role::create(['name' => 'أمير المركز']);
 

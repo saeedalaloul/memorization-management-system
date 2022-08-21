@@ -1,48 +1,27 @@
 <div class="row">
-    <div>
-        @if(Session::has('success_message'))
-            <script>
-                $(function () {
-                    toastr.success("{{ Session::get('success_message') }}");
-                })
-            </script>
-        @endif
-
-        @if(Session::has('failure_message'))
-            <script>
-                $(function () {
-                    toastr.error("{{ Session::get('failure_message') }}");
-                })
-            </script>
-        @endif
-    </div>
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
-            @if(auth()->user()->current_role == 'أمير المركز' ||
-                auth()->user()->current_role == 'مشرف الإختبارات')
+            @if ($current_role == \App\Models\User::ADMIN_ROLE || $current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
                 <div class="card-body">
                     <br>
                     @can('إعدادات الإختبارات')
                         <div class="col-xl-12 mb-30">
                             <div class="card card-statistics h-100">
-                                <div class="card-body">
+                                <div class="card-body" x-data="{currentTab: $persist('home')}">
                                     <h5 class="card-title">اعدادات الإختبارات القرآنية</h5>
                                     <div class="accordion plus-icon shadow">
-                                        <div class="acd-group {{$isOpenTabFirst == true ? 'acd-active':''}}">
-                                            <a wire:click.prevent="setOpenTab(1)"
-                                               class="acd-heading">الإعدادات
+                                        <div  class="acd-group" :class="currentTab === 'home' ? 'acd-active':'' " @click.prevent="currentTab = 'home'">
+                                            <a class="acd-heading">الإعدادات
                                                 العامة</a>
-                                            <div class="acd-des"
-                                                 style="{{$isOpenTabFirst == false ? 'display: none;':''}}">
+                                            <div class="acd-des" :style="currentTab === 'form' ? 'display: none;':'' ">
                                                 @include('pages.exams_settings.exams_settings_public')
                                             </div>
                                         </div>
 
-                                        <div class="acd-group {{$isOpenTabSecond == true ? 'acd-active':''}}">
-                                            <a wire:click.prevent="setOpenTab(2)" class="acd-heading">تخصيص عدد أسئلة
+                                        <div class="acd-group" :class="currentTab === 'form' ? 'acd-active':'' " @click.prevent="currentTab = 'form'">
+                                            <a  class="acd-heading">تخصيص عدد أسئلة
                                                 الإختبار لأجزاء محددة</a>
-                                            <div class="acd-des"
-                                                 style="{{$isOpenTabSecond == false ? 'display: none;':''}}">
+                                            <div class="acd-des" :style="currentTab === 'home' ? 'display: none;':'' ">
                                                 @include('pages.exams_settings.exams_custom_question')
                                             </div>
                                         </div>
@@ -55,5 +34,5 @@
             @endif
         </div>
     </div>
-    <x-loading-indicator/>
+    <x-loading-indicator></x-loading-indicator>
 </div>

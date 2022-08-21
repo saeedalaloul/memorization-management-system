@@ -11,10 +11,8 @@
                     <div class="row">
                         <div class="col-md-12">
                             <label class="control-label">اختر عدد أسئلة الإختبار</label>
-                            <select class="form-control form-white" wire:model="exam_questions_count"
-                                    data-placeholder="اختر عدد أسئلة الإختبار..." name="exam_questions_count"
-                                    style="padding: 10px;">
-                                <option selected value="{{0}}">اختر عدد أسئلة الإختبار...</option>
+                            <select class="form-control form-white" wire:model.defer="exam_questions_count" style="padding: 10px;">
+                                <option selected value="">اختر عدد أسئلة الإختبار...</option>
                                 @for ($i = $exam_questions_min; $i <= $exam_questions_max; $i++)
                                     <option value="{{$i}}">{{$i}}</option>
                                 @endfor
@@ -28,7 +26,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger ripple" data-dismiss="modal">إغلاق</button>
-                <button type="button" wire:click.prevent="examQuestionsNumberApproval" class="btn btn-success ripple">اعتماد عدد أسئلة الإختبار</button>
+                <button type="button" wire:click.prevent="examQuestionsNumberApproval();" class="btn btn-success ripple">اعتماد عدد أسئلة الإختبار</button>
             </div>
         </div>
     </div>

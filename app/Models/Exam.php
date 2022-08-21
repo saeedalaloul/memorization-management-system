@@ -3,33 +3,21 @@
 namespace App\Models;
 
 use Adnane\SimpleUuid\Traits\SimpleUuid;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Exam extends Model
 {
-    use HasFactory,SimpleUuid;
+    use SimpleUuid;
 
     protected $fillable = [
-        'readable',
-        'signs_questions',
-        'marks_questions',
-        'another_mark',
+        'mark',
         'quran_part_id',
         'student_id',
         'teacher_id',
         'tester_id',
         'exam_success_mark_id',
-        'exam_date',
+        'datetime',
         'notes',
-    ];
-
-    public $timestamps = false;
-
-    protected $casts = [
-        'signs_questions' => 'array',
-        'marks_questions' => 'array',
-        'readable' => 'array',
     ];
 
     public function scopeSearch($query, $val)
@@ -47,49 +35,6 @@ class Exam extends Model
                     $q->where('name', 'LIKE', "%$val%");
                 });
             });
-    }
-
-    public function scopeUnreadExams()
-    {
-        if (auth()->user()->current_role == 'محفظ') {
-            return $this
-                ->where('teacher_id', auth()->id())
-                ->where('readable->isReadableTeacher', false)
-                ->count();
-        } else if (auth()->user()->current_role == 'مشرف') {
-            return $this
-                ->where('readable->isReadableSupervisor', false)
-                ->whereHas('student', function ($q) {
-                    return $q->where('grade_id', '=', Supervisor::where('id', auth()->id())->first()->grade_id);
-                })
-                ->count();
-        } else if (auth()->user()->current_role == 'اداري') {
-            return $this
-                ->where('readable->isReadableLowerSupervisor', false)
-                ->whereHas('student', function ($q) {
-                    return $q->where('grade_id', '=', LowerSupervisor::where('id', auth()->id())->first()->grade_id);
-                })
-                ->count();
-        } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
-            return $this
-                ->where('readable->isReadableSupervisorExams', false)
-                ->count();
-        } else if (auth()->user()->current_role == 'مختبر') {
-            return $this
-                ->where('readable->isReadableTester', false)
-                ->where('tester_id', auth()->id())
-                ->count();
-        }
-        return 0;
-    }
-
-    public function scopeCalcMarkExam()
-    {
-        $sum = 0;
-        for ($i = 1; $i <= count($this->marks_questions); $i++) {
-            $sum += $this->marks_questions[$i];
-        }
-        return round(100 - $sum) - (10 - $this->another_mark);
     }
 
     // علاقة بين الإختبارات والمحفظين لجلب اسم المحفظ في جدول الإختبارات
@@ -120,5 +65,17 @@ class Exam extends Model
     public function examSuccessMark()
     {
         return $this->belongsTo('App\Models\ExamSuccessMark', 'exam_success_mark_id');
+    }
+
+    // علاقة بين الإختبارات وجدول تحسين الدرجة في الإختبارات لجلب درجة التحسين في جدول الإختبارات
+    public function exam_improvement()
+    {
+        return $this->hasOne('App\Models\ExamImprovement', 'id');
+    }
+
+    // علاقة بين الإختبارات وجدول الاختبارات الخارجية في الإختبارات لجلب درجة الاختبارات الخارجية في جدول الإختبارات
+    public function external_exam()
+    {
+        return $this->hasOne('App\Models\ExternalExam', 'id');
     }
 }

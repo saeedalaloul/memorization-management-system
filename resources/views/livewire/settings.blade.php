@@ -137,7 +137,7 @@
                                                             المركز</label>
                                                         <div class="col-lg-9">
                                                             <div class="mb-3">
-                                                                <img style="width: 100px" height="100px"
+                                                                <img style="width: 100px"
                                                                      src="{{ URL::asset('attachments/logo/'.$logo_ret) }}"
                                                                      alt="">
                                                             </div>
@@ -164,5 +164,5 @@
             </div>
         </div>
     </div>
-    <x-loading-indicator/>
+    <x-loading-indicator></x-loading-indicator>
 </div>

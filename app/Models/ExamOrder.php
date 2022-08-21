@@ -4,27 +4,49 @@ namespace App\Models;
 
 
 use Adnane\SimpleUuid\Traits\SimpleUuid;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ExamOrder extends Model
 {
-    use HasFactory,SimpleUuid;
+    use SimpleUuid;
 
     protected $fillable = [
         'status',
+        'type',
         'quran_part_id',
         'student_id',
         'teacher_id',
         'tester_id',
-        'exam_date',
-        'readable',
+        'user_signature_id',
+        'datetime',
         'notes',
     ];
 
-    protected $casts = [
-        'readable' => 'array',
-    ];
+    const IN_PENDING_STATUS = "in-pending";
+    const REJECTED_STATUS = "rejected";
+    const ACCEPTABLE_STATUS = "acceptable";
+    const FAILURE_STATUS = "failure";
+
+    const NEW_TYPE = "new";
+    const IMPROVEMENT_TYPE = "improvement";
+
+    public static function status()
+    {
+        return [
+            self::IN_PENDING_STATUS => 'قيد الطلب',
+            self::REJECTED_STATUS => 'مرفوض',
+            self::ACCEPTABLE_STATUS => 'معتمد',
+            self::FAILURE_STATUS => 'لم يختبر',
+        ];
+    }
+
+    public static function types()
+    {
+        return [
+            self::NEW_TYPE => 'طلب جديد',
+            self::IMPROVEMENT_TYPE => 'طلب تحسين درجة',
+        ];
+    }
 
 
     public function scopeSearch($query, $val)
@@ -51,72 +73,8 @@ class ExamOrder extends Model
     public function scopeTodayExams($query)
     {
         return $query
-            ->whereDate('exam_date', date('Y-m-d', time()))
-            ->where('status', 2);
-    }
-
-    public function scopeUnreadExams()
-    {
-        if (auth()->user()->current_role == 'محفظ') {
-            return $this
-                ->where('teacher_id', auth()->id())
-                ->where('readable->isReadableTeacher', false)
-                ->count();
-        } else if (auth()->user()->current_role == 'مشرف') {
-            return $this
-                ->where('readable->isReadableSupervisor', false)
-                ->whereHas('student', function ($q) {
-                    return $q->where('grade_id', '=', Supervisor::where('id', auth()->id())->first()->grade_id);
-                })
-                ->count();
-        } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
-            return $this
-                ->where('readable->isReadableSupervisorExams', false)
-                ->whereIn('status', [1, 2, -2, -3])
-                ->count();
-        } else if (auth()->user()->current_role == 'مختبر') {
-            return $this
-                ->where('readable->isReadableTester', false)
-                ->where('tester_id', auth()->id())
-                ->whereIn('status', [2, -3])
-                ->count();
-        }
-        return 0;
-    }
-
-    public function scopeUnreadTodayExams()
-    {
-        if (auth()->user()->current_role == 'محفظ') {
-            return $this
-                ->where('teacher_id', auth()->id())
-                ->whereDate('exam_date', date('Y-m-d', time()))
-                ->where('status', 2)
-                ->where('readable->isReadableTeacher', false)
-                ->count();
-        } else if (auth()->user()->current_role == 'مشرف') {
-            return $this
-                ->where('readable->isReadableSupervisor', false)
-                ->whereDate('exam_date', date('Y-m-d', time()))
-                ->where('status', 2)
-                ->whereHas('student', function ($q) {
-                    return $q->where('grade_id', '=', Supervisor::where('id', auth()->id())->first()->grade_id);
-                })
-                ->count();
-        } else if (auth()->user()->current_role == 'مشرف الإختبارات') {
-            return $this
-                ->where('readable->isReadableSupervisorExams', false)
-                ->whereDate('exam_date', date('Y-m-d', time()))
-                ->where('status', 2)
-                ->count();
-        } else if (auth()->user()->current_role == 'مختبر') {
-            return $this
-                ->where('readable->isReadableTester', false)
-                ->whereDate('exam_date', date('Y-m-d', time()))
-                ->where('status', 2)
-                ->where('tester_id', auth()->id())
-                ->count();
-        }
-        return 0;
+            ->whereDate('datetime', date('Y-m-d', time()))
+            ->where('status', ExamOrder::ACCEPTABLE_STATUS);
     }
 
     // علاقة بين طلبات الإختبارات والمحفظين لجلب اسم المحفظ في جدول طلبات الإختبارات
@@ -135,6 +93,12 @@ class ExamOrder extends Model
     public function tester()
     {
         return $this->belongsTo('App\Models\Tester', 'tester_id');
+    }
+
+    // علاقة بين طلبات الإختبارات وتوقيع المستخدم لجلب اسم صاحب التوقيع في جدول طلبات الإختبارات
+    public function user_signature()
+    {
+        return $this->belongsTo('App\Models\User', 'user_signature_id');
     }
 
     // علاقة بين طلبات الإختبارات وجدول أجزاء القرآن لجلب اسم جزء الإختبار في جدول طلبات الإختبارات

@@ -19,7 +19,7 @@
                     <button type="button" class="btn btn-secondary"
                             data-dismiss="modal">اغلاق
                     </button>
-                    <button type="button" wire:click.prevent="pullATeacherOutOfTheGroup({{$group->id}},{{$group->teacher_id}})"
+                    <button type="button" wire:click.prevent="pullATeacherOutOfTheGroup('{{$group->id}}',{{$group->teacher_id}})"
                             class="btn btn-danger">سحب المحفظ من الحلقة
                     </button>
                 </div>

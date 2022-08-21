@@ -15,20 +15,20 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->timestamp('last_seen')->nullable();
-            $table->unsignedTinyInteger('status')->default(1);
-            $table->string('password');
+            $table->string('name')->index()->unique();
+            $table->string('email')->index()->nullable()->unique();
+            $table->timestamp('email_verified_at')->index()->nullable();
+            $table->timestamp('last_seen')->index()->nullable();
+            $table->boolean('status')->default(1);
+            $table->string('password')->nullable();
             $table->string('current_role',15)->nullable();
-            $table->date('dob');
-            $table->string('phone',10)->unique();
-            $table->string('identification_number',9)->unique();
+            $table->date('dob')->nullable();
+            $table->string('phone',10)->index()->nullable()->unique();
+            $table->string('identification_number',9)->index()->unique();
             $table->rememberToken();
-            $table->string('profile_photo_path', 2048)->nullable();
-            $table->string('address',100);
-            $table->timestamps();
+            $table->string('profile_photo', 2048)->nullable();
+            $table->timestamp('created_at')->index();
+            $table->timestamp('updated_at')->index();
         });
     }
 

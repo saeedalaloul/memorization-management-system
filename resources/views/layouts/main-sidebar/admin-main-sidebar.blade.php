@@ -28,14 +28,8 @@
                 @can('إدارة مشرفي المراحل')
                     <li><a href="{{url('manage_supervisor',null,true)}}">إدارة مشرفي المراحل</a></li>
                 @endcan
-                @can('إدارة الإداريين')
-                    <li><a href="{{url('manage_lower_supervisor',null,true)}}">إدارة إداريي المراحل</a></li>
-                @endcan
                 @can('إدارة المحفظين')
                     <li><a href="{{url('manage_teacher',null,true)}}">إدارة المحفظين</a></li>@endcan
-                @can('إدارة الطلاب')
-                    <li><a href="{{url('manage_student',null,true)}}">إدارة الطلاب</a></li>
-                @endcan
             </ul>
         </li>
 
@@ -43,19 +37,42 @@
             <a href="javascript:void(0);" data-toggle="collapse"
                data-target="#Group-affairs-management">
                 <div class="pull-left"><i class="fas fa-group"></i><span
-                        class="right-nav-text">إدارة شؤون الحلقة</span></div>
+                        class="right-nav-text">إدارة شؤون الحلقات</span></div>
                 <div class="pull-right"><i class="ti-plus"></i></div>
                 <div class="clearfix"></div>
             </a>
             <ul id="Group-affairs-management" class="collapse" data-parent="#sidebarnav">
-                @can('إدارة متابعة الحفظ والمراجعة')
-                    <li><a href="{{url('manage_students_daily_preservation',null,true)}}">متابعة الحفظ
+                @can('إدارة الطلاب')
+                    <li><a href="{{url('manage_student',null,true)}}">إدارة الطلاب</a></li>
+                @endcan
+                @can('إدارة تقرير الحفظ والمراجعة')
+                    <li><a href="{{url('manage_report_daily_memorization',null,true)}}">تقرير الحفظ
                             والمراجعة</a>
                     </li>
                 @endcan
-                @can('إدارة تقرير الحفظ والمراجعة')
-                    <li><a href="{{url('manage_report_daily_preservation',null,true)}}">تقرير الحفظ
-                            والمراجعة</a>
+                @can('إدارة التقارير الشهرية')
+                    <li><a href="{{url('manage_report_monthly_memorization',null,true)}}">التقارير الشهرية</a>
+                    </li>
+                @endcan
+                @can('إدارة الاجراءات العقابية')
+                    <li><a href="{{url('manage_punitive_measures',null,true)}}">إدارة الاجراءات العقابية</a></li>
+                @endcan
+            </ul>
+        </li>
+
+
+        <li>
+            <a href="javascript:void(0);" data-toggle="collapse"
+               data-target="#Managing-activities-department">
+                <div class="pull-left"><i class="fas fa-flag"></i><span
+                        class="right-nav-text">إدارة الأنشطة</span></div>
+                <div class="pull-right"><i class="ti-plus"></i></div>
+                <div class="clearfix"></div>
+            </a>
+            <ul id="Managing-activities-department" class="collapse" data-parent="#sidebarnav">
+                @can('إدارة الأنشطة')
+                    <li>
+                        <a href="{{url('manage_activities',null,true)}}">إدارة الأنشطة</a>
                     </li>
                 @endcan
             </ul>
@@ -63,105 +80,32 @@
 
         <li>
             <a href="javascript:void(0);" data-toggle="collapse"
+               data-target="#Managing-visits-department">
+                <div class="pull-left"><i class="fas fa-envelope"></i><span
+                        class="right-nav-text">إدارة زيارات الرقابة</span></div>
+                <div class="pull-right"><i class="ti-plus"></i></div>
+                <div class="clearfix"></div>
+            </a>
+            <ul id="Managing-visits-department" class="collapse" data-parent="#sidebarnav">
+                <li>
+                    <a href="{{url('manage_visits',null,true)}}">إدارة زيارات الرقابة</a>
+                </li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="javascript:void(0);" data-toggle="collapse"
                data-target="#Complaints-suggestions-fund-management">
-                <div class="pull-left"><i class="fas fa-group"></i><span
+                <div class="pull-left"><i class="fas fa-support"></i><span
                         class="right-nav-text">إدارة صندوق الشكاوي</span></div>
                 <div class="pull-right"><i class="ti-plus"></i></div>
                 <div class="clearfix"></div>
             </a>
             <ul id="Complaints-suggestions-fund-management" class="collapse" data-parent="#sidebarnav">
                 @can('إدارة صندوق الشكاوي والإقتراحات')
-                    <li><a href="{{url('manage_box_complaint_suggestions',null,true)}}">صندوق الشكاوي والإقتراحات</a>
-                    </li>
-                @endcan
-                @can('إدارة تصنيفات صندوق الشكاوي والإقتراحات')
-                    <li><a href="{{url('manage_complaint_box_categories',null,true)}}">تصنيفات صندوق الشكاوي والإقتراحات</a>
-                    </li>
-                @endcan
-                    @can('إدارة أدوار صندوق الشكاوي والإقتراحات')
-                        <li><a href="{{url('manage_complaint_box_roles',null,true)}}">أدوار صندوق الشكاوي والإقتراحات</a>
-                        </li>
-                    @endcan
-            </ul>
-        </li>
-
-        <li>
-            <a href="javascript:void(0);" data-toggle="collapse" data-target="#Managing-individual-exams-department">
-                <div class="pull-left"><i class="fas fa-book-open"></i><span
-                        class="right-nav-text">إدارة الإختبارات المنفردة</span></div>
-                <div class="pull-right"><i class="ti-plus"></i></div>
-                <div class="clearfix"></div>
-            </a>
-            <ul id="Managing-individual-exams-department" class="collapse" data-parent="#sidebarnav">
-                @can('إدارة طلبات الإختبارات')
                     <li>
-                        @if (\App\Models\ExamOrder::unreadexams() > 0)
-                            <a href="{{url('manage_exams_orders',null,true)}}">طلبات الإختبارات<span
-                                    class="badge bg-danger float-right mt-1">{{\App\Models\ExamOrder::unreadexams()}}</span></a>
-                        @else
-                            <a href="{{url('manage_exams_orders',null,true)}}">طلبات الإختبارات</a>
-                        @endif
-                    </li>
-                @endcan
-                @can('إدارة الإختبارات')
-                    <li>
-                        @if (\App\Models\Exam::unreadexams() > 0)
-                            <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية<span
-                                    class="badge bg-danger float-right mt-1">{{\App\Models\Exam::unreadexams()}}</span></a>
-                        @else
-                            <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية</a>
-                        @endif
-                    </li>
-                @endcan
-                @can('إدارة اختبارات اليوم')
-                    <li>
-                        @if (\App\Models\ExamOrder::unreadtodayexams() > 0)
-                            <a href="{{url('manage_today_exams',null,true)}}">اختبارات اليوم<span
-                                    class="badge bg-danger float-right mt-1">{{\App\Models\ExamOrder::unreadtodayexams()}}</span></a>
-                        @else
-                            <a href="{{url('manage_today_exams',null,true)}}">اختبارات اليوم</a>
-                        @endif
-                    </li>
-                @endcan
-            </ul>
-        </li>
-
-        <li>
-            <a href="javascript:void(0);" data-toggle="collapse" data-target="#Managing-summative-exams-department">
-                <div class="pull-left"><i class="fas fa-book"></i><span
-                        class="right-nav-text">إدارة اختبارات التجميعي</span></div>
-                <div class="pull-right"><i class="ti-plus"></i></div>
-                <div class="clearfix"></div>
-            </a>
-            <ul id="Managing-summative-exams-department" class="collapse" data-parent="#sidebarnav">
-                @can('إدارة طلبات اختبارات التجميعي')
-                    <li>
-                        @if (\App\Models\ExamSummativeOrder::unreadexams() > 0)
-                            <a href="{{url('manage_exams_summative_orders',null,true)}}">طلبات الإختبارات<span
-                                    class="badge bg-danger float-right mt-1">{{\App\Models\ExamSummativeOrder::unreadexams()}}</span></a>
-                        @else
-                            <a href="{{url('manage_exams_summative_orders',null,true)}}">طلبات الإختبارات</a>
-                        @endif
-                    </li>
-                @endcan
-                @can('إدارة اختبارات التجميعي')
-                    <li>
-                        @if (\App\Models\SummativeExam::unreadexams() > 0)
-                            <a href="{{url('manage_exams_summative',null,true)}}">الإختبارات القرآنية<span
-                                    class="badge bg-danger float-right mt-1">{{\App\Models\SummativeExam::unreadexams()}}</span></a>
-                        @else
-                            <a href="{{url('manage_exams_summative',null,true)}}">الإختبارات القرآنية</a>
-                        @endif
-                    </li>
-                @endcan
-                @can('إدارة اختبارات التجميعي اليوم')
-                    <li>
-                        @if (\App\Models\ExamSummativeOrder::unreadtodayexams() > 0)
-                            <a href="{{url('manage_today_exams_summative',null,true)}}">اختبارات اليوم<span
-                                    class="badge bg-danger float-right mt-1">{{\App\Models\ExamSummativeOrder::unreadtodayexams()}}</span></a>
-                        @else
-                            <a href="{{url('manage_today_exams_summative',null,true)}}">اختبارات اليوم</a>
-                        @endif
+                        <a href="{{url('manage_box_complaint_suggestions',null,true)}}">صندوق الشكاوي
+                            والإقتراحات</a>
                     </li>
                 @endcan
             </ul>
@@ -169,34 +113,34 @@
 
         <li>
             <a href="javascript:void(0);" data-toggle="collapse" data-target="#Managing-exams-department">
-                <div class="pull-left"><i class="fas fa-chalkboard-teacher"></i><span
-                        class="right-nav-text">إدارة شؤون الإختبارات</span></div>
+                <div class="pull-left"><i class="fas fa-book-open"></i><span
+                        class="right-nav-text">إدارة الإختبارات القرآنية</span></div>
                 <div class="pull-right"><i class="ti-plus"></i></div>
                 <div class="clearfix"></div>
             </a>
             <ul id="Managing-exams-department" class="collapse" data-parent="#sidebarnav">
-                @can('إدارة المختبرين')
-                    <li><a href="{{url('manage_testers',null,true)}}">المختبرين</a></li>
-                @endcan
-                @can('إعدادات الإختبارات')
-                    <li><a href="{{url('manage_exams_settings',null,true)}}">إعدادات الإختبارات القرآنية</a></li>
+                @can('إدارة الإختبارات')
+                    <li>
+                        <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية</a>
+                    </li>
                 @endcan
             </ul>
         </li>
-
 
         <!-- Users-->
         <li>
             <a href="javascript:void(0);" data-toggle="collapse" data-target="#Users-icon">
                 <div class="pull-left"><i class="fas fa-users"></i><span
-                        class="right-nav-text">المستخدمين</span></div>
+                        class="right-nav-text">إدارة المستخدمين</span></div>
                 <div class="pull-right"><i class="ti-plus"></i></div>
                 <div class="clearfix"></div>
             </a>
             <ul id="Users-icon" class="collapse" data-parent="#sidebarnav">
-                <li><a href="{{route('roles.index')}}">أدوار المستخدمين</a></li>
+                @can('إدارة الأدوار')
+                    <li><a href="{{url('manage_roles',null,true)}}">إدارة أدوار المستخدمين</a></li>
+                @endcan
                 @can('إدارة المستخدمين')
-                    <li><a href="{{url('manage_users',null,true)}}">المستخدمين</a></li>
+                    <li><a href="{{url('manage_users',null,true)}}">إدارة المستخدمين</a></li>
                 @endcan
             </ul>
         </li>

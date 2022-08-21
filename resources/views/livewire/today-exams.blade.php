@@ -1,33 +1,24 @@
 <div class="row">
     <div>
-        @if(Session::has('success_message'))
-            <script>
-                $(function () {
-                    toastr.success("{{ Session::get('success_message') }}");
-                })
-            </script>
-        @endif
-        @if(Session::has('failure_message'))
-            <script>
-                $(function () {
-                    toastr.error("{{ Session::get('failure_message') }}");
-                })
-            </script>
+        @if ($catchError)
+            <div class="alert alert-danger" id="success-danger">
+                <button wire:click.prevent="resetMessage();" type="button" class="close" data-dismiss="alert">x</button>
+                {{ $catchError }}
+            </div>
         @endif
     </div>
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
-            @if(auth()->user()->current_role == 'أمير المركز' ||
-                auth()->user()->current_role == 'مشرف الإختبارات' ||
-                auth()->user()->current_role == 'محفظ' ||
-                auth()->user()->current_role == 'مختبر')
+            @if($current_role == \App\Models\User::ADMIN_ROLE || $current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE ||
+                $current_role == \App\Models\User::TEACHER_ROLE || $current_role == \App\Models\User::TESTER_ROLE
+                || $current_role == \App\Models\User::SUPERVISOR_ROLE)
                 <div class="card-body">
                     <br>
                     @if ($isExamOfStart == true)
                         @include('pages.today_exams.exam_of_start')
                     @else
                         @can('إدارة اختبارات اليوم')
-                            @include('livewire.search')
+                            <x-search></x-search>
                             <div class="table-responsive mt-15">
                                 <table class="table center-aligned-table mb-0">
                                     <thead>
@@ -47,25 +38,30 @@
                                     @forelse($exams_today as $exam_today)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $exam_today->student->user->name }}</td>
-                                            <td>{{ $exam_today->QuranPart->name }}</td>
+                                            <td>{{ $exam_today->student->user->name}}</td>
+                                            <td>
+                                                @if ($exam_today->type == \App\Models\ExamOrder::IMPROVEMENT_TYPE)
+                                                    <label class="badge badge-success">
+                                                        {{ $exam_today->QuranPart->name .' '.$exam_today->QuranPart->description . ' (طلب تحسين درجة)' }}
+                                                    </label>
+                                                @else
+                                                    {{ $exam_today->QuranPart->name .' '.$exam_today->QuranPart->description }}
+                                                @endif
+                                            </td>
                                             <td>{{ $exam_today->teacher->user->name }}</td>
                                             <td>{{ $exam_today->tester->user->name }}</td>
-                                            <td>{{ $exam_today->exam_date }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($exam_today->datetime)->format('Y-m-d') }}</td>
                                             <td>
                                                 @can('إجراء الإختبار')
-                                                    @if($exam_today->status == 2 && $exam_today->teacher_id != auth()->id())
-                                                        @if (auth()->user()->current_role == 'مختبر' ||
-                                                             auth()->user()->current_role == 'مشرف الإختبارات')
+                                                    @if($exam_today->status == \App\Models\ExamOrder::ACCEPTABLE_STATUS && $exam_today->teacher_id != auth()->id())
+                                                        @if ($current_role == 'مختبر' ||$current_role == 'مشرف الإختبارات')
                                                             <button class="btn btn-outline-success btn-sm"
-                                                                    data-toggle="modal"
-                                                                    wire:click.prevent="examOfStart({{$exam_today->id}})"
-                                                                    data-target="#">
+                                                                    wire:click.prevent="examOfStart('{{$exam_today->id}}')">
                                                                 بدء إجراء الإختبار
                                                             </button>
                                                             <button class="btn btn-outline-danger btn-sm"
                                                                     data-toggle="modal"
-                                                                    wire:click.prevent="getExamOrder({{$exam_today->id}})"
+                                                                    wire:click.prevent="getExamOrder('{{$exam_today->id}}')"
                                                                     data-target="#refusal-exam">الطالب لم يختبر
                                                             </button>
                                                         @endif
@@ -120,5 +116,5 @@
             @endif
         </div>
     </div>
-    <x-loading-indicator/>
+    <x-loading-indicator></x-loading-indicator>
 </div>
