@@ -1,11 +1,13 @@
 <div class="row">
     <div class="col-xl-12 mb-30">
-        @if ($catchError)
-            <div class="alert alert-danger" id="success-danger">
-                <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
-                {{ $catchError }}
-            </div>
-        @endif
+        <div>
+            @if ($catchError)
+                <div class="alert alert-danger" id="success-danger">
+                    <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
+                    {{ $catchError }}
+                </div>
+            @endif
+        </div>
         <div class="card card-statistics h-100">
             <div class="card-body" x-data="{currentTab: $persist('home')}">
                 <h5 class="card-title">إدارة الحلقات</h5>
@@ -129,7 +131,6 @@
                                                                     data-target="#groupPullTeacher"
                                                                     title="سحب المحفظ من الحلقة"><i
                                                                     class="fa fa-remove"></i></button>
-                                                            @include('pages.groups.pull_teacher')
                                                         @endif
                                                         @can('حذف مجموعة')
                                                             <button type="button" class="btn btn-danger btn-sm"
@@ -137,10 +138,11 @@
                                                                     data-target="#groupDeleted"
                                                                     title="حذف"><i
                                                                     class="fa fa-trash"></i></button>
-                                                            @include('pages.groups.delete')
                                                         @endcan
                                                     </td>
                                                 </tr>
+                                                @include('pages.groups.pull_teacher')
+                                                @include('pages.groups.delete')
                                             @empty
                                                 <tr style="text-align: center">
                                                     <td colspan="6">No data available in table</td>

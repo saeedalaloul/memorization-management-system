@@ -165,9 +165,10 @@ class Groups extends HomeComponent
 
     public function pullATeacherOutOfTheGroup($id, $teacher_id)
     {
+        dd($id);
         if ($id != null && $teacher_id != null) {
             $this->dispatchBrowserEvent('hideDialog');
-            $teacher = Teacher::find($teacher_id);
+            $teacher = Teacher::where('id',$teacher_id)->first();
             if ($teacher->exam_order->count() > 0) {
                 $this->catchError = "عذرا , يوجد طلبات اختبارات لهذه الحلقة يجب إجرائها أو حذفها حتى تتمكن من سحب المحفظ";
             } else {
@@ -201,6 +202,7 @@ class Groups extends HomeComponent
 
     public function destroy($id)
     {
+        dd($id);
         Group::where('id', $id)->delete();
         $this->dispatchBrowserEvent('hideDialog');
         $this->dispatchBrowserEvent('alert',

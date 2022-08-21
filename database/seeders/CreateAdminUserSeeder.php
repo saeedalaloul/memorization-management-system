@@ -17,12 +17,13 @@ class CreateAdminUserSeeder extends Seeder
     public function run()
     {
         $user = User::create([
-            'name' => 'Saeed Alaloul',
+            'name' => 'عبيدة منذر خليل الغماري',
             'email' => 'saeedalaloul@gmail.com',
             'dob' => date('Y-m-d'),
             'phone' => '0593654277',
             'identification_number' => '123456784',
             'password' => bcrypt('12345678'),
+            'email_verified_at' => now(),
         ]);
 
         $roles = [

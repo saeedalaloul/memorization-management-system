@@ -63,7 +63,7 @@ class Teacher extends Model
     // علاقة بين جدول المحفظين وجدول طلبات الإختبارات
     public function exam_order()
     {
-        return $this->hasMany('App\Models\ExamOrder', 'teacher_id');
+        return $this->hasMany('App\Models\ExamOrder', 'teacher_id','id');
     }
 
     // علاقة بين جدول المحفظين وجدول الإختبارات القرآنية
