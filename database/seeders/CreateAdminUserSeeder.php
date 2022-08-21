@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -23,7 +24,7 @@ class CreateAdminUserSeeder extends Seeder
             'phone' => '0593654277',
             'identification_number' => '123456784',
             'password' => bcrypt('12345678'),
-            'email_verified_at' => now(),
+            'email_verified_at' => Carbon::now()->timestamp,
         ]);
 
         $roles = [
