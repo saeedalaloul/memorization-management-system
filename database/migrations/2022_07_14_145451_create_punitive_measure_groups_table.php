@@ -15,7 +15,7 @@ class CreatePunitiveMeasureGroupsTable extends Migration
     {
         Schema::create('punitive_measure_groups', function (Blueprint $table) {
             $table->foreignUuid('punitive_measure_id')->index()->references('id')->on('punitive_measures')->cascadeOnDelete();
-            $table->foreignUuid('group_id')->index()->references('id')->on('groups')->cascadeOnDelete();
+            $table->foreignUuid('group_id')->index()->references('id')->on('groups')->restrictOnDelete();
         });
     }
 

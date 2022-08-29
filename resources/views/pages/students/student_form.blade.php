@@ -14,7 +14,7 @@
                         @enderror
                     </div>
                     <div class="col">
-                        <label for="title">الإسم</label>
+                        <label for="title">الإسم رباعي</label>
                         <input type="text" wire:model.defer="student_name" class="form-control">
                         @error('student_name')
                         <div class="alert alert-danger">{{ $message }}</div>
@@ -26,19 +26,41 @@
                     <div class="col">
                         <label for="title">تاريخ الميلاد</label>
                         <div class='input-group date'>
-                            <input class="form-control" wire:model.defer="dob" type="date" data-date-format="yyyy-mm-dd">
+                            <input class="form-control" wire:model.defer="dob" type="date"
+                                   data-date-format="yyyy-mm-dd">
                         </div>
                         @error('dob')
                         <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="col">
+                        <label class="control-label">رقم الواتس اب</label>
+                        <div class="input-group">
+						<span class="input-group-btn">
+						  <select class="custom-select my-1 mr-sm-2" wire:model.defer="country_code">
+                            <option value="" selected>اختر كود الدولة...</option>
+                            <option value="+970">+970</option>
+                            <option value="+972">+972</option>
+                        </select>
+						</span>
+                            <input type="number" wire:model.defer="whatsapp_number"
+                                   class="form-control"/> @error('country_code')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                            @enderror</div>
+                        @error('whatsapp_number')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                 </div>
 
 
                 <div class="form-row">
                     <div class="form-group col">
                         <label for="inputGrade">اسم المرحلة</label>
-                        <select style="width: 100%;" class="custom-select my-1 mr-sm-2 select2" id="grade_" wire:model.defer="grade_id">
+                        <select style="width: 100%;" class="custom-select my-1 mr-sm-2 select2" id="grade_"
+                                wire:model.defer="grade_id">
                             <option selected>اختر المرحلة...</option>
                             @foreach($grades as $grade)
                                 <option value="{{$grade->id}}">{{$grade->name}}</option>
@@ -51,7 +73,8 @@
 
                     <div class="form-group col">
                         <label for="inputGroup">اسم الحلقة</label>
-                        <select style="width: 100%;" class="custom-select my-1 mr-sm-2 select2" id="group" wire:model.defer="group_id">
+                        <select style="width: 100%;" class="custom-select my-1 mr-sm-2 select2" id="group"
+                                wire:model.defer="group_id">
                             <option selected>اختر الحلقة...</option>
                             @foreach($groups as $group)
                                 <option value="{{$group->id}}">{{$group->teacher->user->name}}</option>

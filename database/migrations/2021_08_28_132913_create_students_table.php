@@ -18,6 +18,7 @@ class CreateStudentsTable extends Migration
             $table->foreignId('father_id')->index()->references('id')->on('fathers')->restrictOnDelete();
             $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->restrictOnDelete();
             $table->foreignUuid('group_id')->index()->references('id')->on('groups')->restrictOnDelete();
+            $table->string('whatsapp_number',13)->index();
             $table->timestamp('created_at')->index();
             $table->timestamp('updated_at')->index();
         });

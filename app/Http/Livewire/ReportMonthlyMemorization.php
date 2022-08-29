@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Excel;
 class ReportMonthlyMemorization extends HomeComponent
 {
 
-    public $groups = [], $grades = [], $students = [], $years = [], $months = [],$reports = [];
+    public $groups = [], $grades = [], $students = [], $years = [], $months = [], $reports = [];
 
     public $selectedGradeId, $selectedTeacherId, $selectedYear, $selectedMonth, $group_id, $grade_id;
 
@@ -61,7 +61,7 @@ class ReportMonthlyMemorization extends HomeComponent
 
     public function getTeachersByGradeId()
     {
-        $this->reset('groups', 'selectedTeacherId','reports');
+        $this->reset('groups', 'selectedTeacherId', 'reports');
 
         if ($this->current_role == 'مشرف') {
             if ($this->selectedGradeId) {
@@ -132,7 +132,7 @@ AND s.group_id = '$this->selectedTeacherId'
 
 GROUP BY users.name,sura_start.name,b.aya_from,sura_end.name,c.aya_to,quran_part_count.total_preservation_parts";
 
-           return $this->reports =  DB::select($query);
+            return $this->reports = DB::select($query);
         }
         return [];
     }

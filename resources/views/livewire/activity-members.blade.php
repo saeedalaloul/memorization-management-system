@@ -1,10 +1,12 @@
 <div>
-    @if ($catchError)
-        <div class="alert alert-danger" id="success-danger">
-            <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
-            {{ $catchError }}
-        </div>
-    @endif
+    <div>
+        @if ($catchError)
+            <div class="alert alert-danger" id="success-danger">
+                <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
+                {{ $catchError }}
+            </div>
+        @endif
+    </div>
 
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">

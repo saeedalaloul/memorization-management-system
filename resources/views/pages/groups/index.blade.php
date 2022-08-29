@@ -28,6 +28,14 @@
         window.addEventListener('showDialog', _ => {
             $('#groupMove').modal('show');
         });
+
+        window.addEventListener('showModalPullTeacher', _ => {
+            $('#groupPullTeacher').modal('show');
+        });
+
+        window.addEventListener('showModalDeleteGroup', _ => {
+            $('#groupDeleted').modal('show');
+        });
     </script>
 @endsection
 

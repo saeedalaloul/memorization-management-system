@@ -9,14 +9,18 @@ trait UploadImageTrait
 {
     public function uploadImage($photo,$name,$id)
     {
-        $photo->storeAs('/', $name, $disk = 'users_images');
-        User::find($id)->update([
-            'profile_photo' => $name,
-        ]);
+        if ($photo != null && $name != null && $id != null) {
+            $photo->storeAs('/', $name, $disk = 'users_images');
+            User::find($id)->update([
+                'profile_photo' => $name,
+            ]);
+        }
     }
 
     public function deleteImage($name)
     {
-        Storage::disk('users_images')->delete($name);
+        if ($name != null) {
+            Storage::disk('users_images')->delete($name);
+        }
     }
 }

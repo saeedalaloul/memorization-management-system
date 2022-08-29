@@ -16,7 +16,7 @@ class CreateVisitOrdersTable extends Migration
         Schema::create('visit_orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('hostable_type');
-            $table->char('hostable_id',36);
+            $table->unsignedBigInteger('hostable_id')->index();
             $table->dateTime('datetime')->index();
             $table->enum('status',['in-pending','in-sending','in-approval'])->default('in-pending')->index();
             $table->foreignId('oversight_member_id')->index()->references('id')->on('oversight_members')->restrictOnDelete();

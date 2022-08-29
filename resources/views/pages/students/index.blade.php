@@ -21,10 +21,14 @@
     @toastr_render
     <script>
         window.addEventListener('hideDialog', () => {
+            $('#add-exam').modal('hide');
             $('#warning_cancel').modal('hide');
             $('#block_cancel').modal('hide');
-            $('#add-exam').modal('hide');
             $('#reset-data-daily-memorization').modal('hide');
+        });
+
+        window.addEventListener('hide', () => {
+            $('#add-exam').modal('hide');
         });
 
         window.addEventListener('showDialog', () => {

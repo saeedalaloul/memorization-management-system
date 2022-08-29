@@ -175,3 +175,5 @@ Route::group(
 });
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/executeJobCheckStudent', [HomeController::class, 'executeJobCheckStudent'])->name('executeJobCheckStudent');
+Route::get('/executeJobCheckVisit', [HomeController::class, 'executeJobCheckVisit'])->name('executeJobCheckVisit');

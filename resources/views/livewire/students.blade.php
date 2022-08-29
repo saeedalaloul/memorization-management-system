@@ -1,19 +1,19 @@
 <div>
-   <div>
-       @if (!empty($successMessage))
-           <div class="alert alert-success" id="success-alert">
-               <button wire:click.prevent="resetMessage();" type="button" class="close" data-dismiss="alert">x</button>
-               {{ $successMessage }}
-           </div>
-       @endif
+    <div>
+        @if (!empty($successMessage))
+            <div class="alert alert-success" id="success-alert">
+                <button wire:click.prevent="resetMessage();" type="button" class="close" data-dismiss="alert">x</button>
+                {{ $successMessage }}
+            </div>
+        @endif
 
-       @if ($catchError)
-           <div class="alert alert-danger" id="success-danger">
-               <button wire:click.prevent="resetMessage();" type="button" class="close" data-dismiss="alert">x</button>
-               {{ $catchError }}
-           </div>
-       @endif
-   </div>
+        @if ($catchError)
+            <div class="alert alert-danger" id="success-danger">
+                <button wire:click.prevent="resetMessage();" type="button" class="close" data-dismiss="alert">x</button>
+                {{ $catchError }}
+            </div>
+        @endif
+    </div>
 
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
@@ -52,11 +52,12 @@
                              aria-labelledby="students-05-tab">
                             @include('pages.students.students_table')
                         </div>
-                        <div class="tab-pane fade" :class="currentTab === 'form' ? 'active show':'' " id="add_student-05"
+                        <div class="tab-pane fade" :class="currentTab === 'form' ? 'active show':'' "
+                             id="add_student-05"
                              role="tabpanel"
                              aria-labelledby="add_student-05-tab">
 
-                            @if($process_type == "show")
+                            @if($process_type == "show" && $student != null && !empty($student))
                                 @include('pages.students.show_student')
                             @else
                                 @if ($current_role == \App\Models\User::ADMIN_ROLE ||
@@ -129,6 +130,11 @@
             let id = $(this).val()
         @this.set('selectedTeacherId', id);
             livewire.emit('getStudentsByTeacherId', id);
+        });
+
+        $("#age").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedAge', id);
         });
     </script>
 @endpush

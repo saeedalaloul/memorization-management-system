@@ -113,7 +113,7 @@ class Grades extends HomeComponent
             ->select(['users.name', 'identification_number', 'phone', 'dob', 'economic_situation',
                 'recitation_level', 'academic_qualification','grades.name as grade_name'])
             ->join('users', 'teachers.id', '=', 'users.id')
-            ->join('users_info', 'users.id', '=', 'users_info.id')
+            ->join('user_infos', 'users.id', '=', 'user_infos.id')
             ->join('grades', 'teachers.grade_id', '=', 'grades.id')
             ->get();
         return (new AllTeachersExport($teachers))->download('Database of all teachers of the center.xlsx', Excel::XLSX);
@@ -127,7 +127,7 @@ class Grades extends HomeComponent
             $teachers = DB::table('teachers')
                 ->select(['name', 'identification_number', 'phone', 'dob', 'economic_situation', 'recitation_level', 'academic_qualification'])
                 ->join('users', 'teachers.id', '=', 'users.id')
-                ->join('users_info', 'users.id', '=', 'users_info.id')
+                ->join('user_infos', 'users.id', '=', 'user_infos.id')
                 ->where('teachers.grade_id', '=', $id)
                 ->get();
             return (new GradeTeachersExport($teachers, $grade_name))->download('Database of all ' . $grade_name . ' teachers' . '.xlsx', Excel::XLSX);
@@ -144,7 +144,7 @@ class Grades extends HomeComponent
                     'users_student.identification_number as student_identification_number',
                     'users_father.identification_number as father_identification_number',
                     'users_father.phone as father_phone', 'users_student.dob as student_dob',
-                    'users_info_father.economic_situation as economic_situation',
+                    'user_infos_father.economic_situation as economic_situation',
                     'users_teacher.name as teacher_name',
                     'quran_part_count.total_preservation_parts',
                     DB::raw("(GROUP_CONCAT(quran_part_count.name,' ',quran_part_count.description SEPARATOR '')) as `quran_part_individual`"),
@@ -154,7 +154,7 @@ class Grades extends HomeComponent
                 ->join('fathers', 'students.father_id', '=', 'fathers.id')
                 ->join('users as users_student', 'students.id', '=', 'users_student.id')
                 ->join('users as users_father', 'fathers.id', '=', 'users_father.id')
-                ->join('users_info as users_info_father', 'users_father.id', '=', 'users_info_father.id')
+                ->join('user_infos as user_infos_father', 'users_father.id', '=', 'user_infos_father.id')
                 ->join('users as users_teacher', 'groups.teacher_id', '=', 'users_teacher.id')
                 ->leftJoin('exams as exams_count', function ($join) {
                     $join->on('students.id', '=', 'exams_count.student_id')
@@ -195,7 +195,7 @@ class Grades extends HomeComponent
                 'users_student.identification_number as student_identification_number',
                 'users_father.identification_number as father_identification_number',
                 'users_father.phone as father_phone', 'users_student.dob as student_dob',
-                'users_info_father.economic_situation as economic_situation',
+                'user_infos_father.economic_situation as economic_situation',
                 'grades.name as grade_name', 'users_teacher.name as teacher_name',
                 'quran_part_count.total_preservation_parts',
                 DB::raw("(GROUP_CONCAT(quran_part_count.name,' ',quran_part_count.description SEPARATOR '')) as `quran_part_individual`"),
@@ -205,7 +205,7 @@ class Grades extends HomeComponent
             ->join('fathers', 'students.father_id', '=', 'fathers.id')
             ->join('users as users_student', 'students.id', '=', 'users_student.id')
             ->join('users as users_father', 'fathers.id', '=', 'users_father.id')
-            ->join('users_info as users_info_father', 'users_father.id', '=', 'users_info_father.id')
+            ->join('user_infos as user_infos_father', 'users_father.id', '=', 'user_infos_father.id')
             ->join('users as users_teacher', 'groups.teacher_id', '=', 'users_teacher.id')
             ->leftJoin('exams as exams_count', function ($join) {
                 $join->on('students.id', '=', 'exams_count.student_id')

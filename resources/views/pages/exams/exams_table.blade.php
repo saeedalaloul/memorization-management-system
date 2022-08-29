@@ -136,18 +136,20 @@
                     </td>
                     <td>{{ $exam->notes }}</td>
                     <td>
-                        @if($current_role == \App\Models\User::TEACHER_ROLE)
-                            @if ($exam->mark >= $exam->examSuccessMark->mark && $exam->exam_improvement == null)
-                                <button
-                                    wire:click.prevent="submitExamImprovementRequest('{{$exam->student_id}}',{{$exam->quran_part_id}});"
-                                    class="btn btn-outline-success btn-sm">تحسين درجة الإختبار
-                                </button>
-                            @endif
-                        @elseif($current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
-                            @if ($exam->mark >= $exam->examSuccessMark->mark && $exam->external_exam == null)
-                                <button wire:click="show_dialog_assign_external_exam('{{$exam->id}}');"
-                                        class="btn btn-outline-success btn-sm">رصد درجة الإختبار (الخارجية)
-                                </button>
+                        @if ($exam->quran_part_id != 17 && $exam->quran_part_id != 18)
+                            @if($current_role == \App\Models\User::TEACHER_ROLE)
+                                @if ($exam->mark >= $exam->examSuccessMark->mark && $exam->exam_improvement == null)
+                                    <button
+                                        wire:click.prevent="submitExamImprovementRequest('{{$exam->student_id}}',{{$exam->quran_part_id}});"
+                                        class="btn btn-outline-success btn-sm">تحسين درجة الإختبار
+                                    </button>
+                                @endif
+                            @elseif($current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
+                                @if ($exam->mark >= $exam->examSuccessMark->mark && $exam->external_exam == null)
+                                    <button wire:click="show_dialog_assign_external_exam('{{$exam->id}}');"
+                                            class="btn btn-outline-success btn-sm">رصد درجة الإختبار (الخارجية)
+                                    </button>
+                                @endif
                             @endif
                         @endif
                     </td>

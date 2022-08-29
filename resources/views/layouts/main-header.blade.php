@@ -92,7 +92,7 @@
         </li>
         @php
             $count = auth()->user()->unreadNotifications->count();
-            $unreadNotifications = auth()->user()->unreadNotifications;
+            $unreadNotifications = auth()->user()->unreadNotifications()->take(10)->get();
         @endphp
         <li class="nav-item dropdown">
             <a class="nav-link top-nav" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
@@ -189,9 +189,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" onclick="startFCM();"><i class="text-secondary ti-alarm-clock"></i>تفعيل
-                    الإشعارات</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{{route('manage_password')}}"><i class="text-info ti-key"></i>تغيير كلمة
                     المرور</a>

@@ -163,16 +163,26 @@ class Groups extends HomeComponent
         }
     }
 
-    public function pullATeacherOutOfTheGroup($id, $teacher_id)
+    public function lunchBoxOfModalData($type, $id, $teacher_id)
     {
-        dd($id);
-        if ($id != null && $teacher_id != null) {
+        $this->modalId = $id;
+        if ($type == 'delete') {
+            $this->dispatchBrowserEvent('showModalDeleteGroup');
+        } else {
+            $this->teacher_id = $teacher_id;
+            $this->dispatchBrowserEvent('showModalPullTeacher');
+        }
+    }
+
+    public function pullATeacherOutOfTheGroup()
+    {
+        if ($this->modalId != null && $this->teacher_id != null) {
             $this->dispatchBrowserEvent('hideDialog');
-            $teacher = Teacher::where('id',$teacher_id)->first();
+            $teacher = Teacher::where('id', $this->teacher_id)->first();
             if ($teacher->exam_order->count() > 0) {
                 $this->catchError = "عذرا , يوجد طلبات اختبارات لهذه الحلقة يجب إجرائها أو حذفها حتى تتمكن من سحب المحفظ";
             } else {
-                $group = Group::find($id);
+                $group = Group::find($this->modalId);
                 if ($group->teacher_id != null) {
                     $group->update(['teacher_id' => null]);
                     $this->dispatchBrowserEvent('alert',
@@ -200,13 +210,18 @@ class Groups extends HomeComponent
         }
     }
 
-    public function destroy($id)
+    public function destroy()
     {
-        dd($id);
-        Group::where('id', $id)->delete();
+        $group = Group::where('id', $this->modalId)->first();
+
+        if ($group->students->count() > 0) {
+            $this->catchError = "عذرا لا يمكنك حذف هذه الحلقة بسبب وجود طلاب داخل الحلقة.";
+        } else {
+            $group->delete();
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'success', 'message' => 'تم حذف الحلقة بنجاح.']);
+        }
         $this->dispatchBrowserEvent('hideDialog');
-        $this->dispatchBrowserEvent('alert',
-            ['type' => 'success', 'message' => 'تم حذف الحلقة بنجاح.']);
     }
 
     public function all_Groups()
@@ -225,7 +240,8 @@ class Groups extends HomeComponent
             ->paginate($this->perPage);
     }
 
-    public function submitSearch(){
+    public function submitSearch()
+    {
         $this->all_Groups();
     }
 
@@ -242,7 +258,7 @@ class Groups extends HomeComponent
 
     public function all_teachers_export()
     {
-        $supervisor = Supervisor::with('grade:id,name')->where('id',auth()->id())->first();
+        $supervisor = Supervisor::with('grade:id,name')->where('id', auth()->id())->first();
         $teachers = DB::table('teachers')
             ->select(['name', 'identification_number', 'phone', 'dob', 'economic_situation', 'recitation_level', 'academic_qualification'])
             ->join('users', 'teachers.id', '=', 'users.id')
@@ -259,8 +275,8 @@ class Groups extends HomeComponent
                 ->select(['users_student.name as student_name',
                     'users_student.identification_number as student_identification_number',
                     'users_father.identification_number as father_identification_number',
-                    'users_father.phone as father_phone', 'users_student.dob as student_dob',
-                    'user_info_father.economic_situation as economic_situation',
+                    'users_father.phone as father_phone', 'students.whatsapp_number as student_whatsapp_number'
+                    , 'users_student.dob as student_dob', 'user_info_father.economic_situation as economic_situation',
                     'quran_part_count.total_preservation_parts',
                     DB::raw("(GROUP_CONCAT(quran_part_count.name,' ',quran_part_count.description SEPARATOR '')) as `quran_part_individual`"),
                     DB::raw("(GROUP_CONCAT(part_deserved.name,' ',part_deserved.description SEPARATOR '')) as `quran_part_deserved`")])
@@ -296,15 +312,16 @@ class Groups extends HomeComponent
                 ->where('groups.id', '=', $id)
                 ->groupBy(['student_name', 'quran_part_count.total_preservation_parts'])
                 ->get();
-            $teacher_name = Teacher::with('user:id,name')->where('id',Group::where('id',$id)->first()->teacher_id)->first()->user->name;
+            $teacher_name = Teacher::with('user:id,name')->where('id', Group::where('id', $id)->first()->teacher_id)->first()->user->name;
 
-            return (new GroupStudentsExport($students,$teacher_name))->download('Database of all ' . $teacher_name . ' students' . '.xlsx', Excel::XLSX);
+            return (new GroupStudentsExport($students, $teacher_name))->download('Database of all ' . $teacher_name . ' students' . '.xlsx', Excel::XLSX);
         }
         return;
     }
 
-    public function grade_students_export(){
-       $supervisor = Supervisor::with('grade:id,name')->where('id',auth()->id())->first();
+    public function grade_students_export()
+    {
+        $supervisor = Supervisor::with('grade:id,name')->where('id', auth()->id())->first();
         $students = DB::table('grades')
             ->select(['users_student.name as student_name',
                 'users_student.identification_number as student_identification_number',
@@ -349,6 +366,6 @@ class Groups extends HomeComponent
             ->where('grades.id', '=', $supervisor->grade_id ?? null)
             ->groupBy(['student_name', 'quran_part_count.total_preservation_parts'])
             ->get();
-        return (new GradeStudentsExport($students,$supervisor->grade->name))->download('Database of all ' . $supervisor->grade->name . ' students' . '.xlsx', Excel::XLSX);
+        return (new GradeStudentsExport($students, $supervisor->grade->name))->download('Database of all ' . $supervisor->grade->name . ' students' . '.xlsx', Excel::XLSX);
     }
 }

@@ -16,8 +16,8 @@ class QuranPartsSeeder extends Seeder
     {
 
         $quran_parts = [
-            ['name' => '10-1', 'arrangement' => 44, 'total_preservation_parts' => 10, 'type' => 'deserved', 'description' => 'الفاتحة-التوبة'],
-            ['name' => '5-1', 'arrangement' => 43, 'total_preservation_parts' => 5, 'type' => 'deserved', 'description' => 'الفاتحة-النساء'],
+            ['name' => '10-1', 'arrangement' => 45, 'total_preservation_parts' => 10, 'type' => 'deserved', 'description' => 'الفاتحة-التوبة'],
+            ['name' => '5-1', 'arrangement' => 44, 'total_preservation_parts' => 5, 'type' => 'deserved', 'description' => 'الفاتحة-النساء'],
             ['name' => '5-3', 'arrangement' => 40, 'total_preservation_parts' => 3, 'type' => 'deserved', 'description' => 'آل عمران-النساء'],
             ['name' => '10-6', 'arrangement' => 37, 'total_preservation_parts' => 5, 'type' => 'deserved', 'description' => 'المائدة-التوبة'],
             ['name' => '10-8', 'arrangement' => 34, 'total_preservation_parts' => 3, 'type' => 'deserved', 'description' => 'الأعراف-التوبة'],
@@ -31,8 +31,9 @@ class QuranPartsSeeder extends Seeder
             ['name' => '25-23', 'arrangement' => 11, 'total_preservation_parts' => 3, 'type' => 'deserved', 'description' => 'يس-الجاثية'],
             ['name' => '30-26', 'arrangement' => 7, 'total_preservation_parts' => 5, 'type' => 'deserved', 'description' => 'الأحقاف-الناس'],
             ['name' => '30-28', 'arrangement' => 4, 'total_preservation_parts' => 3, 'type' => 'deserved', 'description' => 'المجادلة-الناس'],
-            ['name' => '1', 'arrangement' => 42, 'total_preservation_parts' => 30, 'type' => 'individual', 'description' => 'البقرة'],
-            ['name' => '2', 'arrangement' => 41, 'total_preservation_parts' => 29, 'type' => 'individual', 'description' => 'البقرة'],
+            ['name' => '2+1', 'arrangement' => 43, 'total_preservation_parts' => 30, 'type' => 'individual', 'description' => 'البقرة'],
+            ['name' => '1', 'arrangement' => 42, 'total_preservation_parts' => 29, 'type' => 'individual', 'description' => 'البقرة-الجزء الأول'],
+            ['name' => '2', 'arrangement' => 41, 'total_preservation_parts' => 29, 'type' => 'individual', 'description' => 'البقرة-الجزء الثاني'],
             ['name' => '4+3', 'arrangement' => 39, 'total_preservation_parts' => 28, 'type' => 'individual', 'description' => 'آل عمران'],
             ['name' => '5', 'arrangement' => 38, 'total_preservation_parts' => 26, 'type' => 'individual', 'description' => 'النساء'],
             ['name' => '6', 'arrangement' => 36, 'total_preservation_parts' => 25, 'type' => 'individual', 'description' => 'المائدة'],

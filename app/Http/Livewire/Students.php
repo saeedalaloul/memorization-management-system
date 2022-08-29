@@ -32,7 +32,7 @@ class Students extends HomeComponent
 {
     use NotificationTrait;
 
-    public $photo, $photo_ret, $quran_parts = [], $groups = [], $grades = [], $warning_cancel_notes,
+    public $photo, $photo_ret, $quran_parts = [], $groups = [], $grades = [], $ages = [], $warning_cancel_notes,
         $block_cancel_notes, $reset_data_daily_memorization_type, $message_warning_reset_data,
         $last_quran_part_id;
 
@@ -43,9 +43,9 @@ class Students extends HomeComponent
         $father_identification_number, $father_name, $father_phone, $economic_situation,
 
         // Student_INPUTS
-        $student_identification_number, $student_name, $dob, $grade_id, $group_id;
+        $student_identification_number, $student_name, $dob, $grade_id, $group_id, $whatsapp_number, $country_code, $student, $student_exams;
 
-    public $selectedGradeId, $selectedTeacherId;
+    public $selectedGradeId, $selectedTeacherId, $selectedAge;
 
     protected $listeners = [
         'getTeachersByGradeId' => 'getTeachersByGradeId',
@@ -55,6 +55,13 @@ class Students extends HomeComponent
     {
         $this->current_role = auth()->user()->current_role;
         $this->all_Grades();
+        if ($this->current_role == User::ADMIN_ROLE) {
+            $dob = DB::table('students')->select(DB::raw('MAX(Year(dob)) as max_dob'), DB::raw('MIN(Year(dob)) as min_dob'))
+                ->join('users', 'students.id', '=', 'users.id')->first();
+            for ($i = $dob->min_dob; $i <= $dob->max_dob; $i++) {
+                array_push($this->ages, date('Y') - ($dob->min_dob++));
+            }
+        }
     }
 
 
@@ -178,6 +185,8 @@ class Students extends HomeComponent
             'dob' => 'required|date|date_format:Y-m-d',
             'grade_id' => 'required',
             'group_id' => 'required',
+            'whatsapp_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10',
+            'country_code' => 'required|string',
         ]);
 
         $this->currentStep = 3;
@@ -222,6 +231,7 @@ class Students extends HomeComponent
                 'father_id' => is_null($userFather) ? $this->father_id : $userFather->id,
                 'grade_id' => $this->grade_id,
                 'group_id' => $this->group_id,
+                'whatsapp_number' => $this->country_code . intval($this->whatsapp_number),
             ]);
 
             $roleId = Role::select('*')->where('name', '=', 'طالب')->get();
@@ -269,6 +279,8 @@ class Students extends HomeComponent
         $this->father_identification_number = null;
 
         // clear inputs student
+        $this->student = null;
+        $this->student_exams = null;
         $this->student_id = null;
         $this->student_name = null;
         $this->student_identification_number = null;
@@ -277,6 +289,8 @@ class Students extends HomeComponent
         $this->group_id = null;
         $this->photo = null;
         $this->photo_ret = null;
+        $this->country_code = null;
+        $this->whatsapp_number = null;
         $this->groups = [];
         $this->currentStep = 1;
         $this->process_type = '';
@@ -304,7 +318,7 @@ class Students extends HomeComponent
         } else if ($process_type == 'reset') {
             $this->reset_data_daily_memorization($id);
         } else {
-            $this->student_id = $id;
+            $this->showStudentData($id);
         }
     }
 
@@ -393,6 +407,8 @@ class Students extends HomeComponent
         $this->student_id = $student->id;
         $this->student_name = $student->user->name;
         $this->student_identification_number = $student->user->identification_number;
+        $this->country_code = substr($student->whatsapp_number, 0, 4);
+        $this->whatsapp_number = substr($student->whatsapp_number, 3, 12);
         $this->photo_ret = $student->user->profile_photo_url;
         $this->dob = $student->user->dob;
         $this->grade_id = $student->grade_id;
@@ -431,6 +447,8 @@ class Students extends HomeComponent
             'dob' => 'required|date|date_format:Y-m-d',
             'grade_id' => 'required',
             'group_id' => 'required',
+            'whatsapp_number' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:10',
+            'country_code' => 'required|string',
         ]);
 
         $this->currentStep = 3;
@@ -457,6 +475,7 @@ class Students extends HomeComponent
                 $student->update([
                     'grade_id' => $this->grade_id,
                     'group_id' => $this->group_id,
+                    'whatsapp_number' => $this->country_code . intval($this->whatsapp_number),
                 ]);
 
                 $roleId = Role::select('*')->where('name', '=', 'طالب')->get();
@@ -617,14 +636,13 @@ class Students extends HomeComponent
         }
     }
 
-    public
-    function setMessage($message)
+    public function setMessage($message)
     {
+        $this->process_type = '';
         $this->catchError = $message;
     }
 
-    public
-    function all_Grades()
+    public function all_Grades()
     {
         if ($this->current_role == 'مشرف') {
             $this->grade_id = Supervisor::where('id', auth()->id())->first()->grade_id;
@@ -637,8 +655,7 @@ class Students extends HomeComponent
         }
     }
 
-    public
-    function getTeachersByGradeId()
+    public function getTeachersByGradeId()
     {
         $this->reset('groups', 'selectedTeacherId', 'group_id');
         $grade_id = null;
@@ -657,32 +674,54 @@ class Students extends HomeComponent
         }
     }
 
-    public
-    function all_Students()
+    public function all_Students()
     {
-        return Student::query()
-            ->with(['user', 'group', 'grade', 'student_is_warning', 'student_is_block'])
-            ->search($this->search)
+        return DB::table('students')
+            ->when(!empty($this->search), function ($q, $v) {
+                $q->where('students.whatsapp_number', 'like', '%' . $this->search . '%')
+                    ->orWhere('users.name', 'LIKE', "%$this->search%");
+            })
             ->when($this->current_role == 'محفظ', function ($q, $v) {
-                $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id ?? null);
+                $q->where('students.group_id', '=', Group::where('teacher_id', auth()->id())->first()->id ?? null);
             })
             ->when($this->current_role == 'مشرف', function ($q, $v) {
-                $q->where('grade_id', '=', Supervisor::find(auth()->id())->first()->grade_id);
+                $q->where('students.grade_id', '=', Supervisor::find(auth()->id())->first()->grade_id);
             })
             ->when($this->current_role == 'أمير المركز', function ($q, $v) {
                 $q->when($this->selectedGradeId != null, function ($q, $v) {
-                    $q->where('grade_id', '=', $this->selectedGradeId);
+                    $q->where('students.grade_id', '=', $this->selectedGradeId);
                 })->when($this->selectedTeacherId != null, function ($q, $v) {
-                    $q->where('group_id', '=', $this->selectedTeacherId);
+                    $q->where('students.group_id', '=', $this->selectedTeacherId);
                 });
             })
             ->when(!empty(intval(\Request::segment(2))), function ($q, $v) {
-                $q->where('id', \Request::segment(2));
+                $q->where('students.id', \Request::segment(2));
             })
-            ->orderBy($this->sortBy, $this->sortDirection)
+            ->when($this->selectedAge != null, function ($q, $v) {
+                $q->whereYear('users.dob', date('Y') - $this->selectedAge);
+            })->
+            select(['students.id', 'users.name as student_name', 'users.identification_number as student_identification_number',
+                'users.profile_photo', 'students.whatsapp_number as student_whatsapp_number', 'users.dob as dob', 'grades.name as grade_name', 'groups.name as group_name',
+                'student_warnings.details as student_warning', 'student_blocks.details as student_block'])
+            ->join('users', 'students.id', '=', 'users.id')
+            ->join('groups', 'students.group_id', '=', 'groups.id')
+            ->join('grades', 'students.grade_id', '=', 'grades.id')
+            ->leftJoin('student_warnings', function ($join) {
+                $join->on('students.id', '=', 'student_warnings.student_id')
+                    ->on('student_warnings.id', '=', DB::raw("(SELECT id FROM student_warnings WHERE student_id = students.id
+                              AND warning_expiry_date IS NULL order by `created_at` DESC LIMIT 1)"));
+            })
+            ->leftJoin('student_blocks', function ($join) {
+                $join->on('students.id', '=', 'student_blocks.student_id')
+                    ->on('student_blocks.id', '=', DB::raw("(SELECT id FROM student_blocks WHERE student_id = students.id
+                              AND block_expiry_date IS NULL order by `created_at` DESC LIMIT 1)"));
+            })
+            ->orderBy('students.' . $this->sortBy, $this->sortDirection)
             ->paginate($this->perPage);
 
-//        DB::table('students')
+
+//        Student::query()
+//            ->with(['user', 'group', 'grade', 'student_is_warning', 'student_is_block'])
 //            ->search($this->search)
 //            ->when($this->current_role == 'محفظ', function ($q, $v) {
 //                $q->where('group_id', '=', Group::where('teacher_id', auth()->id())->first()->id ?? null);
@@ -696,25 +735,17 @@ class Students extends HomeComponent
 //                })->when($this->selectedTeacherId != null, function ($q, $v) {
 //                    $q->where('group_id', '=', $this->selectedTeacherId);
 //                });
-//            })->
-//            select(['users.name as student_name', 'users.identification_number as student_identification_number',
-//                'users.dob as dob', 'grades.name as grade_name', 'groups.name as group_name',
-//                'student_warnings.details as student_warning', 'student_blocks.details as student_block'])
-//            ->join('users', 'students.id', '=', 'users.id')
-//            ->join('groups', 'students.group_id', '=', 'groups.id')
-//            ->join('grades', 'students.grade_id', '=', 'grades.id')
-//            ->leftJoin('student_warnings', function ($join) {
-//                $join->on('students.id', '=', 'student_warnings.student_id')
-//                    ->on('student_warnings.id', '=', DB::raw("(SELECT id FROM student_warnings WHERE student_id = students.id
-//                              AND warning_expiry_date IS NULL order by `created_at` DESC LIMIT 1)"));
 //            })
-//            ->leftJoin('student_blocks', function ($join) {
-//                $join->on('students.id', '=', 'student_blocks.student_id')
-//                    ->on('student_blocks.id', '=', DB::raw("(SELECT id FROM student_blocks WHERE student_id = students.id
-//                              AND block_expiry_date IS NULL order by `created_at` DESC LIMIT 1)"));
+//            ->when(!empty(intval(\Request::segment(2))), function ($q, $v) {
+//                $q->where('id', \Request::segment(2));
 //            })
-//            ->orderBy('students.' . $this->sortBy, $this->sortDirection)
-//            ->paginate($this->perPage)
+//            ->when($this->selectedAge != null, function ($q, $v) {
+//                $q->whereHas('user', function ($q) {
+//                    $q->whereYear('dob', date('Y') - $this->selectedAge);
+//                });
+//            })
+//            ->orderBy($this->sortBy, $this->sortDirection)
+//            ->paginate($this->perPage);
     }
 
     public function submitSearch()
@@ -727,19 +758,40 @@ class Students extends HomeComponent
     {
         if ($arrangement != null) {
             if ($isSuccess) {
-                $this->quran_parts = QuranPart::query()->orderBy('arrangement')->whereIn('arrangement', [$arrangement + 1, $arrangement + 2, $arrangement + 3])->get();
-                if ($this->quran_parts[0]->type == QuranPart::INDIVIDUAL_TYPE) {
-                    // إذا كان الاختبار التالي منفرد فسيتم عرض الأول
-                    unset($this->quran_parts[1], $this->quran_parts[2]);
-                } else if ($this->quran_parts[0]->type == QuranPart::DESERVED_TYPE && $this->quran_parts[1]->type == QuranPart::INDIVIDUAL_TYPE) {
-                    // إذا كان الاختبار التالي (الأول) تجميعي والثاني منفرد فسيتم عرض الأول والثاني
-                    unset($this->quran_parts[2]);
-                } else if ($this->quran_parts[0]->type == QuranPart::DESERVED_TYPE && $this->quran_parts[1]->type == QuranPart::DESERVED_TYPE) {
-                    // إذا كان الاختبار التالي (الأول) تجميعي والثاني تجميعي فسيتم عرض الأول والثالث
-                    unset($this->quran_parts[1]);
-                } else if ($this->quran_parts[1]->type == QuranPart::DESERVED_TYPE && $this->quran_parts[2]->type == QuranPart::INDIVIDUAL_TYPE) {
-                    // إذا كان الاختبار التالي (الثاني) تجميعي والثالث منفرد فسيتم عرض الثاني والثالث
-                    unset($this->quran_parts[0]);
+                if ($arrangement == 39) {
+                    // إذا كان الجزء آل عمران فسيتم عرض التجميعي التالي من 3-5 مع سورة البقرة الجزء الأول و سورة البقرة كاملة
+                    $this->quran_parts = QuranPart::query()->orderBy('arrangement')->whereIn('arrangement', [$arrangement + 1, 42, 43])->get();
+                } else if ($arrangement == 40) {
+                    // إذا كان الجزء تجميعي 3-5 فسيتم عرض سورة البقرة الجزء الأول و سورة البقرة كاملة
+                    $this->quran_parts = QuranPart::query()->orderBy('arrangement')->whereIn('arrangement', [42, 43])->get();
+                } else if ($arrangement == 42) {
+                    // إذا كان الجزء سورة البقرة الجزء الأول فسيتم عرض سورة البقرة الجزء الثاني وسورة البقرة كاملة
+                    $this->quran_parts = QuranPart::query()->orderBy('arrangement')->whereIn('arrangement', [41, 43])->get();
+                } else if ($arrangement == 41) {
+                    // إذا كان الجزء سورة البقرة الجزء الثاني فسيتم عرض سورة البقرة كاملة
+                    $this->quran_parts = QuranPart::query()->orderBy('arrangement')->whereIn('arrangement', [43])->get();
+                } else if ($arrangement == 44) {
+                    // إذا كان الجزء تجميعي 5-1 فسيتم عرض تجميعي 10-1
+                    $this->quran_parts = QuranPart::query()->orderBy('arrangement')->whereIn('arrangement', [$arrangement + 1])->get();
+                } else if ($arrangement == 45) {
+                    // إذا كان الجزء تجميعي 10-1 فسيتم عرض رسالة بأن الطالب أتم جميع الإختبارات المطلوبة منه
+                    $this->dispatchBrowserEvent('alert',
+                        ['type' => 'success', 'message' => 'لقد أتم الطالب جميع الإختبارات المطلوبة منه نبارك له حفظ كتاب الله عزوجل.']);
+                } else {
+                    $this->quran_parts = QuranPart::query()->orderBy('arrangement')->whereIn('arrangement', [$arrangement + 1, $arrangement + 2, $arrangement + 3])->get();
+                    if ($this->quran_parts[0]->type == QuranPart::INDIVIDUAL_TYPE) {
+                        // إذا كان الاختبار التالي منفرد فسيتم عرض الأول
+                        unset($this->quran_parts[1], $this->quran_parts[2]);
+                    } else if ($this->quran_parts[0]->type == QuranPart::DESERVED_TYPE && $this->quran_parts[1]->type == QuranPart::INDIVIDUAL_TYPE) {
+                        // إذا كان الاختبار التالي (الأول) تجميعي والثاني منفرد فسيتم عرض الأول والثاني
+                        unset($this->quran_parts[2]);
+                    } else if ($this->quran_parts[0]->type == QuranPart::DESERVED_TYPE && $this->quran_parts[1]->type == QuranPart::DESERVED_TYPE) {
+                        // إذا كان الاختبار التالي (الأول) تجميعي والثاني تجميعي فسيتم عرض الأول والثالث
+                        unset($this->quran_parts[1]);
+                    } else if ($this->quran_parts[1]->type == QuranPart::DESERVED_TYPE && $this->quran_parts[2]->type == QuranPart::INDIVIDUAL_TYPE) {
+                        // إذا كان الاختبار التالي (الثاني) تجميعي والثالث منفرد فسيتم عرض الثاني والثالث
+                        unset($this->quran_parts[0]);
+                    }
                 }
             } else {
                 $this->quran_parts = QuranPart::query()->where('id', $arrangement)->get();
@@ -780,6 +832,12 @@ class Students extends HomeComponent
             'dob.date_format' => 'حقل تاريخ الميلاد يجب أن يكون من نوع تاريخ',
             'grade_id.required' => 'اسم المرحلة مطلوب',
             'group_id.required' => 'اسم الحلقة مطلوب',
+            'country_code.required' => 'كود الدولة مطلوب',
+            'country_code.string' => 'كود الدولة يجب أن يكون نص',
+            'whatsapp_number.required' => 'حقل رقم الواتس اب مطلوب',
+            'whatsapp_number.regex' => 'حقل رقم الواتس اب يجب أن يكون رقم',
+            'whatsapp_number.min' => 'يجب أن لا يقل طول رقم الواتس اب عن 10 أرقام',
+            'whatsapp_number.max' => 'يجب أن لا يزيد طول رقم الواتس اب عن 10 أرقام',
             'photo.image' => 'حقل الصورة يجب أن يحتوي على صورة',
             'photo.mimes' => 'يجب أن تكون صيغة الصورة إما jpeg أو png أو jpg',
             'photo.max' => 'يجب أن لا يزيد حجم الصورة عن 2048 كيلو بايت',
@@ -796,8 +854,8 @@ class Students extends HomeComponent
             ->select(['users_student.name as student_name',
                 'users_student.identification_number as student_identification_number',
                 'users_father.identification_number as father_identification_number',
-                'users_father.phone as father_phone', 'users_student.dob as student_dob',
-                'users_info_father.economic_situation as economic_situation',
+                'users_father.phone as father_phone', 'students.whatsapp_number as student_whatsapp_number'
+                , 'users_student.dob as student_dob', 'user_infos_father.economic_situation as economic_situation',
                 'quran_part_count.total_preservation_parts',
                 DB::raw("(GROUP_CONCAT(quran_part_count.name,' ',quran_part_count.description SEPARATOR '')) as `quran_part_individual`"),
                 DB::raw("(GROUP_CONCAT(part_deserved.name,' ',part_deserved.description SEPARATOR '')) as `quran_part_deserved`")])
@@ -805,7 +863,7 @@ class Students extends HomeComponent
             ->join('fathers', 'students.father_id', '=', 'fathers.id')
             ->join('users as users_student', 'students.id', '=', 'users_student.id')
             ->join('users as users_father', 'fathers.id', '=', 'users_father.id')
-            ->join('users_info as users_info_father', 'users_father.id', '=', 'users_info_father.id')
+            ->join('user_infos as user_infos_father', 'users_father.id', '=', 'user_infos_father.id')
             ->leftJoin('exams as exams_count', function ($join) {
                 $join->on('students.id', '=', 'exams_count.student_id')
                     ->on('exams_count.id', '=', DB::raw("(SELECT exams.id FROM exams
@@ -836,6 +894,80 @@ class Students extends HomeComponent
         $teacher_name = Teacher::with('user:id,name')->where('id', auth()->id())->first()->user->name;
 
         return (new GroupStudentsExport($students, $teacher_name))->download('Database of all ' . $teacher_name . ' students' . '.xlsx', Excel::XLSX);
+    }
+
+    private function showStudentData($id)
+    {
+        $year = Date('Y');
+        $month = Date('m');
+        $this->student_id = $id;
+        $this->student = DB::table('students')->select([DB::raw('user_stu.name student_name'),
+            DB::raw('user_stu.identification_number student_identification_number'), DB::raw('user_stu.dob'),
+            DB::raw('students.whatsapp_number'), DB::raw('user_stu.profile_photo'),
+            DB::raw('grades.name grade_name'), DB::raw('user_tea.name teacher_name'),
+            DB::raw('user_fat.name father_name'), DB::raw('user_fat.identification_number father_identification_number')
+            , DB::raw('user_fat.phone'), DB::raw("(SELECT SUM(number_pages) FROM students_daily_memorization
+               WHERE student_id = students.id and month(datetime) = '$month' and year(datetime) = '$year' and type = 'memorize') AS 'number_memorize_pages'"), DB::raw("(SELECT SUM(number_pages) FROM students_daily_memorization
+               WHERE student_id = students.id and month(datetime) = '$month' and year(datetime) = '$year' and type = 'review') AS 'number_review_pages'"), DB::raw("(SELECT COUNT(id) FROM student_attendances
+               WHERE student_id = students.id and month(datetime) = '$month' and year(datetime) = '$year' and status = 'presence') AS 'number_presence_days'"), DB::raw("(SELECT COUNT(id) FROM student_attendances
+               WHERE student_id = students.id and month(datetime) = '$month' and year(datetime) = '$year' and status = 'absence') AS 'number_absence_days'"), DB::raw('quran_part_count.total_preservation_parts total_preservation_parts')
+            , DB::raw("(GROUP_CONCAT(last_quran_part.name,'-',last_quran_part.description)) last_quran_part"), DB::raw('last_exam.mark last_exam_mark'), DB::raw('exam_success_mark.mark exam_success_mark'), DB::raw('exam_imp.mark exam_improvement'),
+            DB::raw('student_warnings.details as student_warning'), DB::raw('student_blocks.details as student_block')])
+            ->join('users as user_stu', 'students.id', '=', 'user_stu.id')
+            ->join('groups', 'students.group_id', '=', 'groups.id')
+            ->join('grades', 'students.grade_id', '=', 'grades.id')
+            ->join('users as user_tea', 'groups.teacher_id', '=', 'user_tea.id')
+            ->join('users as user_fat', 'students.father_id', '=', 'user_fat.id')
+            ->leftJoin('exams as exams_count', function ($join) {
+                $join->on('students.id', '=', 'exams_count.student_id')
+                    ->on('exams_count.id', '=', DB::raw("(SELECT exams.id FROM exams
+                  JOIN quran_parts ON quran_part_id = quran_parts.id
+                  AND quran_parts.type = 'individual'
+                  JOIN exam_success_mark ON exam_success_mark_id = exam_success_mark.id
+                  AND exams.mark >= exam_success_mark.mark
+                  WHERE student_id = students.id
+                  ORDER BY datetime DESC
+                  LIMIT 1)"));
+            })
+            ->join('quran_parts as quran_part_count', 'exams_count.quran_part_id', '=', 'quran_part_count.id')
+            ->leftJoin('exams as last_exam', function ($join) {
+                $join->on('students.id', '=', 'last_exam.student_id')
+                    ->on('last_exam.id', '=', DB::raw("(SELECT exams.id FROM exams
+                  WHERE student_id = students.id ORDER BY datetime DESC LIMIT 1)"));
+            })
+            ->join('quran_parts as last_quran_part', 'last_exam.quran_part_id', '=', 'last_quran_part.id')
+            ->leftJoin('exams_improvement as exam_imp', 'last_exam.id', '=', 'exam_imp.id')
+            ->join('exam_success_mark', 'last_exam.exam_success_mark_id', '=', 'exam_success_mark.id')
+            ->leftJoin('student_warnings', function ($join) {
+                $join->on('students.id', '=', 'student_warnings.student_id')
+                    ->on('student_warnings.id', '=', DB::raw("(SELECT id FROM student_warnings WHERE student_id = students.id
+                              AND warning_expiry_date IS NULL order by `created_at` DESC LIMIT 1)"));
+            })
+            ->leftJoin('student_blocks', function ($join) {
+                $join->on('students.id', '=', 'student_blocks.student_id')
+                    ->on('student_blocks.id', '=', DB::raw("(SELECT id FROM student_blocks WHERE student_id = students.id
+                              AND block_expiry_date IS NULL order by `created_at` DESC LIMIT 1)"));
+            })
+            ->where('students.id', '=', $id)
+            ->groupBy(['student_name', 'total_preservation_parts', 'last_exam_mark', 'exam_success_mark', 'exam_improvement', 'student_warning', 'student_block'])
+            ->get();
+
+        $this->student_exams = DB::table('exams')
+            ->select([DB::raw('user_stu.name student_name'),
+                DB::raw("(GROUP_CONCAT(quran_part.name,'-',quran_part.description)) quran_part_name"),
+                DB::raw('exams.mark'), DB::raw('user_tea.name teacher_name'),
+                DB::raw('user_tes.name tester_name'), DB::raw('exams.datetime'),
+                DB::raw('exams.notes'), DB::raw('exam_success_mark.mark exam_success_mark'), DB::raw('exam_imp.mark exam_improvement')])
+            ->join('users as user_stu', 'exams.student_id', '=', 'user_stu.id')
+            ->join('users as user_tea', 'exams.teacher_id', '=', 'user_tea.id')
+            ->join('users as user_tes', 'exams.tester_id', '=', 'user_tes.id')
+            ->join('quran_parts as quran_part', 'exams.quran_part_id', '=', 'quran_part.id')
+            ->join('exam_success_mark', 'exams.exam_success_mark_id', '=', 'exam_success_mark.id')
+            ->leftJoin('exams_improvement as exam_imp', 'exams.id', '=', 'exam_imp.id')
+            ->where('exams.student_id', '=', $id)
+            ->groupBy(['student_name','exams.mark','teacher_name','tester_name','datetime','notes','exam_success_mark.mark','exam_improvement'])
+            ->get();
+
     }
 
 

@@ -27,6 +27,20 @@
                         </select>
                     </div>
 
+                    @if ($current_role == \App\Models\User::ADMIN_ROLE)
+                        <div class="col-md-3">
+                            <label style="font-size: 15px; color: #1e7e34">حسب العمر*</label>
+                            <select style="width: 100%;" class="custom-select mr-sm-2 select2" id="age"
+                                    wire:model="selectedAge">
+                                <option value="">الكل</option>
+                                @foreach ($ages as $age)
+                                    <option
+                                        value="{{ $age }}">{{ $age}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+
                     @if($current_role == \App\Models\User::TEACHER_ROLE)
                         <div class="col-md-2">
                             <button class="btn btn-success float-right"
@@ -45,8 +59,9 @@
                         <th wire:click="sortBy('id')" style="cursor: pointer;">#
                             @include('livewire._sort-icon',['field'=>'id'])
                         </th>
-                        <th>اسم الطالب</th>
+                        <th>الإسم رباعي</th>
                         <th>رقم الهوية</th>
+                        <th>رقم الواتساب</th>
                         <th>تاريخ الميلاد</th>
                         <th>اسم المرحلة</th>
                         <th>اسم المجموعة</th>
@@ -61,10 +76,10 @@
                             $block = false;
                             $selectClass = '';
                             if (isset($student)) {
-                                if ($student->student_is_block != null) {
+                                if ($student->student_block != null) {
                                           $block = true;
                                           $selectClass = 'text-dark table-danger';
-                                } else if ($student->student_is_warning != null) {
+                                } else if ($student->student_warning != null) {
                                   $warning = true;
                                   $selectClass = 'text-dark table-warning';
                                 }}
@@ -72,14 +87,21 @@
                         <tr class="{{$selectClass}}">
                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                <img src="{{$student->user->profile_photo_url}}" style="width: 50px; height: 50px;"
-                                     class="img-fluid mr-15 avatar-small" alt="">
-                                {{$student->user->name}}
+                                @if ($student->profile_photo && Storage::disk('users_images')->exists($student->profile_photo))
+                                    <img src="{{Storage::disk('users_images')->url($student->profile_photo)}}"
+                                         style="width: 50px; height: 50px;"
+                                         class="img-fluid mr-15 avatar-small" alt="">
+                                @else
+                                    <img src="{{asset('assets/images/teacher.png')}}" style="width: 50px; height: 50px;"
+                                         class="img-fluid mr-15 avatar-small" alt="">
+                                @endif
+                                {{$student->student_name}}
                             </td>
-                            <td>{{ $student->user->identification_number }}</td>
-                            <td>{{ $student->user->dob }}</td>
-                            <td>{{ $student->grade->name }}</td>
-                            <td>{{ $student->group->name }}</td>
+                            <td>{{ $student->student_identification_number }}</td>
+                            <td>{{ intval($student->student_whatsapp_number) }}</td>
+                            <td>{{ $student->dob }}</td>
+                            <td>{{ $student->grade_name }}</td>
+                            <td>{{ $student->group_name }}</td>
                             <td>
                                 @if($block == true)
                                     @if($current_role == \App\Models\User::ADMIN_ROLE)
@@ -148,13 +170,13 @@
                                 </div>
                                 @if($block == true)
                                     <button
-                                        wire:click="setMessage('{{$student->student_is_warning->details}}');"
+                                        wire:click="setMessage('{{$student->student_block}}');"
                                         class="btn btn-outline-danger btn-sm" title="الطالب محظور">
                                         تفاصيل أكثر
                                     </button>
                                 @elseif($warning == true)
                                     <button
-                                        wire:click="setMessage('{{$student->student_is_warning->details}}');"
+                                        wire:click="setMessage('{{$student->student_block}}');"
                                         class="btn btn-outline-warning btn-sm"
                                         title="إنذار نهائي">
                                         تفاصيل أكثر
@@ -169,7 +191,7 @@
                         @include('pages.students.reset_data_daily_memorization')
                     @empty
                         <tr style="text-align: center">
-                            <td colspan="8">No data available in table</td>
+                            <td colspan="9">No data available in table</td>
                         </tr>
                     @endforelse
                     </tbody>
@@ -178,6 +200,7 @@
                         <th>#</th>
                         <th>اسم الطالب</th>
                         <th>رقم الهوية</th>
+                        <th>رقم الواتساب</th>
                         <th>تاريخ الميلاد</th>
                         <th>اسم المرحلة</th>
                         <th>اسم المجموعة</th>

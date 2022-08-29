@@ -61,22 +61,18 @@ preloader -->
         @include('layouts.statistics.exams-supervisor-statistics')
     @endif
 
-    @if (auth()->user()->current_role == \App\Models\User::COURSES_SUPERVISOR_ROLE)
+    @if (auth()->user()->current_role == \App\Models\User::ACTIVITIES_SUPERVISOR_ROLE
+         || auth()->user()->current_role == \App\Models\User::ACTIVITY_MEMBER_ROLE)
+        @include('layouts.statistics.activities-supervisor-statistics')
     @endif
 
-    @if (auth()->user()->current_role == \App\Models\User::ACTIVITIES_SUPERVISOR_ROLE)
-    @endif
-
-    @if (auth()->user()->current_role == \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE)
+    @if (auth()->user()->current_role == \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE
+         || auth()->user()->current_role == \App\Models\User::OVERSIGHT_MEMBER_ROLE)
+        @include('layouts.statistics.oversight-supervisor-statistics')
     @endif
 
     @if (auth()->user()->current_role == \App\Models\User::TEACHER_ROLE)
-    @endif
-
-    @if (auth()->user()->current_role == \App\Models\User::OVERSIGHT_MEMBER_ROLE)
-    @endif
-
-    @if (auth()->user()->current_role == \App\Models\User::ACTIVITY_MEMBER_ROLE)
+        @include('layouts.statistics.teacher-statistics')
     @endif
 
     <!-- widgets -->

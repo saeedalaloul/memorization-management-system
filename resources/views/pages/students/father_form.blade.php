@@ -15,7 +15,7 @@
                             @enderror
                         </div>
                         <div class="col">
-                            <label for="title">الإسم</label>
+                            <label for="title">الإسم رباعي</label>
                             <input type="text" wire:model.defer="father_name"
                                    class="form-control" {{$father_id != null?'disabled':''}}>
                             @error('father_name')

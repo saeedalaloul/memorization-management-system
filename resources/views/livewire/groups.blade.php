@@ -3,7 +3,8 @@
         <div>
             @if ($catchError)
                 <div class="alert alert-danger" id="success-danger">
-                    <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x</button>
+                    <button type="button" wire:click.prevent="resetMessage()" class="close" data-dismiss="alert">x
+                    </button>
                     {{ $catchError }}
                 </div>
             @endif
@@ -127,15 +128,13 @@
                                                         @endcan
                                                         @if ($group->teacher_id != null)
                                                             <button type="button" class="btn btn-warning btn-sm"
-                                                                    data-toggle="modal"
-                                                                    data-target="#groupPullTeacher"
+                                                                    wire:click.prevent="lunchBoxOfModalData('pull','{{$group->id}}',{{$group->teacher_id}})"
                                                                     title="سحب المحفظ من الحلقة"><i
                                                                     class="fa fa-remove"></i></button>
                                                         @endif
                                                         @can('حذف مجموعة')
                                                             <button type="button" class="btn btn-danger btn-sm"
-                                                                    data-toggle="modal"
-                                                                    data-target="#groupDeleted"
+                                                                    wire:click.prevent="lunchBoxOfModalData('delete','{{$group->id}}','')"
                                                                     title="حذف"><i
                                                                     class="fa fa-trash"></i></button>
                                                         @endcan

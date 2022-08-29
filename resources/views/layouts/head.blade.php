@@ -45,51 +45,43 @@
     const messaging = firebase.messaging();
 
 
-    function startFCM() {
-        messaging
-            .requestPermission()
-            .then(function () {
-                return messaging.getToken()
-            })
-            .then(function (response) {
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                $.ajax({
-                    url: '{{ route("store.token") }}',
-                    type: 'POST',
-                    data: {
-                        token: response
-                    },
-                    dataType: 'JSON',
-                    success: function () {
-                        toastr.options =
-                            {
-                                "closeButton": false,
-                                "progressBar": true
-                            }
-                        toastr.success("تمت عملية تفعيل الإشعارات على هذا الجهاز بنجاح.");
-                    },
-                    error: function (error) {
-                        toastr.options =
-                            {
-                                "closeButton": false,
-                                "progressBar": true
-                            }
-                        toastr.error(error);
-                    },
-                });
-            }).catch(function (error) {
-            toastr.options =
-                {
-                    "closeButton": false,
-                    "progressBar": true
+    messaging
+        .requestPermission()
+        .then(function () {
+            return messaging.getToken()
+        })
+        .then(function (response) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-            toastr.error(error);
-        });
-    }
+            });
+            $.ajax({
+                url: '{{ route("store.token") }}',
+                type: 'POST',
+                data: {
+                    token: response
+                },
+                dataType: 'JSON',
+                success: function () {
+                },
+                error: function (error) {
+                    toastr.options =
+                        {
+                            "closeButton": false,
+                            "progressBar": true
+                        }
+                    toastr.error(error);
+                },
+            });
+        }).catch(function (error) {
+        toastr.options =
+            {
+                "closeButton": false,
+                "progressBar": true
+            }
+        toastr.error(error);
+    });
 
     // messaging.onMessage(function (payload) {
     //     const title = payload.notification.title;

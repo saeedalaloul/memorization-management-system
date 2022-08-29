@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
-    protected $fillable = ['id', 'father_id', 'grade_id', 'group_id'];
+    protected $fillable = ['id', 'father_id', 'grade_id', 'group_id','whatsapp_number'];
 
     public function scopeSearch($query, $val)
     {
         return $query
             ->where('id', 'like', '%' . $val . '%')
+            ->where('whatsapp_number', 'like', '%' . $val . '%')
             ->OrwhereHas('user', function ($q) use ($val) {
                 $q->where('name', 'LIKE', "%$val%");
             });

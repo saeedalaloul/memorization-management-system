@@ -19,7 +19,7 @@
                     <button type="button" class="btn btn-secondary"
                             data-dismiss="modal">اغلاق
                     </button>
-                    <button type="button" wire:click.prevent = "destroy('{{$group->id}}')"
+                    <button type="button" wire:click.prevent = "destroy()"
                             class="btn btn-danger">حذف
                     </button>
                 </div>

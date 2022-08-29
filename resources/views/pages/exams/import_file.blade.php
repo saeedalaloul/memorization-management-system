@@ -1,7 +1,7 @@
 <div wire:ignore.self class="modal" tabindex="-1" role="dialog" id="import-file" style="display: none;"
      aria-hidden="true">
     <div class="modal-dialog">
-       <form wire:submit.prevent="import();">
+       <form>
            <div class="modal-content">
                <div class="modal-header">
                    <h5 class="modal-title">استيراد ملف اكسل</h5>
