@@ -39,6 +39,7 @@ class ActivitiesOrders extends HomeComponent
         $this->current_role = auth()->user()->current_role;
         $this->students = $this->all_Students();
         $this->activity_members = $this->all_Activties_Members();
+        $this->link = 'manage_activities_orders/';
     }
 
     public function rules()
@@ -111,7 +112,7 @@ class ActivitiesOrders extends HomeComponent
                 $role_users->first()->notify(new NewActivityOrderForActivitiesSupervisorNotify($activityOrder));
                 $title = "طلب نشاط جديد";
                 $message = "لقد قام المحفظ: " . $activityOrder->teacher->user->name . " بطلب نشاط جديد للحلقة بتاريخ: " . Carbon::parse($activityOrder->datetime)->format('Y-m-d') . " يرجى مراجعة طلب النشاط.";
-                $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token ?? null]);
+                $this->push_notification($message, $title, $this->link . $activityOrder->id ?? null, [$role_users->first()->user_fcm_token->device_token ?? null]);
             }
             // end push notifications to activities supervisor
             $this->dispatchBrowserEvent('alert',
@@ -141,7 +142,7 @@ class ActivitiesOrders extends HomeComponent
             'activity_member_id' => 'required|numeric',
         ]);
 
-        if ($this->current_role == 'مشرف الأنشطة' || $this->current_role == 'أمير المركز') {
+        if ($this->current_role === 'مشرف الأنشطة' || $this->current_role === 'أمير المركز') {
             $activityOrder = ActivityOrder::where('id', $id)->first();
 
             $activityOrder->update([
@@ -153,13 +154,13 @@ class ActivitiesOrders extends HomeComponent
             $activityOrder->teacher->user->notify(new AcceptActivityOrderForTeacherNotify($activityOrder));
             $title = "طلب نشاط معتمد";
             $message = "لقد قام مشرف الأنشطة باعتماد طلب نشاط: " . $activityOrder->activity_type->name . " وتعيين المنشط: " . $activityOrder->activity_member->user->name . " للإشراف على النشاط.";
-            $this->push_notification($message, $title, [$activityOrder->teacher->user->user_fcm_token->device_token ?? null]);
+            $this->push_notification($message, $title, $this->link . $activityOrder->id ?? null, [$activityOrder->teacher->user->user_fcm_token->device_token ?? null]);
             // end push notifications to teacher
 
             // start push notifications to activity member
             $activityOrder->activity_member->user->notify(new AcceptActivityOrderForActivityMemberNotify($activityOrder));
             $message = "لقد قام مشرف الأنشطة بتعيينك منشط طلب نشاط حلقة المحفظ: " . $activityOrder->teacher->user->name . " بتاريخ: " . Carbon::parse($activityOrder->datetime)->format('Y-m-d') . " يرجى مراجعة تفاصيل النشاط للمتابعة.";
-            $this->push_notification($message, $title, [$activityOrder->activity_member->user->user_fcm_token->device_token ?? null]);
+            $this->push_notification($message, $title, $this->link . $activityOrder->id ?? null, [$activityOrder->activity_member->user->user_fcm_token->device_token ?? null]);
             // end push notifications to activity member
 
 
@@ -176,7 +177,7 @@ class ActivitiesOrders extends HomeComponent
             'notes' => 'required|string',
         ]);
 
-        if ($this->current_role == User::ACTIVITIES_SUPERVISOR_ROLE || $this->current_role == User::ADMIN_ROLE) {
+        if ($this->current_role === User::ACTIVITIES_SUPERVISOR_ROLE || $this->current_role === User::ADMIN_ROLE) {
             $activityOrder = ActivityOrder::where('id', $id)->first();
 
             $activityOrder->update([
@@ -189,7 +190,7 @@ class ActivitiesOrders extends HomeComponent
             $activityOrder->teacher->user->notify(new RejectionActivityOrderForTeacherNotify($activityOrder));
             $title = "طلب نشاط مرفوض";
             $message = "لقد قام مشرف الأنشطة برفض طلب نشاط: " . $activityOrder->activity_type->name . " وذلك بسبب: " . $activityOrder->notes;
-            $this->push_notification($message, $title, [$activityOrder->teacher->user->user_fcm_token->device_token ?? null]);
+            $this->push_notification($message, $title, $this->link . $activityOrder->id ?? null, [$activityOrder->teacher->user->user_fcm_token->device_token ?? null]);
             // end push notifications to teacher
 
             $this->dispatchBrowserEvent('alert',
@@ -246,7 +247,7 @@ class ActivitiesOrders extends HomeComponent
             $activityOrder->teacher->user->notify(new FailureActivityOrderForTeacherNotify($activityOrder));
             $title = "طلب نشاط فشل إجراؤه";
             $message = "لقد قام المنشط بتغيير حالة طلب نشاط حلقة المحفظ: " . $activityOrder->teacher->user->name . " وذلك بسبب: " . $activityOrder->notes;
-            $this->push_notification($message, $title, [$activityOrder->teacher->user->user_fcm_token->device_token ?? null]);
+            $this->push_notification($message, $title, $this->link . $activityOrder->id ?? null, [$activityOrder->teacher->user->user_fcm_token->device_token ?? null]);
             // end push notifications to teacher
 
             $this->dispatchBrowserEvent('alert',
@@ -260,7 +261,7 @@ class ActivitiesOrders extends HomeComponent
     {
         if ($this->modalId) {
             $activity_order = ActivityOrder::find($this->modalId);
-            if ($activity_order->status == ActivityOrder::IN_PENDING_STATUS || $activity_order->status == ActivityOrder::REJECTED_STATUS || $activity_order->status == ActivityOrder::FAILURE_STATUS) {
+            if ($activity_order->status === ActivityOrder::IN_PENDING_STATUS || $activity_order->status === ActivityOrder::REJECTED_STATUS || $activity_order->status == ActivityOrder::FAILURE_STATUS) {
                 $activity_order->delete();
                 $this->dispatchBrowserEvent('hideDialog');
                 $this->dispatchBrowserEvent('alert',
@@ -275,25 +276,26 @@ class ActivitiesOrders extends HomeComponent
             ->with(['students.user', 'activity_member.user', 'activity_type', 'teacher.user'])
             ->withCount(['students'])
             ->search($this->search)
-            ->when($this->current_role == 'محفظ', function ($q, $v) {
+            ->when($this->current_role === 'محفظ', function ($q, $v) {
                 $q->where('teacher_id', auth()->id());
             })
-            ->when($this->current_role == 'منشط', function ($q, $v) {
+            ->when($this->current_role === 'منشط', function ($q, $v) {
                 $q->where('activity_member_id', auth()->id());
             })
-            ->when($this->current_role == 'مشرف', function ($q, $v) {
+            ->when($this->current_role === 'مشرف', function ($q, $v) {
                 $q->whereHas('students', function ($q) {
-                    $q->where('grade_id', '=', Supervisor::find(auth()->id())->first()->grade_id);
+                    $q->where('grade_id', '=', Supervisor::whereId(auth()->id())->first()->grade_id);
                 });
             })
-            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) != 'message'), function ($q, $v) {
+            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) !== 'message'), function ($q, $v) {
                 $q->where('id', \Request::segment(2));
             })
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate($this->perPage);
     }
 
-    public function submitSearch(){
+    public function submitSearch()
+    {
         $this->all_Activity_Orders();
     }
 
@@ -307,12 +309,18 @@ class ActivitiesOrders extends HomeComponent
 
     public function all_Students()
     {
-        if ($this->current_role == 'محفظ') {
+        if ($this->current_role === 'محفظ') {
             $students = Group::query()->where('teacher_id', auth()->id())
-                    ->with('students.user', function ($query) {
-                        $query->select('id', 'name');
-                    })->first() ?? null;
-            if ($students != null) {
+                ->with('students.user', function ($query) {
+                    $query->select('id', 'name');
+                })->with('students_sunnah.user', function ($query) {
+                    $query->select('id', 'name');
+                })->first();
+            if ($students !== null) {
+                if ($students->type === Group::SUNNAH_TYPE) {
+                    return $students->toArray()['students_sunnah'];
+                }
+
                 return $students->toArray()['students'];
             }
             return [];
@@ -322,9 +330,9 @@ class ActivitiesOrders extends HomeComponent
 
     public function all_Activties_Members()
     {
-        if ($this->current_role == 'أمير المركز' || $this->current_role == 'مشرف الأنشطة') {
+        if ($this->current_role === 'أمير المركز' || $this->current_role === 'مشرف الأنشطة') {
             if (!Cache::has(ActivityMember::CACHE_KEY)) {
-                Cache::rememberForever(ActivityMember::CACHE_KEY, function () {
+                Cache::rememberForever(ActivityMember::CACHE_KEY, static function () {
                     return ActivityMember::with('user')->get();
                 });
             }
@@ -341,4 +349,5 @@ class ActivitiesOrders extends HomeComponent
         $this->activity_member_id = null;
         $this->notes = null;
     }
+
 }

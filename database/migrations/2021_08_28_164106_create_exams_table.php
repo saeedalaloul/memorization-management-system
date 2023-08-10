@@ -22,7 +22,7 @@ class CreateExamsTable extends Migration
             $table->foreignId('teacher_id')->index()->references('id')->on('teachers')->restrictOnDelete();
             $table->foreignId('tester_id')->index()->references('id')->on('testers')->restrictOnDelete();
             $table->dateTime('datetime')->index();
-            $table->string('notes', 50)->nullable();
+            $table->string('notes', 250)->nullable();
             $table->timestamp('created_at')->index();
             $table->timestamp('updated_at')->index();
         });

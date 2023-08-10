@@ -32,7 +32,7 @@ class ExamsExport implements
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->getDelegate()->setRightToLeft(true);
-                $event->sheet->getDelegate()->setTitle('تقرير الإختبارات القرأنية');
+                $event->sheet->getDelegate()->setTitle('تقرير كل الإختبارات القرأنية');
             }
         ];
     }

@@ -26,6 +26,7 @@ class OversightMembers extends HomeComponent
 
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
         $this->all_Roles();
     }
 
@@ -63,24 +64,22 @@ class OversightMembers extends HomeComponent
     public function destroy($id)
     {
         $oversightMember = OversightMember::find($id);
-        if ($oversightMember != null) {
+        if ($oversightMember !== null) {
             if ($oversightMember->visits->count() > 0) {
                 $this->catchError = "عذرا لا يمكن حذف المراقب بسبب وجود زيارات مسجلة باسم المراقب";
                 $this->dispatchBrowserEvent('hideDialog');
+            } else if ($oversightMember->visits_orders->count() > 0) {
+                $this->catchError = "عذرا لا يمكن حذف المراقب بسبب وجود طلبات زيارات لديه يرجى إجرائها أو حذفها";
+                $this->dispatchBrowserEvent('hideDialog');
             } else {
-                if ($oversightMember->visits_orders->count() > 0) {
-                    $this->catchError = "عذرا لا يمكن حذف المراقب بسبب وجود طلبات زيارات لديه يرجى إجرائها أو حذفها";
-                    $this->dispatchBrowserEvent('hideDialog');
-                } else {
-                    $roleId = Role::select('*')->where('name', '=', 'مراقب')->first();
-                    $oversightMember->user->removeRole($roleId);
-                    $oversightMember->delete();
-                    $this->dispatchBrowserEvent('hideDialog');
-                    Cache::forget(OversightMember::CACHE_KEY);
-                    $this->dispatchBrowserEvent('alert',
-                        ['type' => 'error', 'message' => 'تم حذف عضو الرقابة بنجاح.']);
-                    $this->modalFormReset();
-                }
+                $roleId = Role::select('*')->where('name', '=', 'مراقب')->first();
+                $oversightMember->user->removeRole($roleId);
+                $oversightMember->delete();
+                $this->dispatchBrowserEvent('hideDialog');
+                Cache::forget(OversightMember::CACHE_KEY);
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'error', 'message' => 'تم حذف عضو الرقابة بنجاح.']);
+                $this->modalFormReset();
             }
         }
     }
@@ -110,8 +109,10 @@ class OversightMembers extends HomeComponent
         return User::query()
             ->with(['oversight_member'])
             ->select(['id', 'name'])
-            ->whereDoesntHave('roles', function ($q) {
-                $q->whereIn('name', ['طالب', 'ولي أمر الطالب']);
+            ->whereHas('roles', function ($q) {
+                $q->whereIn('name', [User::ADMIN_ROLE, User::ACTIVITIES_SUPERVISOR_ROLE, User::ACTIVITY_MEMBER_ROLE,
+                    User::OVERSIGHT_SUPERVISOR_ROLE, User::OVERSIGHT_MEMBER_ROLE, User::TEACHER_ROLE, User::EXAMS_SUPERVISOR_ROLE,
+                    User::TESTER_ROLE, User::SUPERVISOR_ROLE, User::COURSES_SUPERVISOR_ROLE]);
             })
             ->when(!empty($this->selectedRoleId), function ($q, $v) {
                 $q->whereRelation('roles', 'id', '=', $this->selectedRoleId);

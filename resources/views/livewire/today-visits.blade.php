@@ -1,10 +1,10 @@
 <div class="row">
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
-            @if($current_role == \App\Models\User::ADMIN_ROLE || $current_role == \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE || $current_role == \App\Models\User::OVERSIGHT_MEMBER_ROLE)
+            @if($current_role === \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE || $current_role === \App\Models\User::OVERSIGHT_MEMBER_ROLE)
                 <div class="card-body">
                     <br>
-                    @if ($isVisitOfStart == true)
+                    @if ($isVisitOfStart === true)
                         @include('pages.today_visits.visit_of_start')
                     @else
                         <x-search></x-search>

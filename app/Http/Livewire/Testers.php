@@ -22,6 +22,7 @@ class Testers extends HomeComponent
 
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
         $this->all_Roles();
     }
 
@@ -48,21 +49,19 @@ class Testers extends HomeComponent
     public function destroy($id)
     {
         $tester = Tester::find($id);
-        if ($tester != null) {
+        if ($tester !== null) {
             $this->dispatchBrowserEvent('hideDialog');
             if ($tester->exams->count() > 0) {
                 $this->catchError = "عذرا لا يمكن حذف المختبر بسبب وجود اختبارات مسجلة باسم المختبر";
+            } else if ($tester->exams_orders->count() > 0) {
+                $this->catchError = "عذرا لا يمكن حذف المختبر بسبب وجود طلبات اختبارات لديه يرجى إجرائها أو حذفها";
             } else {
-                if ($tester->exams_orders->count() > 0) {
-                    $this->catchError = "عذرا لا يمكن حذف المختبر بسبب وجود طلبات اختبارات لديه يرجى إجرائها أو حذفها";
-                } else {
-                    $roleId = Role::select('*')->where('name', '=', 'مختبر')->first();
-                    $tester->user->removeRole($roleId);
-                    $tester->delete();
-                    Cache::forget(Tester::CACHE_KEY);
-                    $this->dispatchBrowserEvent('alert',
-                        ['type' => 'error', 'message' => 'تم حذف المختبر بنجاح.']);
-                }
+                $roleId = Role::select('*')->where('name', '=', 'مختبر')->first();
+                $tester->user->removeRole($roleId);
+                $tester->delete();
+                Cache::forget(Tester::CACHE_KEY);
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'error', 'message' => 'تم حذف المختبر بنجاح.']);
             }
         }
     }
@@ -81,13 +80,19 @@ class Testers extends HomeComponent
     {
         return Tester::query()
             ->with(['user'])
-            ->withCount(['exams'])
+            ->withCount(['exams', 'tester_exams as exams_orders_count', 'exams as exams_month_count' => function ($query) {
+                $query->whereYear('datetime', Date('Y'))
+                    ->whereMonth('datetime', Date('m'));
+            }, 'exams as exams_year_count' => function ($query) {
+                $query->whereYear('datetime', Date('Y'));
+            }])
             ->search($this->search)
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate($this->perPage);
     }
 
-    public function submitSearch(){
+    public function submitSearch()
+    {
         $this->all_Testers_();
     }
 
@@ -96,8 +101,10 @@ class Testers extends HomeComponent
         return User::query()
             ->with(['tester'])
             ->select(['id', 'name'])
-            ->whereDoesntHave('roles', function ($q) {
-                $q->whereIn('name', ['طالب', 'ولي أمر الطالب']);
+            ->whereHas('roles', function ($q) {
+                $q->whereIn('name', [User::ADMIN_ROLE, User::ACTIVITIES_SUPERVISOR_ROLE, User::ACTIVITY_MEMBER_ROLE,
+                    User::OVERSIGHT_SUPERVISOR_ROLE, User::OVERSIGHT_MEMBER_ROLE, User::TEACHER_ROLE, User::EXAMS_SUPERVISOR_ROLE,
+                    User::TESTER_ROLE, User::SUPERVISOR_ROLE, User::COURSES_SUPERVISOR_ROLE]);
             })
             ->when(!empty($this->selectedRoleId), function ($q, $v) {
                 $q->whereRelation('roles', 'id', '=', $this->selectedRoleId);
@@ -106,7 +113,8 @@ class Testers extends HomeComponent
             ->paginate($this->perPage);
     }
 
-    public function submitSearch_(){
+    public function submitSearch_()
+    {
         $this->all_Users();
     }
 

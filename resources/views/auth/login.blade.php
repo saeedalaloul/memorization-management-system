@@ -4,13 +4,12 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="keywords" content="HTML5 Template"/>
-    <meta name="description" content="Webmin - Bootstrap 4 & Angular 5 Admin Dashboard Template"/>
+    <meta name="keywords" content="Al-ansar Center"/>
+    <meta name="description" content="مركز الأنصار لتحفيظ القرآن الكريم والسنة النبوية"/>
     <meta name="author" content="#"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>نظام إدارة حلقات التحفيظ</title>
-
+    <title>مركز الأنصار لتحفيظ القرآن الكريم والسنة النبوية</title>
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico',true)}}"/>
 
@@ -113,7 +112,7 @@ login-->
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="section-field mb-20">
-                                <label class="mb-10" for="name">البريدالالكتروني أو رقم الجوال أو رقم الهوبة* </label>
+                                <label class="mb-10" for="name">البريدالالكتروني أو رقم الجوال أو رقم الهوية* </label>
                                 <input id="email" type="text"
                                        class="form-control @error('email') is-invalid @enderror" name="email"
                                        value="{{ old('email') }}" required autocomplete="email" autofocus>

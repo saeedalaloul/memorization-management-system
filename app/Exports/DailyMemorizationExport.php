@@ -29,8 +29,8 @@ class DailyMemorizationExport implements
             AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->getDelegate()->setRightToLeft(true);
                 $event->sheet->getDelegate()->setTitle('تقرير الحفظ والمراجعة');
-                $count = $this->daily_memorization->total();
-                $range = "D".($count == 0 ? 3 : $count + 2).":"."H".($count == 0 ? 3 : $count + 2);
+//                $count = count($this->daily_memorization['data']);
+//                $range = "D".($count == 0 ? 3 : $count + 2).":"."H".($count == 0 ? 3 : $count + 2);
 //                $event->sheet->getDelegate()->mergeCells($range);
             }
         ];

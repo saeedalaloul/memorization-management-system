@@ -4,7 +4,10 @@ namespace App\Traits;
 
 trait NotificationTrait
 {
-    public function push_notification($message, $title, array $tokens)
+    /**
+     * @throws \JsonException
+     */
+    public function push_notification($message, $title, $link, array $tokens)
     {
         $url = 'https://fcm.googleapis.com/fcm/send';
 
@@ -16,10 +19,11 @@ trait NotificationTrait
             "notification" => [
                 "title" => $title,
                 "body" => $message,
-                "icon" => 'https://memorization-management-system.com/assets/images/favicon.ico',
+                "icon" => env('APP_URL').'/assets/images/favicon.ico',
+                "click_action" => $link,
             ],
         ];
-        $encodedData = json_encode($data);
+        $encodedData = json_encode($data, JSON_THROW_ON_ERROR);
 
         $headers = [
             'Authorization:key=' . $serverKey,

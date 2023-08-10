@@ -21,7 +21,7 @@
                 <h5 class="card-title">تغيير كلمة المرور</h5>
                 <div class="tab tab-border">
                     <ul class="nav nav-tabs" role="tablist">
-                        @if (auth()->user()->password != null)
+                        @if (auth()->user()->password !== null)
                             <li class="nav-item" @click.prevent="currentTab = 'home'">
                                 <a class="nav-link active show" id="reset-password-05-tab"
                                    data-bs-toggle="tab" role="tab" href="#"
@@ -38,7 +38,7 @@
                         @endif
                     </ul>
                     <div class="tab-content">
-                        @if (auth()->user()->password != null)
+                        @if (auth()->user()->password !== null)
                             <div class="tab-pane fade active show" id="reset-password-05"
                                  role="tabpanel"
                                  aria-labelledby="reset-password-05-tab">

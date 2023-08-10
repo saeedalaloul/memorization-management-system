@@ -9,7 +9,7 @@
     </div>
 
     <div class="col-xl-12 mb-30">
-        @if ($current_role == \App\Models\User::ADMIN_ROLE ||$current_role == \App\Models\User::SUPERVISOR_ROLE)
+        @if ($current_role === \App\Models\User::SUPERVISOR_ROLE)
             @can('إدارة حضور وغياب المحفظين')
                 <h5 style="font-family: 'Cairo', sans-serif;color: red"> تاريخ اليوم : {{ date('Y-m-d') }}</h5>
                 <div class="card-body">

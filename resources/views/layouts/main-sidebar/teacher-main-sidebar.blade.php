@@ -10,7 +10,6 @@
         </li>
         <!-- menu title -->
         <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">نظام إدارة التحفيظ لمركز الأنصار</li>
-
         <li>
             <a href="javascript:void(0);" data-toggle="collapse"
                data-target="#Group-affairs-management">
@@ -28,8 +27,22 @@
                     </li>
                 @endcan
                 @can('إدارة تقرير الحفظ والمراجعة')
-                    <li><a href="{{url('manage_report_daily_memorization',null,true)}}">تقرير الحفظ والمراجعة</a></li>
+                    @php
+                        $group = \App\Models\Group::where('teacher_id',auth()->id())->first();
+                    @endphp
+                    @if ($group !== null && $group->type === \App\Models\Group::SUNNAH_TYPE)
+                        <li><a href="{{url('manage_report_daily_memorization_sunnah',null,true)}}">تقرير الحفظ
+                                والمراجعة</a></li>
+                    @else
+                        <li><a href="{{url('manage_report_daily_memorization',null,true)}}">تقرير الحفظ والمراجعة</a>
+                        </li>
+                    @endif
                 @endcan
+                @can('إدارة الحفظة')
+                    <li><a href="{{url('manage_quran_memorizers',null,true)}}">إدارة الحفظة</a>
+                    </li>
+                @endcan
+                <li><a href="{{url('manage_track_student_transfers',null,true)}}">إدارة تتبع تنقلات الطلاب</a></li>
                 @can('إدارة التقارير الشهرية')
                     <li><a href="{{url('manage_report_monthly_memorization',null,true)}}">التقارير الشهرية</a>
                     </li>
@@ -40,7 +53,7 @@
         <li>
             <a href="javascript:void(0);" data-toggle="collapse" data-target="#Managing-exams-department">
                 <div class="pull-left"><i class="fas fa-book-open"></i><span
-                        class="right-nav-text">إدارة الإختبارات القرآنية</span></div>
+                        class="right-nav-text">إدارة الإختبارات</span></div>
                 <div class="pull-right"><i class="ti-plus"></i></div>
                 <div class="clearfix"></div>
             </a>
@@ -51,9 +64,15 @@
                     </li>
                 @endcan
                 @can('إدارة الإختبارات')
-                    <li>
-                        <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية</a>
-                    </li>
+                    @if ($group !== null && $group->type === \App\Models\Group::SUNNAH_TYPE)
+                        <li>
+                            <a href="{{url('manage_sunnah_exams',null,true)}}">اختبارات السنة</a>
+                        </li>
+                    @else
+                        <li>
+                            <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية</a>
+                        </li>
+                    @endif
                 @endcan
                 @can('إدارة اختبارات اليوم')
                     <li>
@@ -73,15 +92,18 @@
             </a>
 
             <ul id="Activities-management" class="collapse" data-parent="#sidebarnav">
-                <li>
-                    <a href="{{url('manage_activities_orders',null,true)}}"><span
-                            class="right-nav-text">طلبات الأنشطة</span></a>
-                </li>
+                @can('إدارة طلبات الأنشطة')
+                    <li>
+                        <a href="{{url('manage_activities_orders',null,true)}}"><span
+                                class="right-nav-text">طلبات الأنشطة</span></a>
+                    </li>
+                @endcan
 
-                <li>
-                    <a href="{{url('manage_activities',null,true)}}"><span
-                            class="right-nav-text">الأنشطة</span></a>
-                </li>
+                @can('إدارة الأنشطة')
+                    <li>
+                        <a href="{{url('manage_activities',null,true)}}">إدارة الأنشطة</a>
+                    </li>
+                @endcan
             </ul>
         </li>
 

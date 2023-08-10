@@ -33,7 +33,7 @@
         window.addEventListener('hideModal', _ => {
             $('#exam-question-count-select').modal('hide');
             $('#approval-exam').modal('hide');
-            $('#exam-question-count-select').modal('hide');
+            $('#refusal-exam').modal('hide');
         });
     </script>
 @endsection

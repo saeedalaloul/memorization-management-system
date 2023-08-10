@@ -24,10 +24,16 @@
     <script>
         window.addEventListener('hideModal', _ => {
             $('#approval-exam').modal('hide');
-            $('#assign-external-exam-mark').modal('hide');
+            $('#manage-exam').modal('hide');
+            $('#manage-external-exam').modal('hide');
         });
-        window.addEventListener('showModal', _ => {
-            $('#assign-external-exam-mark').modal('show');
+
+        window.addEventListener('showModalManageExam', _ => {
+            $('#manage-exam').modal('show');
+        });
+
+        window.addEventListener('showModalManageExternalExam', _ => {
+            $('#manage-external-exam').modal('show');
         });
     </script>
 @endsection

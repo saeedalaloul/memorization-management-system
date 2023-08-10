@@ -1,22 +1,62 @@
-<div class="card-body">
+<div>
     @if ($current_role == \App\Models\User::ADMIN_ROLE)
         @can('إدارة المستخدمين')
-            <li class="list-group-item">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label style="font-size: 15px; color: #1e7e34">الأدوار*</label>
-                        <select style="width: 100%;" wire:model="selectedRoleId" id="role"
-                                class="custom-select mr-sm-2 select2">
-                            <option value="">الكل</option>
-                            @foreach ($roles as $role)
-                                <option
-                                    value="{{ $role->id }}">{{ $role->name}}</option>
-                            @endforeach
-                        </select>
+            <div class="card-body">
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label style="font-size: 15px; color: #1e7e34">الأدوار*</label>
+                            <select style="width: 100%;" wire:model="selectedRoleId" id="role"
+                                    class="custom-select mr-sm-2 select2">
+                                <option value="" selected>الكل</option>
+                                @foreach ($roles as $role)
+                                    <option
+                                        value="{{ $role->id }}">{{ $role->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label style="font-size: 15px; color: #1e7e34">حالة البريد الإلكتروني*</label>
+                            <select style="width: 100%;" wire:model="selectedEmailStatus" id="email"
+                                    class="custom-select mr-sm-2 select2">
+                                <option value="" selected>الكل</option>
+                                <option value="1">مفعل</option>
+                                <option value="0">غير مفعل</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label style="font-size: 15px; color: #1e7e34">حالة الحساب*</label>
+                            <select style="width: 100%;" wire:model="selectedAccountStatus" id="account"
+                                    class="custom-select mr-sm-2 select2">
+                                <option value="" selected>الكل</option>
+                                <option value="1">مفعل</option>
+                                <option value="0">غير مفعل</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label style="font-size: 15px; color: #1e7e34">حالة النشاط*</label>
+                            <select style="width: 100%;" wire:model="selectedActivityStatus" id="activity"
+                                    class="custom-select mr-sm-2 select2">
+                                <option value="" selected>الكل</option>
+                                <option value="1">نشط الآن</option>
+                                <option value="0">غير نشظ</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </li>
-            <br>
+
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success"
+                                    wire:click.prevent="all_users_export();">تصدير بيانات جميع عاملي المركز
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            </div>
             <x-search></x-search>
             <div class="table-responsive mt-15">
                 <table class="table center-aligned-table mb-0">
@@ -115,7 +155,6 @@
                                                 style="color:green" class="fa fa-edit"></i> تعديل الأدوار
                                         </button>
                                         <button class="dropdown-item"
-                                                @click.prevent="currentTab = 'form'"
                                                 wire:click.prevent="loadModalData({{$user->id}},'edit_permission')"><i
                                                 style="color:green" class="fa fa-edit"></i> تعديل الصلاحيات
                                         </button>
@@ -128,6 +167,7 @@
                                 </div>
                             </td>
                         </tr>
+                        @include('pages.users.edit_permission_modal')
                         @include('pages.users.reset_password_user')
                     @empty
                         <tr style="text-align: center">
@@ -179,6 +219,21 @@
         $("#role").on('change', function (e) {
             let id = $(this).val()
         @this.set('selectedRoleId', id);
+        });
+
+        $("#email").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedEmailStatus', id);
+        });
+
+        $("#account").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedAccountStatus', id);
+        });
+
+        $("#activity").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedActivityStatus', id);
         });
     </script>
 @endpush

@@ -29,6 +29,11 @@
                     <td>{{\Illuminate\Support\Carbon::parse($activities_type->start_datetime)->format('d-m-Y')}}</td>
                     <td>{{\Illuminate\Support\Carbon::parse($activities_type->end_datetime)->format('d-m-Y')}}</td>
                     <td>
+                        <button type="button"
+                                wire:click.prevent="all_students_activities_export('{{$activities_type->id}}');"
+                                class="btn btn-primary btn-sm"
+                                title="تصدير بيانات طلاب طلبات الأنشطة"><i
+                                class="fa fa-download"></i></button>
                         <button type="button" class="btn btn-info btn-sm"
                                 @click.prevent="currentTab = 'form'"
                                 wire:click="getModalData({{$activities_type->id}},'edit');"

@@ -1,13 +1,13 @@
 @extends('layouts.master')
 @section('css')
 @section('title')
-    تقرير الحفظ والمراجعة
+    تقرير الحفظ والمراجعة قسم (القرآن)
 @stop
 @endsection
 @section('page-header')
     <!-- breadcrumb -->
 @section('PageTitle')
-    تقرير الحفظ والمراجعة
+    تقرير الحفظ والمراجعة قسم (القرآن)
 @stop
 <!-- breadcrumb -->
 @endsection

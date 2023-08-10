@@ -19,7 +19,7 @@
                     <button type="button" class="btn btn-secondary"
                             data-dismiss="modal">اغلاق
                     </button>
-                    <button type="button" wire:click = "destroy('{{$exam_order->id}}')"
+                    <button type="button" wire:click = "destroy();"
                             class="btn btn-danger">حذف
                     </button>
                 </div>

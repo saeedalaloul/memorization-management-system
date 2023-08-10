@@ -25,6 +25,8 @@ class SelectVisitActivity extends HomeComponent
 
     public function mount()
     {
+        $this->link ='manage_visits_orders/';
+        $this->current_role = auth()->user()->current_role;
         $this->oversight_members = $this->all_Oversight_Members();
     }
 
@@ -45,13 +47,13 @@ class SelectVisitActivity extends HomeComponent
         $messageBag = new MessageBag();
 
         if ($this->activities_orders_count > 0) {
-            if ($this->visit_date >= date('Y-m-d', time())) {
-                if (ActivityOrder::query()->where('activity_member_id', $this->activity_member_id)->where('status', ActivityOrder::ACCEPTABLE_STATUS)->whereDate('datetime', $this->visit_date)->first() != null) {
+            if ($this->visit_date >= date('Y-m-d')) {
+                if (ActivityOrder::query()->where('activity_member_id', $this->activity_member_id)->where('status', ActivityOrder::ACCEPTABLE_STATUS)->whereDate('datetime', $this->visit_date)->first() !== null) {
                     $visitOrder = VisitOrder::create([
-                        'hostable_type' => 'App\Models\ActivityMember',
+                        'hostable_type' => ActivityMember::class,
                         'hostable_id' => $this->activity_member_id,
                         'oversight_member_id' => $this->oversight_member_id,
-                        'datetime' => $this->visit_date . ' ' . date('H:i:s', time()),
+                        'datetime' => $this->visit_date . ' ' . date('H:i:s'),
                     ]);
 
                     // start push notifications to oversight member
@@ -63,7 +65,7 @@ class SelectVisitActivity extends HomeComponent
                     ]));
                     $title = "طلب زيارة جديد";
                     $message = "لقد قام مشرف الرقابة بتعيينك زائر (رقابة) على أنشطة المنشط: " . $this->activity_member_name . " بتاريخ: " . $this->visit_date . " يرجى مراجعة تفاصيل الزيارة.";
-                    $this->push_notification($message, $title, [$visitOrder->oversight_member->user->user_fcm_token->device_token]);
+                    $this->push_notification($message, $title,$this->link.$visitOrder->id, [$visitOrder->oversight_member->user->user_fcm_token->device_token ?? null]);
                     // end push notifications to oversight member
 
                     $this->dispatchBrowserEvent('alert',

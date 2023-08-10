@@ -1,7 +1,8 @@
 <div class="col-xl-12 mb-30">
     @php
-        $student =  $this->student[0];
+        $student =  $this->student[0] ?? null;
         $exams =  $this->student_exams;
+        $sunnah_exams =  $this->student_sunnah_exams;
     @endphp
     <div class="card card-statistics h-100">
         <div class="card-body">
@@ -15,27 +16,83 @@
                                 class="fa fa-user"></i> البيانات
                             الشخصية</a>
                     </li>
-                    <li class="nav-item" @click.prevent="currentStudentTab = 'academic'">
-                        <a class="nav-link" :class="currentStudentTab == 'academic' ? 'active show':'' "
-                           id="academic-08-tab"
-                           href="#academic-08" role="tab" aria-controls="academic-08" aria-selected="false"><i
-                                class="fas fa-group"></i> بيانات الحفظ
-                        </a>
-                    </li>
-                    <li class="nav-item" @click.prevent="currentStudentTab = 'exams'">
-                        <a class="nav-link" :class="currentStudentTab == 'exams' ? 'active show':'' " id="exams-08-tab"
-                           href="#exams-08" role="tab" aria-controls="exams-08" aria-selected="false"><i
-                                class="fas fa-book-open"></i>
-                            الإختبارات
-                            القرأنية </a>
-                    </li>
-                    <li class="nav-item" @click.prevent="currentStudentTab = 'courses'">
-                        <a class="nav-link" :class="currentStudentTab == 'courses' ? 'active show':'' "
-                           id="course-08-tab"
-                           href="#course-08" role="tab" aria-controls="course-08" aria-selected="false"><i
-                                class="fa fa-check-square-o"></i> الدورات
-                        </a>
-                    </li>
+                    @if($current_role == \App\Models\User::TEACHER_ROLE && $current_group_type == \App\Models\Group::QURAN_TYPE)
+                        <li class="nav-item" @click.prevent="currentStudentTab = 'academic'">
+                            <a class="nav-link" :class="currentStudentTab == 'academic' ? 'active show':'' "
+                               id="academic-08-tab"
+                               href="#academic-08" role="tab" aria-controls="academic-08" aria-selected="false"><i
+                                    class="fas fa-group"></i> معلومات التحفيظ قسم (القرآن)
+                            </a>
+                        </li>
+                        <li class="nav-item" @click.prevent="currentStudentTab = 'exams'">
+                            <a class="nav-link" :class="currentStudentTab == 'exams' ? 'active show':'' "
+                               id="exams-08-tab"
+                               href="#exams-08" role="tab" aria-controls="exams-08" aria-selected="false"><i
+                                    class="fas fa-book-open"></i>
+                                الإختبارات
+                                القرأنية </a>
+                        </li>
+                    @elseif($current_role == \App\Models\User::TEACHER_ROLE && $current_group_type == \App\Models\Group::SUNNAH_TYPE)
+                        <li class="nav-item" @click.prevent="currentStudentTab = 'academic-sunnah'">
+                            <a class="nav-link" :class="currentStudentTab == 'academic-sunnah' ? 'active show':'' "
+                               id="academic-sunnah-08-tab"
+                               href="#academic-sunnah-08" role="tab" aria-controls="academic-sunnah-08"
+                               aria-selected="false"><i
+                                    class="fas fa-group"></i> معلومات التحفيظ قسم (السنة)
+                            </a>
+                        </li>
+                        <li class="nav-item" @click.prevent="currentStudentTab = 'sunnah-exams'">
+                            <a class="nav-link" :class="currentStudentTab == 'sunnah-exams' ? 'active show':'' "
+                               id="sunnah-exams-08-tab"
+                               href="#sunnah-exams-08" role="tab" aria-controls="sunnah-exams-08" aria-selected="false"><i
+                                    class="fas fa-book-open"></i>
+                                اختبارات
+                                السنة </a>
+                    @else
+                        <li class="nav-item" @click.prevent="currentStudentTab = 'academic'">
+                            <a class="nav-link" :class="currentStudentTab == 'academic' ? 'active show':'' "
+                               id="academic-08-tab"
+                               href="#academic-08" role="tab" aria-controls="academic-08" aria-selected="false"><i
+                                    class="fas fa-group"></i> معلومات التحفيظ قسم (القرآن)
+                            </a>
+                        </li>
+                        @if (isset($student->group_sunnah_id))
+                            <li class="nav-item" @click.prevent="currentStudentTab = 'academic-sunnah'">
+                                <a class="nav-link" :class="currentStudentTab == 'academic-sunnah' ? 'active show':'' "
+                                   id="academic-sunnah-08-tab"
+                                   href="#academic-sunnah-08" role="tab" aria-controls="academic-sunnah-08"
+                                   aria-selected="false"><i
+                                        class="fas fa-group"></i> معلومات التحفيظ قسم (السنة)
+                                </a>
+                            </li>
+                        @endif
+                        <li class="nav-item" @click.prevent="currentStudentTab = 'exams'">
+                            <a class="nav-link" :class="currentStudentTab == 'exams' ? 'active show':'' "
+                               id="exams-08-tab"
+                               href="#exams-08" role="tab" aria-controls="exams-08" aria-selected="false"><i
+                                    class="fas fa-book-open"></i>
+                                الإختبارات
+                                القرأنية </a>
+                        </li>
+                        @if (isset($student->group_sunnah_id))
+                            <li class="nav-item" @click.prevent="currentStudentTab = 'sunnah-exams'">
+                                <a class="nav-link" :class="currentStudentTab == 'sunnah-exams' ? 'active show':'' "
+                                   id="sunnah-exams-08-tab"
+                                   href="#sunnah-exams-08" role="tab" aria-controls="sunnah-exams-08"
+                                   aria-selected="false"><i
+                                        class="fas fa-book-open"></i>
+                                    اختبارات
+                                    السنة </a>
+                            </li>
+                        @endif
+                    @endif
+                    {{--                    <li class="nav-item" @click.prevent="currentStudentTab = 'courses'">--}}
+                    {{--                        <a class="nav-link" :class="currentStudentTab == 'courses' ? 'active show':'' "--}}
+                    {{--                           id="course-08-tab"--}}
+                    {{--                           href="#course-08" role="tab" aria-controls="course-08" aria-selected="false"><i--}}
+                    {{--                                class="fa fa-check-square-o"></i> الدورات--}}
+                    {{--                        </a>--}}
+                    {{--                    </li>--}}
                 </ul>
 
                 <div class="tab-content">
@@ -66,15 +123,37 @@
                                                 <td>{{$student->student_identification_number ?? null}}</td>
                                                 <th scope="row">تاريخ الميلاد</th>
                                                 <td>{{$student->dob ?? null}}</td>
-                                                <th scope="row">رقم الواتساب</th>
-                                                <td>{{intval($student->whatsapp_number ?? null)}}</td>
+                                                <th scope="row">الجنس</th>
+                                                <td>
+                                                    @if (isset($student->student_gender))
+                                                        {{\App\Models\User::genders()[$student->student_gender]}}
+                                                    @endif
+                                                </td>
                                             </tr>
 
                                             <tr>
+                                                <th scope="row">رقم الواتساب</th>
+                                                <td>{{intval($student->whatsapp_number ?? null)}}</td>
                                                 <th scope="row">اسم المرحلة</th>
                                                 <td>{{$student->grade_name ?? null}}</td>
                                                 <th scope="row">اسم المحفظ</th>
-                                                <td>{{$student->teacher_name ?? null}}</td>
+                                                <td>
+                                                    @if ($current_role == \App\Models\User::TEACHER_ROLE)
+                                                        @if ($current_group_type == \App\Models\Group::SUNNAH_TYPE)
+                                                            {{$student->teacher_sunnah_name ?? null}}
+                                                        @else
+                                                            {{$student->teacher_name ?? null}}
+                                                        @endif
+                                                    @else
+                                                        {{$student->teacher_name ?? null}}
+                                                    @endif
+                                                </td>
+                                                @if (isset($student->teacher_sunnah_name ) && $current_role != \App\Models\User::TEACHER_ROLE)
+                                                    <th scope="row">اسم محفظ السنة</th>
+                                                    <td>
+                                                        {{$student->teacher_sunnah_name ?? null}}
+                                                    </td>
+                                                @endif
                                             </tr>
 
                                             <tr>
@@ -84,8 +163,12 @@
                                                 <td>{{$student->father_identification_number ?? null}}</td>
                                                 <th scope="row">رقم جوال ولي الأمر</th>
                                                 <td>{{$student->phone ?? null}}</td>
-                                                <th scope="row"></th>
-                                                <td></td>
+                                                <th scope="row">جنس ولى الأمر</th>
+                                                <td>
+                                                    @if (isset($student->father_gender))
+                                                        {{\App\Models\User::genders()[$student->father_gender]}}
+                                                    @endif
+                                                </td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -94,142 +177,25 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" :class="currentStudentTab == 'academic' ? 'active show':'' "
-                         id="academic-08"
-                         role="tabpanel"
-                         aria-labelledby="academic-08-tab">
-                        <div class="table-responsive mt-15">
-                            <table class="table table-striped table-hover" style="text-align:center">
-                                <tbody>
-                                <tr>
-                                    <th scope="row">عدد أجزاء الحفظ</th>
-                                    <td>{{$student->total_preservation_parts ?? null}}</td>
-                                    <th scope="row">عدد صفحات الحفظ لهذا الشهر</th>
-                                    <td>{{$student->number_memorize_pages ?? null}}</td>
-                                    <th scope="row">عدد صفحات المراجعة لهذا الشهر</th>
-                                    <td>{{$student->number_review_pages ?? null}}</td>
-                                    <th scope="row">عدد أيام الحضور لهذا الشهر</th>
-                                    <td>{{$student->number_presence_days ?? null}}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">عدد أيام الغياب لهذا الشهر</th>
-                                    <td>{{$student->number_absence_days ?? null}}</td>
-                                    <th scope="row">اسم أخر جزء اختبره</th>
-                                    <td>{{$student->last_quran_part ?? null}}</td>
-                                    <th scope="row">علامة أخر جزء اختبره</th>
-                                    <td>
-                                        @if (isset($student->last_exam_mark))
-                                            @if ($student->last_exam_mark >= $student->exam_success_mark)
-                                                @if ($student->exam_improvement != null && $student->exam_improvement > $student->last_exam_mark)
-                                                    <div class="badge-success" style="width: 40px;">
-                                                        {{ $student->exam_improvement.'%' }}
-                                                    </div>
-                                                @else
-                                                    <div class="badge-success" style="width: 40px;">
-                                                        {{ $student->last_exam_mark.'%' }}
-                                                    </div>
-                                                @endif
-                                            @else
-                                                <div class="badge-danger" style="width: 40px;">
-                                                    {{ $student->last_exam_mark.'%' }}
-                                                </div>
-                                            @endif
-                                        @endif
-                                    </td>
-                                    <th scope="row">حالة الطالب</th>
-                                    <td>
-                                        @if (isset($student->student_block) && $student->student_block != null)
-                                            <div class="badge-danger" style="width: 40px;">
-                                                محظور
-                                            </div>
-                                        @elseif(isset($student->student_warning) && $student->student_warning != null)
-                                            <div class="badge-warning" style="width: 50px;">
-                                                قيد الحظر
-                                            </div>
-                                        @else
-                                            <div class="badge-success" style="width: 40px;">
-                                                منتظم
-                                            </div>
-                                        @endif
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" :class="currentStudentTab == 'exams' ? 'active show':'' " id="exams-08"
-                         role="tabpanel"
-                         aria-labelledby="exams-08-tab">
-                        <div class="table-responsive mt-15">
-                            <table class="table center-aligned-table mb-0">
-                                <thead>
-                                <tr class="text-dark table-success">
-                                    <th>#</th>
-                                    <th>الإسم رباعي</th>
-                                    <th>جزء الإختبار</th>
-                                    <th>درجة الإختبار</th>
-                                    <th>اسم المحفظ</th>
-                                    <th>اسم المختبر</th>
-                                    <th>تاريخ الإختبار</th>
-                                    <th>ملاحظات</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @forelse($exams as $exam)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $exam->student_name }}</td>
-                                        <td>{{ $exam->quran_part_name }}</td>
-                                        <td style="text-align: center; align-content: center">
-                                            @if ($exam->mark >= $exam->exam_success_mark)
-                                                @if ($exam->exam_improvement != null && $exam->exam_improvement > $exam->mark)
-                                                    <div class="badge-success" style="width: 40px;">
-                                                        {{ $exam->exam_improvement.'%' }}
-                                                    </div>
-                                                @else
-                                                    <div class="badge-success" style="width: 40px;">
-                                                        {{ $exam->mark.'%' }}
-                                                    </div>
-                                                @endif
-                                            @else
-                                                <div class="badge-danger" style="width: 40px;">
-                                                    {{ $exam->mark.'%' }}
-                                                </div>
-                                            @endif
-                                        </td>
-                                        <td>{{ $exam->teacher_name }}</td>
-                                        <td>{{ $exam->tester_name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($exam->datetime)->format('Y-m-d') }}</td>
-                                        <td>{{ $exam->notes }}</td>
-                                    </tr>
-                                @empty
-                                    <tr style="text-align: center">
-                                        <td colspan="7">No data available in table</td>
-                                    </tr>
-                                @endforelse
-                                </tbody>
-                                <tfoot>
-                                <tr class="text-dark table-success">
-                                    <th>#</th>
-                                    <th>اسم الطالب</th>
-                                    <th>جزء الإختبار</th>
-                                    <th>درجة الإختبار</th>
-                                    <th>اسم المحفظ</th>
-                                    <th>اسم المختبر</th>
-                                    <th>تاريخ الإختبار</th>
-                                    <th>ملاحظات</th>
-                                </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" :class="currentStudentTab == 'courses' ? 'active show':'' "
-                         id="course-08"
-                         role="tabpanel" aria-labelledby="course-08-tab">
-                        <div class="badge-danger">
-                            قيد التطوير والبرمجة
-                        </div>
-                    </div>
+                    @if($current_role == \App\Models\User::TEACHER_ROLE && $current_group_type == \App\Models\Group::QURAN_TYPE)
+                        @include('pages.students.academic_student')
+                        @include('pages.students.exam_student')
+                    @elseif($current_role == \App\Models\User::TEACHER_ROLE && $current_group_type == \App\Models\Group::SUNNAH_TYPE)
+                        @include('pages.students.academic_sunnah_student')
+                        @include('pages.students.exam_sunnah_student')
+                    @else
+                        @include('pages.students.academic_student')
+                        @include('pages.students.academic_sunnah_student')
+                        @include('pages.students.exam_student')
+                        @include('pages.students.exam_sunnah_student')
+                    @endif
+                    {{--                    <div class="tab-pane fade" :class="currentStudentTab === 'courses' ? 'active show':'' "--}}
+                    {{--                         id="course-08"--}}
+                    {{--                         role="tabpanel" aria-labelledby="course-08-tab">--}}
+                    {{--                        <div class="badge-danger">--}}
+                    {{--                            قيد التطوير والبرمجة--}}
+                    {{--                        </div>--}}
+                    {{--                    </div>--}}
                 </div>
             </div>
         </div>

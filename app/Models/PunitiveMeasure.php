@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Adnane\SimpleUuid\Traits\SimpleUuid;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Group;
 
 class PunitiveMeasure extends Model
 {
@@ -16,13 +17,14 @@ class PunitiveMeasure extends Model
         'quantity',
     ];
 
-    const BLOCK_TYPE = "block";
-    const WARNING_TYPE = "warning";
+    public const BLOCK_TYPE = "block";
+    public const WARNING_TYPE = "warning";
 
-    const MEMORIZE_REASON = "memorize";
-    const DID_NOT_MEMORIZE_REASON = "did-not-memorize";
-    const ABSENCE_REASON = "absence";
-    const LATE_REASON = "late";
+    public const MEMORIZE_REASON = "memorize";
+    public const DID_NOT_MEMORIZE_REASON = "did-not-memorize";
+    public const ABSENCE_REASON = "absence";
+    public const LATE_REASON = "late";
+    public const AUTHORIZED_REASON = "authorized";
 
     public static function types(){
         return [
@@ -37,11 +39,12 @@ class PunitiveMeasure extends Model
             self::DID_NOT_MEMORIZE_REASON => 'لم يحفظ',
             self::ABSENCE_REASON => 'الغياب',
             self::LATE_REASON => 'التأخر',
+            self::AUTHORIZED_REASON => 'مأذون',
         ];
     }
 
     public function groups()
     {
-        return $this->belongsToMany('App\Models\Group', 'punitive_measure_groups');
+        return $this->belongsToMany(Group::class, 'punitive_measure_groups');
     }
 }

@@ -15,7 +15,7 @@
                 <td>{{ $exam_custom_question->quranPart->name .' '.$exam_custom_question->quranPart->description }}</td>
                 <td>
                     @if ($modalId == $exam_custom_question->id)
-                        <input type="number" wire:keydown.enter="update()" style="width: 100px;" min="7"
+                        <input type="number" wire:keydown.enter="update()" style="width: 100px;" min="3" max="20"
                                wire:model.defer="exam_question_count_update"
                                class="form-control">
                         @error('exam_question_count_update')
@@ -79,7 +79,7 @@
                 </div>
                 <div class="col">
                     <label for="exam_question_count">عدد أسئلة الإختبار</label>
-                    <input type="number" min="7" wire:model.defer="exam_question_count" class="form-control">
+                    <input type="number" min="3" max="20" wire:model.defer="exam_question_count" class="form-control">
                     @error('exam_question_count')
                     <div class="alert alert-danger">{{ $message }}</div>
                     @enderror

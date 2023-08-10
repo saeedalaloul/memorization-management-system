@@ -40,7 +40,7 @@
                 {{--            <td style="background:#D9D9D9;height: 25px; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">{{ $exam->id }}</td>--}}
                 <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">{{ $exam->student->user->name }}</td>
                 <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">{{ $exam->QuranPart->name . ' ' . $exam->QuranPart->description }}</td>
-                <td style="background-color: {{$exam->mark >= $exam->examSuccessMark->mark ? '#28a745':'#dc3545'}}; color: #FFFFFF;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align: center; vertical-align: center;">
+                <td style="background-color: {{$exam->mark >= $exam->exam_success_mark->mark ? '#28a745':'#dc3545'}}; color: #FFFFFF;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align: center; vertical-align: center;">
                     @if ($exam->exam_improvement != null && $exam->exam_improvement->mark > $exam->mark)
                         {{ $exam->exam_improvement->mark.'%' }}
                     @else

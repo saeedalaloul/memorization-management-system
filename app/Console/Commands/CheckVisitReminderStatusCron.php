@@ -46,9 +46,10 @@ class CheckVisitReminderStatusCron extends Command
      */
     public function handle()
     {
+        $link = 'manage_visits/';
         $visitProcessingReminders = VisitProcessingReminder::all();
 
-        if (!empty($visitProcessingReminders)) {
+        if ($visitProcessingReminders !== null) {
 
             // start push notifications
             $title = "تذكير بمعالجة زيارة";
@@ -59,14 +60,14 @@ class CheckVisitReminderStatusCron extends Command
 
             foreach ($visitProcessingReminders as $value) {
                 $reminder_datetime = Carbon::parse($value['reminder_datetime'])->format('Y-m-d');
-                if ($reminder_datetime <= date('Y-m-d', time())) {
-                    if ($value->visit->hostable_type == 'App\Models\Group') {
+                if ($reminder_datetime <= date('Y-m-d')) {
+                    if ($value->visit->hostable_type === 'App\Models\Group') {
                         $hostname = $value->visit->hostable->teacher->user->name;
                         $message = "تذكير يعتبر تاريخ: " . $reminder_datetime . " المحدد لمعالجة الزيارة الخاصة بحلقة المحفظ: " . $hostname . " يرجى معالجة الزيارة. ";
-                    } else if ($value->visit->hostable_type == 'App\Models\Tester') {
+                    } else if ($value->visit->hostable_type === 'App\Models\Tester') {
                         $hostname = $value->visit->hostable->user->name;
                         $message = "تذكير يعتبر تاريخ: " . $reminder_datetime . " المحدد لمعالجة الزيارة الخاصة بالمختبر: " . $hostname . " يرجى معالجة الزيارة. ";
-                    } else if ($value->visit->hostable_type == 'App\Models\ActivityMember') {
+                    } else if ($value->visit->hostable_type === 'App\Models\ActivityMember') {
                         $hostname = $value->visit->hostable->user->name;
                         $message = "تذكير يعتبر تاريخ: " . $reminder_datetime . " المحدد لمعالجة الزيارة الخاصة بالمنشط: " . $hostname . " يرجى معالجة الزيارة. ";
                     }
@@ -93,8 +94,8 @@ class CheckVisitReminderStatusCron extends Command
                         ]));
                     }
 
-                    $this->push_notification($message, $title, [$role_users_admin->first()->user_fcm_token->device_token]);
-                    $this->push_notification($message, $title, [$role_users_oversight_supervisor->first()->user_fcm_token->device_token]);
+                    $this->push_notification($message, $title,$link.$value->visit->id, [$role_users_admin->first()->user_fcm_token->device_token ?? null]);
+                    $this->push_notification($message, $title,$link.$value->visit->id, [$role_users_oversight_supervisor->first()->user_fcm_token->device_token ?? null]);
                 }
             }
         }

@@ -28,6 +28,21 @@
                         @enderror
                         <input id="id" type="hidden" name="id" class="form-control" wire:model.defer="modalId">
                     </div>
+
+                    <div class="col">
+                        <label for="inputSection">اختر قسم المرحلة</label>
+                        <select class="form-control form-white" wire:model.defer="section"
+                                style="padding: 1px">
+                            <option value="">اختر قسم المرحلة</option>
+                            @foreach(\App\Models\Grade::sections() as $section => $value)
+                                <option
+                                    value="{{$section}}">{{$value}}</option>
+                            @endforeach
+                        </select>
+                        @error('section')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
                 <br><br>
 

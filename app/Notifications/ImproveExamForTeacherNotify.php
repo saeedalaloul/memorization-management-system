@@ -38,11 +38,22 @@ class ImproveExamForTeacherNotify extends Notification
      */
     public function toArray($notifiable)
     {
+        if ($this->exam_improvement->exam->quranPart !== null) {
+            return [
+                'id'=>$this->exam_improvement->id,
+                'student_name'=> $this->exam_improvement->exam->student->user->name,
+                'tester_name'=> $this->exam_improvement->tester->user->name,
+                'part_name'=> $this->exam_improvement->exam->quranPart->name.' '.$this->exam_improvement->exam->quranPart->description,
+                'mark'=> $this->exam_improvement->mark,
+                'datetime'=> $this->exam_improvement->datetime,
+            ];
+        }
+
         return [
             'id'=>$this->exam_improvement->id,
             'student_name'=> $this->exam_improvement->exam->student->user->name,
             'tester_name'=> $this->exam_improvement->tester->user->name,
-            'quran_part_name'=> $this->exam_improvement->exam->quranPart->name.' '.$this->exam_improvement->exam->quranPart->description,
+            'part_name'=> $this->exam_improvement->exam->sunnahPart->name. ' (' . $this->exam_improvement->exam->sunnahPart->total_hadith_parts. ') حديث',
             'mark'=> $this->exam_improvement->mark,
             'datetime'=> $this->exam_improvement->datetime,
         ];

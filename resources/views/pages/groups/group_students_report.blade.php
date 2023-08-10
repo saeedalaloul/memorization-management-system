@@ -29,10 +29,16 @@
             عدد أجزاء الحفظ
         </th>
         <th style="height: 30px; background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
-            آخر اختبار منفرد
+            آخر اختبار منفرد (قرآن)
         </th>
         <th style="height: 30px; background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
-            آخر اختبار تجميعي
+            آخر اختبار تجميعي (قرآن)
+        </th>
+        <th style="height: 30px; background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+            آخر اختبار منفرد (سنة)
+        </th>
+        <th style="height: 30px; background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+            آخر اختبار تجميعي (سنة)
         </th>
     </tr>
     </thead>
@@ -63,6 +69,12 @@
             </td>
             <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
                 {{$student->quran_part_deserved}}
+            </td>
+            <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+                {{$student->sunnah_part_individual}}
+            </td>
+            <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+                {{$student->sunnah_part_deserved}}
             </td>
         </tr>
     @empty
@@ -101,10 +113,16 @@
             عدد أجزاء الحفظ
         </th>
         <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
-            آخر اختبار منفرد
+            آخر اختبار منفرد (قرآن)
         </th>
         <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
-            آخر اختبار تجميعي
+            آخر اختبار تجميعي (قرآن)
+        </th>
+        <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+            آخر اختبار منفرد (سنة)
+        </th>
+        <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+            آخر اختبار تجميعي (سنة)
         </th>
     </tr>
     </tfoot>

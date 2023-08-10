@@ -23,7 +23,7 @@
                                     data-placeholder="اختر المنشط..." name="activity_member_id" style="padding: 10px;">
                                 <option selected value="{{0}}">اختر المنشط...</option>
                                 @foreach($activity_members as $activity_member)
-                                    <option {{$activity_member_id != null && $activity_member_id == $activity_member->id?'selected':''}}  value="{{$activity_member->id}}">{{$activity_member->user->name}}</option>
+                                    <option {{$activity_member_id !== null && $activity_member_id === $activity_member->id?'selected':''}}  value="{{$activity_member->id}}">{{$activity_member->user->name}}</option>
                                 @endforeach
                             </select>
                             @error('activity_member_id')

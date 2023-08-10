@@ -25,6 +25,7 @@ class TodayVisits extends HomeComponent
     public function mount()
     {
         $this->current_role = auth()->user()->current_role;
+        $this->link = 'manage_visits_orders/';
     }
 
     public function messages()
@@ -42,12 +43,8 @@ class TodayVisits extends HomeComponent
     public function visitOfStart($id)
     {
         $this->visitOrder = VisitOrder::where('id', $id)->first();
-        if ($this->visitOrder) {
-            if ($this->visitOrder->status == VisitOrder::IN_PENDING_STATUS) {
-                if ($this->current_role == 'مراقب') {
-                    $this->initializeVisitStartInputs();
-                }
-            }
+        if ($this->visitOrder && $this->visitOrder->status === VisitOrder::IN_PENDING_STATUS && $this->current_role === 'مراقب') {
+            $this->initializeVisitStartInputs();
         }
     }
 
@@ -99,13 +96,13 @@ class TodayVisits extends HomeComponent
             $title = "طلب زيارة قيد الإعتماد";
             $message = "";
             $hostname = "";
-            if ($this->visitOrder->hostable_type == 'App\Models\Teacher') {
+            if ($this->visitOrder->hostable_type === 'App\Models\Teacher') {
                 $hostname = $this->visitOrder->hostable->user->name;
                 $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المحفظ " . $hostname . " يرجى مراجعة طلب الزيارة. ";
-            } else if ($this->visitOrder->hostable_type == 'App\Models\Tester') {
+            } else if ($this->visitOrder->hostable_type === 'App\Models\Tester') {
                 $hostname = $this->visitOrder->hostable->user->name;
                 $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المختبر " . $hostname . " يرجى مراجعة طلب الزيارة. ";
-            } else if ($this->visitOrder->hostable_type == 'App\Models\ActivityMember') {
+            } else if ($this->visitOrder->hostable_type === 'App\Models\ActivityMember') {
                 $hostname = $this->visitOrder->hostable->user->name;
                 $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المنشط " . $hostname . " يرجى مراجعة طلب الزيارة. ";
             }
@@ -118,7 +115,7 @@ class TodayVisits extends HomeComponent
                 'datetime' => $this->visitOrder->datetime,
             ]));
 
-            $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token]);
+            $this->push_notification($message, $title,$this->link.$this->visitOrder->id, [$role_users->first()->user_fcm_token->device_token ?? null]);
         }
         // end push notifications to oversight supervisor
         $this->dispatchBrowserEvent('alert',
@@ -144,7 +141,7 @@ class TodayVisits extends HomeComponent
             ->with(['oversight_member.user'])
             ->search($this->search)
             ->todayvisits()
-            ->when($this->current_role == 'مراقب', function ($q, $v) {
+            ->when($this->current_role === 'مراقب', function ($q, $v) {
                 $q->where('oversight_member_id', auth()->id());
             })
             ->orderBy($this->sortBy, $this->sortDirection)

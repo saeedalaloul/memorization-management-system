@@ -10,11 +10,10 @@
         </li>
         <!-- menu title -->
         <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">نظام إدارة التحفيظ لمركز الأنصار</li>
-
         <li>
             <a href="javascript:void(0);" data-toggle="collapse" data-target="#Managing-exams-department">
                 <div class="pull-left"><i class="fas fa-book-open"></i><span
-                        class="right-nav-text">إدارة الإختبارات القرآنية</span></div>
+                        class="right-nav-text">إدارة الإختبارات</span></div>
                 <div class="pull-right"><i class="ti-plus"></i></div>
                 <div class="clearfix"></div>
             </a>
@@ -27,6 +26,9 @@
                 @can('إدارة الإختبارات')
                     <li>
                         <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية</a>
+                    </li>
+                    <li>
+                        <a href="{{url('manage_sunnah_exams',null,true)}}">اختبارات السنة</a>
                     </li>
                 @endcan
                 @can('إدارة اختبارات اليوم')

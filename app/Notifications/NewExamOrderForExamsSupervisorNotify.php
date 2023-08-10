@@ -38,11 +38,17 @@ class NewExamOrderForExamsSupervisorNotify extends Notification
      */
     public function toArray($notifiable)
     {
+        if ($this->exam_order->partable_type == 'App\Models\QuranPart') {
+            $part_name =  $this->exam_order->partable->name.' '.$this->exam_order->partable->description;
+        }else{
+            $part_name =  $this->exam_order->partable->name. ' (' . $this->exam_order->partable->total_hadith_parts. ') حديث';
+        }
+
         return [
             'id'=>$this->exam_order->id,
             'student_name'=> $this->exam_order->student->user->name,
             'teacher_name'=> $this->exam_order->teacher->user->name,
-            'quran_part_name'=> $this->exam_order->quranPart->name.' '.$this->exam_order->quranPart->description,
+            'part_name'=> $part_name,
         ];
     }
 }

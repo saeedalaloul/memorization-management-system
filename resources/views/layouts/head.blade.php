@@ -3,6 +3,7 @@
 
 <!-- Favicon -->
 <link rel="shortcut icon" href="{{ URL::asset('assets/images/favicon.ico',true) }}" type="image/x-icon"/>
+<meta content="{{csrf_token()}}" name="csrf-token" />
 
 <!-- Font -->
 <link rel="stylesheet"
@@ -13,14 +14,13 @@
       integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
 
 <link href="{{ URL::asset('css/wizard.css',true) }}" rel="stylesheet" id="bootstrap-css">
-<meta name="csrf-token" content="{{csrf_token()}}"/>
 
 @yield('css')
 <!--- Style css -->
 <link href="{{ URL::asset('assets/css/style.css',true) }}" rel="stylesheet">
 
 <!--- Style css -->
-@if (App::getLocale() == 'en')
+@if (App::getLocale() === 'en')
     <link href="{{ URL::asset('assets/css/ltr.css',true) }}" rel="stylesheet">
 @else
     <link href="{{ URL::asset('assets/css/rtl.css',true) }}" rel="stylesheet">
@@ -37,8 +37,8 @@
         projectId: "alansarcenter-c93d5",
         storageBucket: "alansarcenter-c93d5.appspot.com",
         messagingSenderId: "520516617212",
-        appId: "1:520516617212:web:2e876da05504afd12ae879",
-        measurementId: "G-3ER6SP33B6"
+        appId: "1:520516617212:web:bf9be407e05628022ae879",
+        measurementId: "G-84BF7VJGPK"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -66,31 +66,35 @@
                 success: function () {
                 },
                 error: function (error) {
-                    toastr.options =
-                        {
-                            "closeButton": false,
-                            "progressBar": true
-                        }
-                    toastr.error(error);
+                    // toastr.options =
+                    //     {
+                    //         "closeButton": false,
+                    //         "progressBar": true
+                    //     }
+                    // toastr.error(error);
                 },
             });
         }).catch(function (error) {
-        toastr.options =
-            {
-                "closeButton": false,
-                "progressBar": true
-            }
-        toastr.error(error);
+        // toastr.options =
+        //     {
+        //         "closeButton": false,
+        //         "progressBar": true
+        //     }
+        // toastr.error(error);
     });
 
-    // messaging.onMessage(function (payload) {
-    //     const title = payload.notification.title;
-    //     const options = {
-    //         body: payload.notification.body,
-    //         icon: payload.notification.icon,
-    //         requireInteraction: true,
-    //         dir:'rtl',
-    //     };
-    //     new Notification(title, options);
-    // });
+    messaging.onMessage(function (payload) {
+        const title = payload.notification.title;
+        const options = {
+            body: payload.notification.body,
+            icon: payload.notification.icon,
+            data: {
+                time: new Date(Date.now()).toString(),
+                click_action: payload.notification.click_action,
+            },
+            requireInteraction: true,
+            dir:'rtl',
+        };
+        new Notification(title, options);
+    });
 </script>

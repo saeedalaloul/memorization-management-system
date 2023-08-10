@@ -42,6 +42,7 @@ class ExpiredStudentWarningForTeacherNotify extends Notification
     {
         return [
             'id' => $this->student_warning->id,
+            'student_id' => $this->student_warning->student_id,
             'student_name' => $this->student_warning->student->user->name,
             'reason' => $this->student_warning->reason,
             'warning_expiry_date' => $this->student_warning->warning_expiry_date,

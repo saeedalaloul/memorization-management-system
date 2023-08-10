@@ -19,4 +19,14 @@
 @section('js')
     @livewireScripts
     @toastr_render
+
+    <script>
+        window.addEventListener('showDialogEditPermission', _ => {
+            $('#edit-permission').modal('show');
+        });
+
+        window.addEventListener('hideModal', _ => {
+            $('#edit-permission').modal('hide');
+        });
+    </script>
 @endsection

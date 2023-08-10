@@ -43,7 +43,7 @@
                         @endif
                     </td>
                     <td>
-                        @if ($group->teacher->visit_orders->first() == null)
+                        @if ($group->teacher_id != null && $group->teacher->visit_orders->first() == null)
                             <button class="btn btn-outline-success btn-sm"
                                     data-toggle="modal"
                                     wire:click.prevent="loadModalData('{{$group->id}}')"

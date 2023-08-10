@@ -16,10 +16,10 @@ class StudentAttendance extends Model
         'status',
     ];
 
-    const PRESENCE_STATUS = "presence";
-    const ABSENCE_STATUS = "absence";
-    const LATE_STATUS = "late";
-    const AUTHORIZED_STATUS = "authorized";
+    public const PRESENCE_STATUS = "presence";
+    public const ABSENCE_STATUS = "absence";
+    public const LATE_STATUS = "late";
+    public const AUTHORIZED_STATUS = "authorized";
 
     public static function status(){
         return [

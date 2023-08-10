@@ -24,6 +24,31 @@
                         </div>
                         <div class="form-row">
                             @if($role_id != null)
+
+                                @if ($roles->firstWhere('name', \App\Models\User::SPONSORSHIP_SUPERVISORS_ROLE) != null &&
+                                   $role_id == $roles->firstWhere('name', \App\Models\User::SPONSORSHIP_SUPERVISORS_ROLE)->id)
+                                    <div class="form-group col">
+                                        <script>
+                                            $("#sponsorships_").on('change', function (e) {
+                                                let id = $(this).val()
+                                            @this.set('sponsorships_ids', id);
+                                            });
+                                        </script>
+                                        <label for="inputType" style="font-size: 15px; color: #1e7e34">اختر أقسام
+                                            الكفالة</label>
+                                        <select id="sponsorships_" style="width: 100%;"
+                                                wire:model.defer="sponsorships_ids"
+                                                class="custom-select my-1 mr-sm-2 select2" multiple>
+                                            @foreach($sponsorships as $sponsorship)
+                                                <option value="{{$sponsorship->id}}">{{$sponsorship->name}}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('sponsorships_ids')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                @endif
+
                                 @if ($roles->firstWhere('name', "مشرف") != null &&
                                     $role_id == $roles->firstWhere('name', "مشرف")->id ||
                                     $roles->firstWhere('name', "محفظ") != null &&
@@ -39,7 +64,8 @@
                                         </script>
                                         <label for="inputGrade" style="font-size: 15px; color: #1e7e34">اسم
                                             المرحلة*</label>
-                                        <select  style="width: 100%;" class="custom-select my-1 mr-sm-2 select2" id="grade" wire:model.defer="grade_id">
+                                        <select style="width: 100%;" class="custom-select my-1 mr-sm-2 select2"
+                                                id="grade" wire:model.defer="grade_id">
                                             <option selected value="">اختر المرحلة...</option>
                                             @if (isset($grades))
                                                 @foreach($grades as $grade)
@@ -65,11 +91,17 @@
                                         });
                                     </script>
                                     <label for="inputGroup" style="font-size: 15px; color: #1e7e34">اسم الحلقة*</label>
-                                    <select  style="width: 100%;" class="custom-select my-1 mr-sm-2 select2" id="group" wire:model.defer="group_id">
+                                    <select style="width: 100%;" class="custom-select my-1 mr-sm-2 select2" id="group"
+                                            wire:model.defer="group_id">
                                         <option selected>اختر الحلقة...</option>
                                         @if (isset($groups))
                                             @foreach($groups as $group)
-                                                <option value="{{$group->id}}">{{$group->name}}</option>
+                                                @if (isset($group->teacher_id))
+                                                    <option
+                                                        value="{{$group->id}}">{{$group->teacher->user->name}}</option>
+                                                @else
+                                                    <option value="">لا يوجد محفظ</option>
+                                                @endif
                                             @endforeach
                                         @endif
                                     </select>
@@ -96,6 +128,26 @@
                                     <input type="number" name="father_identification_number" class="form-control"
                                            wire:model.defer="father_identification_number">
                                     @error('father_identification_number')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col">
+                                    <label class="control-label" style="font-size: 15px; color: #1e7e34">رقم الواتس
+                                        اب</label>
+                                    <div class="input-group">
+						<span class="input-group-btn">
+						  <select class="custom-select my-1 mr-sm-2" wire:model.defer="country_code">
+                            <option value="" selected>اختر كود الدولة...</option>
+                            <option value="+970">+970</option>
+                            <option value="+972">+972</option>
+                        </select>
+						</span>
+                                        <input type="number" wire:model.defer="whatsapp_number"
+                                               class="form-control"/> @error('country_code')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                        @enderror</div>
+                                    @error('whatsapp_number')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>

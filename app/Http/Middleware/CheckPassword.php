@@ -18,7 +18,7 @@ class CheckPassword
     {
         if ($request->getPathInfo() != '/livewire/message/manage-password') {
             if ($request->route()->getName() != 'manage_password' && $request->route()->getName() != 'logout') {
-                if (auth()->check() && auth()->user()->password == null) {
+                if (auth()->check() && auth()->user()->password == null && auth()->user()->email_verified_at != null) {
                     return redirect()->route('manage_password');
                 }
             }

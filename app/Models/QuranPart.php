@@ -10,8 +10,9 @@ class QuranPart extends Model
 
     public $timestamps = false;
 
-    const INDIVIDUAL_TYPE = "individual";
-    const DESERVED_TYPE = "deserved";
+    public const QURAN_MEMORIZER_PART = 1;
+    public const INDIVIDUAL_TYPE = "individual";
+    public const DESERVED_TYPE = "deserved";
 
     public static function types()
     {
@@ -23,11 +24,18 @@ class QuranPart extends Model
 
     public function examCustomQuestion()
     {
-        return $this->hasMany('App\Models\ExamCustomQuestion');
+        return $this->hasMany(ExamCustomQuestion::class);
     }
 
     public function exams()
     {
-        return $this->hasMany('App\Models\Exam');
+        return $this->hasMany(Exam::class);
+    }
+
+    // علاقة بين أجزاء القرآن وطلبات الاختبارات لجلب طلبات الاختبارات في جدول أجزاء القرآن
+
+    public function exam_orders()
+    {
+        return $this->morphMany(ExamOrder::class, 'partable');
     }
 }

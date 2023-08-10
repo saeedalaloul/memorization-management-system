@@ -26,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'gender',
         'email',
         'password',
         'current_role',
@@ -38,16 +39,30 @@ class User extends Authenticatable implements MustVerifyEmail
         'status',
     ];
 
-    const ADMIN_ROLE = "أمير المركز";
-    const SUPERVISOR_ROLE = "مشرف";
-    const EXAMS_SUPERVISOR_ROLE = "مشرف الإختبارات";
-    const ACTIVITIES_SUPERVISOR_ROLE = "مشرف الأنشطة";
-    const OVERSIGHT_SUPERVISOR_ROLE = "مشرف الرقابة";
-    const COURSES_SUPERVISOR_ROLE = "مشرف الدورات";
-    const TEACHER_ROLE = "محفظ";
-    const TESTER_ROLE = "مختبر";
-    const ACTIVITY_MEMBER_ROLE = "منشط";
-    const OVERSIGHT_MEMBER_ROLE = "مراقب";
+    public const ADMIN_ROLE = "أمير المركز";
+    public const SUPERVISOR_ROLE = "مشرف";
+    public const SPONSORSHIP_SUPERVISORS_ROLE = "مشرف حلقات مكفولة";
+    public const EXAMS_SUPERVISOR_ROLE = "مشرف الإختبارات";
+    public const ACTIVITIES_SUPERVISOR_ROLE = "مشرف الأنشطة";
+    public const OVERSIGHT_SUPERVISOR_ROLE = "مشرف الرقابة";
+    public const COURSES_SUPERVISOR_ROLE = "مشرف الدورات";
+    public const TEACHER_ROLE = "محفظ";
+    public const TESTER_ROLE = "مختبر";
+    public const ACTIVITY_MEMBER_ROLE = "منشط";
+    public const OVERSIGHT_MEMBER_ROLE = "مراقب";
+    public const STUDENT_ROLE = "طالب";
+    public const FATHER_ROLE = "ولي أمر الطالب";
+
+    public const MALE_GENDER = "male";
+    public const FEMALE_GENDER = "female";
+
+    public static function genders()
+    {
+        return [
+            self::MALE_GENDER => 'ذكر',
+            self::FEMALE_GENDER => 'أنثى',
+        ];
+    }
 
     /**
      * The attributes that should be hidden for arrays.
@@ -136,5 +151,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function activity_member()
     {
         return $this->hasOne('App\Models\ActivityMember', 'id');
+    }
+
+    public function sponsorships()
+    {
+        return $this->belongsToMany(Sponsorship::class, 'sponsorship_supervisors','sponsorship_supervisor_id');
     }
 }

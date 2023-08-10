@@ -8,7 +8,7 @@
             @endif
 
             @if (auth()->user()->current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
-                @include('layouts.main-sidebar.exams_supervisor-main-sidebar')
+                @include('layouts.main-sidebar.exams-supervisor-main-sidebar')
             @endif
 
             @if (auth()->user()->current_role == \App\Models\User::COURSES_SUPERVISOR_ROLE)
@@ -25,6 +25,10 @@
 
             @if (auth()->user()->current_role == \App\Models\User::SUPERVISOR_ROLE)
                 @include('layouts.main-sidebar.supervisor-main-sidebar')
+            @endif
+
+            @if (auth()->user()->current_role == \App\Models\User::SPONSORSHIP_SUPERVISORS_ROLE)
+                @include('layouts.main-sidebar.sponsorships-supervisor-sidebar')
             @endif
 
             @if (auth()->user()->current_role == \App\Models\User::TEACHER_ROLE)

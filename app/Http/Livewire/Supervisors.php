@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Grade;
 use App\Models\Supervisor;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -74,6 +75,7 @@ class Supervisors extends HomeComponent
     {
         return [
             'name' => $this->name,
+            'gender' => Grade::whereId($this->grade_id)->first()->section,
             'email' => $this->email,
             'dob' => $this->dob,
             'phone' => $this->phone,
@@ -110,7 +112,8 @@ class Supervisors extends HomeComponent
             'grade_id.required' => 'اسم المرحلة مطلوب',
             'photo.image' => 'حقل الصورة يجب أن يحتوي على صورة',
             'photo.mimes' => 'يجب أن تكون صيغة الصورة إما jpeg أو png أو jpg',
-            'photo.max' => 'يجب أن لا يزيد حجم الصورة عن 2048 كيلو بايت',
+            'photo.max' => 'يجب أن لا يزيد حجم الصورة عن 1024 كيلو بايت',
+            'photo.unique' => 'عذرا يوجد صورة بهذا الاسم مسبقا',
         ];
     }
 
@@ -135,16 +138,23 @@ class Supervisors extends HomeComponent
     public function store()
     {
         $this->validate();
+
+        if (!empty($this->photo)) {
+            $this->validate([
+                'photo' => 'required|image|mimes:jpg,jpeg,png|max:1024|unique:users,profile_photo,' . $this->modalId,
+            ]);
+        }
+
         DB::beginTransaction();
         try {
             $user = User::create($this->modelUser());
             $user->user_info()->create($this->modelUserInfo($user->id));
             $roleId = Role::select('*')->where('name', '=', 'مشرف')->get();
             $user->assignRole([$roleId]);
-            $supervisor = Supervisor::create($this->modelSupervisor($user->id));
+            Supervisor::create($this->modelSupervisor($user->id));
             if (!empty($this->photo)) {
                 $this->uploadImage($this->photo,
-                    $this->identification_number . '.' . $this->photo->getClientOriginalExtension(),
+                    $this->identification_number . Carbon::now()->timestamp . '.' . $this->photo->getClientOriginalExtension(),
                     $user->id);
             }
             $this->modalFormReset();
@@ -174,12 +184,19 @@ class Supervisors extends HomeComponent
     public function update()
     {
         $this->validate();
+
+        if (!empty($this->photo)) {
+            $this->validate([
+                'photo' => 'required|image|mimes:jpg,jpeg,png|max:1024|unique:users,profile_photo,' . $this->modalId,
+            ]);
+        }
+
         DB::beginTransaction();
         try {
             $supervisor = Supervisor::where('id', $this->modalId)->first();
             $supervisor->update($this->modelSupervisor($this->modalId));
             $supervisor->user->update($this->modelUser());
-            if ($supervisor->user->user_info == null) {
+            if ($supervisor->user->user_info === null) {
                 $supervisor->user->user_info()->create($this->modelUserInfo($this->modalId));
             } else {
                 $supervisor->user->user_info->update($this->modelUserInfo($this->modalId));
@@ -189,7 +206,7 @@ class Supervisors extends HomeComponent
             if (!empty($this->photo)) {
                 $this->deleteImage($supervisor->user->profile_photo);
                 $this->uploadImage($this->photo,
-                    $this->identification_number . '.' . $this->photo->getClientOriginalExtension(),
+                    $this->identification_number . Carbon::now()->timestamp . '.' . $this->photo->getClientOriginalExtension(),
                     $this->modalId);
             }
             $this->modalFormReset();
@@ -204,23 +221,24 @@ class Supervisors extends HomeComponent
 
     public function destroy($id)
     {
-        $supervisor = Supervisor::find($id);
-        $supervisor->delete();
+//        $supervisor = Supervisor::find($id);
+//        $supervisor->delete();
         $this->dispatchBrowserEvent('hideDialog');
         $this->dispatchBrowserEvent('alert',
-            ['type' => 'error', 'message' => 'تم حذف المشرف بنجاح.']);
+            ['type' => 'error', 'message' => 'عذرا لا يمكنك حذف المشرف بتاتا.']);
     }
 
     public function all_Supervisors()
     {
-        if ($this->current_role == 'أمير المركز')
+        if ($this->current_role === 'أمير المركز') {
             return Supervisor::query()
                 ->with(['user', 'grade'])
                 ->search($this->search)
                 ->orderBy($this->sortBy, $this->sortDirection)
                 ->paginate($this->perPage);
-        else
-            return [];
+        }
+
+        return [];
     }
 
     public function submitSearch()

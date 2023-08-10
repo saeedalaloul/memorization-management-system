@@ -20,6 +20,12 @@
             rowspan="2">عدد صفحات المراجعة
         </th>
         <th style="height: 30px;background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;"
+            rowspan="2">عدد صفحات مراجعة التجميعي
+        </th>
+        <th style="height: 30px;background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;"
+            rowspan="2">عدد أيام الحضور
+        </th>
+        <th style="height: 30px;background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;"
             rowspan="2">عدد أيام الغياب
         </th>
         <th style="height: 30px;background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;"
@@ -87,6 +93,16 @@
                 @endif
             </td>
             <td style="background:#D9D9D9;height: 25px; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+                @if (isset($report['number_cumulative_review_pages']))
+                    {{round($report['number_cumulative_review_pages'])}}
+                @endif
+            </td>
+            <td style="background:#D9D9D9;height: 25px; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+                @if (isset($report['presence_count']))
+                    {{$report['presence_count']}}
+                @endif
+            </td>
+            <td style="background:#D9D9D9;height: 25px; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
                 @if (isset($report['attendance_count']))
                     {{$report['attendance_count']}}
                 @endif
@@ -132,6 +148,12 @@
         </th>
         <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
             عدد صفحات المراجعة
+        </th>
+        <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+            عدد صفحات مراجعة التجميعي
+        </th>
+        <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+            عدد أيام الحضور
         </th>
         <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
             عدد أيام الغياب

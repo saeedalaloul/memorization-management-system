@@ -31,7 +31,7 @@
                     </div>
                     <div class="form-group" wire:ignore>
                         <label>موضوع الشكوى/الاقتراح</label>
-                        <textarea wire:model.defer="subject" data-subject="@this" class="form-control"
+                        <textarea wire:model="subject" data-subject="@this" class="form-control"
                                   id="subject"></textarea>
                     </div>
                     @error('subject')
@@ -45,22 +45,19 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.ckeditor.com/ckeditor5/33.0.0/classic/ckeditor.js"></script>
-<script>
-    ClassicEditor
-        .create(document.querySelector('#subject'))
-        .then(editor => {
-            // editor.model.document.on('change:data', () => {
-            //     let subject = $('#subject').data('subject')
-            //     eval(subject).set('subject', editor.getData());
-            // });
-
-            document.querySelector('#submit').addEventListener('click', () => {
-                let subject = $('#subject').data('subject');
-                eval(subject).set('subject', editor.getData());
+@push('js')
+    <script src="https://cdn.ckeditor.com/ckeditor5/33.0.0/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#subject'))
+            .then(editor => {
+                document.querySelector('#submit').addEventListener('click', () => {
+                    let subject = $('#subject').data('subject');
+                    eval(subject).set('subject', editor.getData());
+                });
+            })
+            .catch(error => {
+                console.error(error);
             });
-        })
-        .catch(error => {
-            console.error(error);
-        });
-</script>
+    </script>
+@endpush

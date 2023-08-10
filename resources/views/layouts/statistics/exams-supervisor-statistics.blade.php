@@ -31,7 +31,7 @@
                                     </span>
                     </div>
                     <div class="float-right text-right">
-                        <p class="card-text text-dark">عدد اختبارات الشهر</p>
+                        <p class="card-text text-dark">عدد اختبارات القرآن خلال الشهر</p>
                         <h4>{{$statistics[0][0]->month_exams_count ?? 0}}</h4>
                     </div>
                 </div>
@@ -49,13 +49,13 @@
             <div class="card-body">
                 <div class="clearfix">
                     <div class="float-left">
-                                    <span class="text-success">
-                                        <i class="fas fa-book-open highlight-icon" aria-hidden="true"></i>
+                                    <span class="text-indigo-500">
+                                        <i class="fas fa-book-alt highlight-icon" aria-hidden="true"></i>
                                     </span>
                     </div>
                     <div class="float-right text-right">
-                        <p class="card-text text-dark">عدد اختبارات العام</p>
-                        <h4>{{$statistics[0][0]->year_exams_count ?? 0}}</h4>
+                        <p class="card-text text-dark">عدد اختبارات السنة خلال الشهر</p>
+                        <h4>{{$statistics[0][0]->month_sunnah_exams_count ?? 0}}</h4>
                     </div>
                 </div>
                 <p class="text-muted pt-3 mb-0 mt-2 border-top">
@@ -73,17 +73,17 @@
                     <div class="clearfix">
                         <div class="float-left">
                                     <span class="text-primary">
-                                        <i class="fas fa-book-reader highlight-icon" aria-hidden="true"></i>
+                                        <i class="fas fa-book-spells highlight-icon" aria-hidden="true"></i>
                                     </span>
                         </div>
                         <div class="float-right text-right">
-                            <p class="card-text text-dark">عدد المختبرين</p>
-                            <h4>{{$statistics[0][0]->testers_count ?? 0}}</h4>
+                            <p class="card-text text-dark">عدد اختبارات القرآن الخارجية لهذا الشهر</p>
+                            <h4>{{$statistics[0][0]->external_exams_count ?? 0}}</h4>
                         </div>
                     </div>
                     <p class="text-muted pt-3 mb-0 mt-2 border-top">
                         <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
-                            href="{{url('manage_testers',null,true)}}" target="_blank"><span
+                            href="{{url('manage_exams',null,true)}}" target="_blank"><span
                                 class="text-danger">عرض البيانات</span></a>
                     </p>
                 </div>
@@ -115,6 +115,126 @@
         </div>
     @endif
 </div>
+
+@if(auth()->user()->current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
+    <div class="row">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+            <div class="card card-statistics h-100">
+                <div class="card-body">
+                    <div class="clearfix">
+                        <div class="float-left">
+                                    <span class="text-pinterest">
+                                        <i class="fas fa-book highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                        </div>
+                        <div class="float-right text-right">
+                            <p class="card-text text-dark">عدد اختبارات السنة الخارجية لهذا الشهر</p>
+                            <h4>{{$statistics[0][0]->external_sunnah_exams_count ?? 0}}</h4>
+                        </div>
+                    </div>
+                    <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                        <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
+                            href="{{url('manage_exams',null,true)}}" target="_blank"><span class="text-danger">عرض البيانات</span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+            <div class="card card-statistics h-100">
+                <div class="card-body">
+                    <div class="clearfix">
+                        <div class="float-left">
+                                    <span class="text-success">
+                                        <i class="fas fa-user highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                        </div>
+                        <div class="float-right text-right">
+                            <p class="card-text text-dark">أفضل محفظ خلال الشهر</p>
+                            <h6>{{$statistics[0][0]->male_teacher_name_max ?? 'لا يوجد'}}</h6>
+                        </div>
+                    </div>
+                    <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                        <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
+                            href="{{url('manage_group_exam_statistics',null,true)}}"
+                            target="_blank"><span
+                                class="text-danger">عرض البيانات</span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+            <div class="card card-statistics h-100">
+                <div class="card-body">
+                    <div class="clearfix">
+                        <div class="float-left">
+                                    <span class="text-danger">
+                                        <i class="fas fa-user-alt highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                        </div>
+                        <div class="float-right text-right">
+                            <p class="card-text text-dark">أفضل مختبر خلال الشهر</p>
+                            <h6>{{$statistics[0][0]->male_tester_name_max ?? 'لا يوجد'}}</h6>
+                        </div>
+                    </div>
+                    <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                        <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
+                            href="{{url('manage_testers',null,true)}}" target="_blank"><span
+                                class="text-danger">عرض البيانات</span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+            <div class="card card-statistics h-100">
+                <div class="card-body">
+                    <div class="clearfix">
+                        <div class="float-left">
+                                    <span class="text-success">
+                                        <i class="fas fa-user highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                        </div>
+                        <div class="float-right text-right">
+                            <p class="card-text text-dark">أفضل محفظة خلال الشهر</p>
+                            <h6>{{$statistics[0][0]->female_teacher_name_max ?? 'لا يوجد'}}</h6>
+                        </div>
+                    </div>
+                    <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                        <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
+                            href="{{url('manage_group_exam_statistics',null,true)}}"
+                            target="_blank"><span
+                                class="text-danger">عرض البيانات</span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+            <div class="card card-statistics h-100">
+                <div class="card-body">
+                    <div class="clearfix">
+                        <div class="float-left">
+                                    <span class="text-danger">
+                                        <i class="fas fa-user-alt highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                        </div>
+                        <div class="float-right text-right">
+                            <p class="card-text text-dark">أفضل مختبرة خلال الشهر</p>
+                            <h6>{{$statistics[0][0]->female_tester_name_max ?? 'لا يوجد'}}</h6>
+                        </div>
+                    </div>
+                    <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                        <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
+                            href="{{url('manage_testers',null,true)}}" target="_blank"><span
+                                class="text-danger">عرض البيانات</span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 <!-- Orders Status widgets-->
 
 <div class="row">
@@ -182,10 +302,18 @@
                                                     <td>
                                                         @if ($exam_order->type == \App\Models\ExamOrder::IMPROVEMENT_TYPE)
                                                             <label class="badge badge-success">
-                                                                {{ $exam_order->quran_part_name . ' (طلب تحسين درجة)' }}
+                                                                @if ($exam_order->quran_part_name != null)
+                                                                    {{ $exam_order->quran_part_name . ' (طلب تحسين درجة)' }}
+                                                                @else
+                                                                    {{ $exam_order->sunnah_part_name . ' (طلب تحسين درجة)' }}
+                                                                @endif
                                                             </label>
                                                         @else
-                                                            {{ $exam_order->quran_part_name }}
+                                                            @if ($exam_order->quran_part_name != null)
+                                                                {{ $exam_order->quran_part_name }}
+                                                            @else
+                                                                {{ $exam_order->sunnah_part_name }}
+                                                            @endif
                                                         @endif
                                                     </td>
                                                     <td>{{ $exam_order->teacher_name }}</td>

@@ -8,6 +8,7 @@ use App\Models\OversightMember;
 use App\Models\VisitOrder;
 use App\Notifications\NewVisitOrderForOversightMemberNotify;
 use App\Traits\NotificationTrait;
+use App\Models\Teacher;
 
 class SelectVisitGroup extends HomeComponent
 {
@@ -28,6 +29,8 @@ class SelectVisitGroup extends HomeComponent
 
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
+        $this->link ='manage_visits_orders/';
         $this->grades = $this->all_Grades();
         $this->oversight_members = $this->all_Oversight_Members();
     }
@@ -49,10 +52,10 @@ class SelectVisitGroup extends HomeComponent
         ]);
 
         $visitOrder = VisitOrder::create([
-            'hostable_type' => 'App\Models\Teacher',
+            'hostable_type' => Teacher::class,
             'hostable_id' => $this->teacher_id,
             'oversight_member_id' => $this->oversight_member_id,
-            'datetime' => $this->visit_date . ' ' . date('H:i:s', time()),
+            'datetime' => $this->visit_date . ' ' . date('H:i:s'),
         ]);
 
         // start push notifications to oversight member
@@ -64,7 +67,7 @@ class SelectVisitGroup extends HomeComponent
         ]));
         $title = "طلب زيارة جديد";
         $message = "لقد قام مشرف الرقابة بتعيينك زائر (رقابة) على حلقة المحفظ: " . $this->teacher_name . " بتاريخ: " . $this->visit_date . " يرجى مراجعة تفاصيل الزيارة.";
-        $this->push_notification($message, $title, [$visitOrder->oversight_member->user->user_fcm_token->device_token]);
+        $this->push_notification($message, $title, $this->link.$visitOrder->id,[$visitOrder->oversight_member->user->user_fcm_token->device_token ?? null]);
         // end push notifications to oversight member
 
         $this->dispatchBrowserEvent('alert',

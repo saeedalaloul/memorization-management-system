@@ -1,4 +1,5 @@
 <div class="row">
+    @if ($current_role === \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE)
     <div>
         @if ($catchError)
             <div class="alert alert-danger" id="success-danger">
@@ -34,4 +35,5 @@
         </div>
     </div>
     <x-loading-indicator></x-loading-indicator>
+    @endif
 </div>

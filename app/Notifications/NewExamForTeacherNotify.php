@@ -38,13 +38,26 @@ class NewExamForTeacherNotify extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
-            'id'=>$this->exam->id,
-            'student_name'=> $this->exam->student->user->name,
-            'tester_name'=> $this->exam->tester->user->name,
-            'mark'=> $this->exam->mark,
-            'quran_part_name'=> $this->exam->quranPart->name.' '.$this->exam->quranPart->description,
-            'datetime'=> $this->exam->datetime,
-        ];
+        if ($this->exam->quranPart != null) {
+            // في حالة كان نوع الاختبار قرآن
+            return [
+                'id'=>$this->exam->id,
+                'student_name'=> $this->exam->student->user->name,
+                'tester_name'=> $this->exam->tester->user->name,
+                'mark'=> $this->exam->mark,
+                'part_name'=> $this->exam->quranPart->name.' '.$this->exam->quranPart->description,
+                'datetime'=> $this->exam->datetime,
+            ];
+        } else {
+            // في حالة كان نوع الاختبار سنة
+            return [
+                'id'=>$this->exam->id,
+                'student_name'=> $this->exam->student->user->name,
+                'tester_name'=> $this->exam->tester->user->name,
+                'mark'=> $this->exam->mark,
+                'part_name'=> $this->exam->sunnahPart->name. ' (' . $this->exam->sunnahPart->total_hadith_parts. ') حديث',
+                'datetime'=> $this->exam->datetime,
+            ];
+        }
     }
 }

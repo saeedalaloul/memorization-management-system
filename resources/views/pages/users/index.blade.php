@@ -22,11 +22,16 @@
 
     <script>
         window.addEventListener('showDialogResetPassword', _ => {
-            $('#reset_user_password').modal('show');
+            $('#reset-user-password').modal('show');
+        });
+
+        window.addEventListener('showDialogEditPermission', _ => {
+            $('#edit-permission').modal('show');
         });
 
         window.addEventListener('hideModal', _ => {
-            $('#reset_user_password').modal('hide');
+            $('#reset-user-password').modal('hide');
+            $('#edit-permission').modal('hide');
         });
     </script>
 @endsection

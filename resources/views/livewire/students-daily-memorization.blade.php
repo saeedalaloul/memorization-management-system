@@ -8,7 +8,7 @@
         @endif
     </div>
     <div class="col-xl-12 mb-30">
-        @if ($current_role == \App\Models\User::ADMIN_ROLE || \App\Models\User::SUPERVISOR_ROLE || $current_role == \App\Models\User::TEACHER_ROLE)
+        @if ($current_role === \App\Models\User::SUPERVISOR_ROLE || $current_role === \App\Models\User::TEACHER_ROLE)
             @can('إدارة متابعة الحفظ والمراجعة')
                 <div class="card-body">
                     <li class="list-group-item">
@@ -32,7 +32,13 @@
                                     <option value="">الكل</option>
                                     @foreach ($groups as $group)
                                         <option
-                                            value="{{ $group->id }}">{{ $group->teacher->user->name}}</option>
+                                            value="{{ $group->id }}">
+                                            @if ($group->teacher_id == null)
+                                                {{$group->name . ' (لا يوجد محفظ)'}}
+                                            @else
+                                                {{ $group->teacher->user->name }}
+                                            @endif
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -63,10 +69,10 @@
                                     $block = false;
                                     $selectClass = '';
                                     if (isset($student)) {
-                                   if ($student->student_is_block != null) {
+                                   if ($student->student_is_block !== null) {
                                         $block = true;
                                         $selectClass = 'text-dark table-danger';
-                                    } else if ($student->student_is_warning != null) {
+                                    } else if ($student->student_is_warning !== null) {
                                   $warning = true;
                                   $selectClass = 'text-dark table-warning';
                                 }}
@@ -75,105 +81,77 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $student->user->name }}</td>
                                     <td>{{ $student->grade->name }}</td>
-                                    <td>{{ $student->group->teacher->user->name }}</td>
+                                    <td>{{ $student->group->teacher->user->name ?? 'لا يوجد محفظ' }}</td>
                                     <div hidden></div>
-                                    <?php
-                                    if (isset($student)) {
-                                        $attendance_student = $student->attendance_today->first();
-                                    }
-                                    ?>
+                                        <?php
+                                        if (isset($student)) {
+                                            $attendance_student = $student->attendance_today->first();
+                                        }
+                                        ?>
                                     <td>
-                                        @if(isset($attendance_student->student_id))
-                                            <label class="block text-gray-500 font-semibold sm:border-r sm:pr-4">
-                                                <input disabled
-                                                       {{ $attendance_student->status == \App\Models\StudentAttendance::PRESENCE_STATUS ? 'checked' : '' }}
-                                                       class="leading-tight" type="radio" value="presence">
-                                                <span class="text-success">حضور</span>
-                                            </label>
+                                        <div hidden></div>
+                                        <label class="block text-gray-500 font-semibold sm:border-r sm:pr-4">
+                                            <input
+                                                {{ isset($attendance_student->status) && $attendance_student->status === \App\Models\StudentAttendance::PRESENCE_STATUS ? 'checked' : '' }} class="leading-tight"
+                                                type="radio"
+                                                name="flexRadioDefault.{{$loop->iteration}}"
+                                                wire:click.prevent="store_Attendance({{$student->id}},'{{\App\Models\StudentAttendance::PRESENCE_STATUS}}')">
+                                            <span class="text-success">حضور</span>
+                                        </label>
 
-                                            <label class="ml-1 block text-gray-500 font-semibold">
-                                                <input disabled
-                                                       {{ $attendance_student->status == \App\Models\StudentAttendance::LATE_STATUS ? 'checked' : '' }}
-                                                       class="leading-tight" type="radio" value="presence">
-                                                <span class="text-success">تأخر</span>
-                                            </label>
+                                        <label class="ml-1 block text-gray-500 font-semibold">
+                                            <input
+                                                {{ isset($attendance_student->status) && $attendance_student->status === \App\Models\StudentAttendance::LATE_STATUS ? 'checked' : '' }} class="leading-tight"
+                                                type="radio"
+                                                name="flexRadioDefault.{{$loop->iteration}}"
+                                                wire:click.prevent="store_Attendance({{$student->id}},'{{\App\Models\StudentAttendance::LATE_STATUS}}')">
+                                            <span class="text-warning">تأخر</span>
+                                        </label>
 
-                                            <label class="ml-1 block text-gray-500 font-semibold">
-                                                <input disabled
-                                                       {{ $attendance_student->status == \App\Models\StudentAttendance::AUTHORIZED_STATUS ? 'checked' : '' }}
-                                                       class="leading-tight" type="radio" value="presence">
-                                                <span class="text-success">مأذون</span>
-                                            </label>
+                                        <label class="ml-1 block text-gray-500 font-semibold">
+                                            <input
+                                                {{ isset($attendance_student->status) && $attendance_student->status === \App\Models\StudentAttendance::AUTHORIZED_STATUS ? 'checked' : '' }} class="leading-tight"
+                                                type="radio"
+                                                name="flexRadioDefault.{{$loop->iteration}}"
+                                                wire:click.prevent="store_Attendance({{$student->id}},'{{\App\Models\StudentAttendance::AUTHORIZED_STATUS}}')">
+                                            <span class="text-info">مأذون</span>
+                                        </label>
 
-                                            <label class="ml-1 block text-gray-500 font-semibold">
-                                                <input disabled
-                                                       {{ $attendance_student->status == \App\Models\StudentAttendance::ABSENCE_STATUS ? 'checked' : '' }}
-                                                       class="leading-tight" type="radio" value="absent">
-                                                <span class="text-danger">غياب</span>
-                                            </label>
-
-                                        @else
-                                            @if($block == false)
-                                                <div hidden></div>
-                                                <label class="block text-gray-500 font-semibold sm:border-r sm:pr-4">
-                                                    <input class="leading-tight"
-                                                           type="radio"
-                                                           name="flexRadioDefault.{{$loop->iteration}}"
-                                                           wire:click="store_Attendance({{$student->id}},'{{\App\Models\StudentAttendance::PRESENCE_STATUS}}')">
-                                                    <span class="text-success">حضور</span>
-                                                </label>
-
-                                                <label class="ml-1 block text-gray-500 font-semibold">
-                                                    <input class="leading-tight"
-                                                           type="radio"
-                                                           name="flexRadioDefault.{{$loop->iteration}}"
-                                                           wire:click="store_Attendance({{$student->id}},'{{\App\Models\StudentAttendance::LATE_STATUS}}')">
-                                                    <span class="text-warning">تأخر</span>
-                                                </label>
-
-                                                <label class="ml-1 block text-gray-500 font-semibold">
-                                                    <input class="leading-tight"
-                                                           type="radio"
-                                                           name="flexRadioDefault.{{$loop->iteration}}"
-                                                           wire:click="store_Attendance({{$student->id}},'{{\App\Models\StudentAttendance::AUTHORIZED_STATUS}}')">
-                                                    <span class="text-info">مأذون</span>
-                                                </label>
-
-                                                <label class="ml-1 block text-gray-500 font-semibold">
-                                                    <input class="leading-tight"
-                                                           type="radio"
-                                                           name="flexRadioDefault.{{$loop->iteration}}"
-                                                           wire:click="store_Attendance({{$student->id}},'{{\App\Models\StudentAttendance::ABSENCE_STATUS}}')">
-                                                    <span class="text-danger">غياب</span>
-                                                </label>
-                                            @endif
-                                        @endif
-
+                                        <label class="ml-1 block text-gray-500 font-semibold">
+                                            <input
+                                                {{ isset($attendance_student->status) && $attendance_student->status === \App\Models\StudentAttendance::ABSENCE_STATUS ? 'checked' : '' }} class="leading-tight"
+                                                type="radio"
+                                                name="flexRadioDefault.{{$loop->iteration}}"
+                                                wire:click.prevent="store_Attendance({{$student->id}},'{{\App\Models\StudentAttendance::ABSENCE_STATUS}}')">
+                                            <span class="text-danger">غياب</span>
+                                        </label>
                                     </td>
                                     <td>
-                                        @if($warning == true)
+                                        @if($warning === true)
                                             <button
                                                 wire:click="setMessage('{{$student->student_is_warning->details}}');"
                                                 class="btn btn-outline-warning btn-sm"
                                                 title="إنذار نهائي">
                                                 تفاصيل أكثر
                                             </button>
-                                            @if ($attendance_student->status == \App\Models\StudentAttendance::PRESENCE_STATUS || $attendance_student->status == \App\Models\StudentAttendance::LATE_STATUS)
-                                                <div hidden></div>
-                                                <button class="btn btn-outline-danger btn-sm"
-                                                        wire:click="loadModalData({{$student->id}},-1)">
-                                                    إضافة
-                                                </button>
+                                            @if(isset($attendance_student->status))
+                                                @if ($attendance_student->status === \App\Models\StudentAttendance::PRESENCE_STATUS || $attendance_student->status === \App\Models\StudentAttendance::LATE_STATUS)
+                                                    <div hidden></div>
+                                                    <button class="btn btn-outline-danger btn-sm"
+                                                            wire:click="loadModalData({{$student->id}},-1)">
+                                                        إضافة
+                                                    </button>
+                                                @endif
                                             @endif
-                                        @elseif($block == true)
+                                        @elseif($block === true)
                                             <button
-                                                wire:click="setMessage('{{$student->student_is_warning->details}}');"
+                                                wire:click="setMessage('{{$student->student_is_block->details}}');"
                                                 class="btn btn-outline-danger btn-sm" title="الطالب محظور">
                                                 تفاصيل أكثر
                                             </button>
                                         @else
                                             @if(isset($attendance_student->status))
-                                                @if ($attendance_student->status == \App\Models\StudentAttendance::PRESENCE_STATUS || $attendance_student->status == \App\Models\StudentAttendance::LATE_STATUS)
+                                                @if ($attendance_student->status === \App\Models\StudentAttendance::PRESENCE_STATUS || $attendance_student->status === \App\Models\StudentAttendance::LATE_STATUS)
                                                     <div hidden></div>
                                                     <button class="btn btn-outline-danger btn-sm"
                                                             wire:click="loadModalData({{$student->id}},-1)">
@@ -189,15 +167,25 @@
                                                 </button>
                                             @endif
                                         @endif
+                                        @can('إضافة متابعة سابقة')
+                                            <button class="btn btn-outline-danger btn-sm"
+                                                    wire:click="loadModalData({{$student->id}},-2)">
+                                                إضافة متابعة سابقة
+                                            </button>
+                                        @endcan
                                         <button class="btn btn-outline-primary btn-sm"
                                                 wire:click="loadModalData({{$student->id}},1)">أخر حفظ
                                         </button>
                                         <button class="btn btn-outline-success btn-sm"
                                                 wire:click="loadModalData({{$student->id}},2)">أخر مراجعة
                                         </button>
+                                        <button class="btn btn-outline-warning btn-sm"
+                                                wire:click="loadModalData({{$student->id}},3)">أخر مراجعة تجميعي
+                                        </button>
                                     </td>
                                 </tr>
                                 @include('pages.students_daily_memorization.add_daily_memorization')
+                                @include('pages.students_daily_memorization.add_previous_daily_memorization')
                                 @include('pages.students_daily_memorization.show_daily_memorization')
                             @empty
                                 <tr style="text-align: center">
@@ -244,7 +232,6 @@
     @endif
     <x-loading-indicator></x-loading-indicator>
 </div>
-
 @push('js')
     <script>
         $("#grade").on('change', function (e) {
@@ -263,6 +250,18 @@
             let id = $(this).val()
         @this.set('selectedType', id);
             livewire.emit('getLastDataModalByType', id);
+        });
+
+        window.addEventListener('deleteElement', $data => {
+            const element = document.getElementById('suras_ids.' + $data.detail.index);
+            element.remove();
+        });
+
+        window.addEventListener('deleteAllElements', $data => {
+            for (let i = 0; i < $data.detail.length; i++) {
+                const element = document.getElementById('suras_ids.' + i);
+                element.remove();
+            }
         });
     </script>
 @endpush

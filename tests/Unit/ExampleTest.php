@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
@@ -11,8 +11,15 @@ class ExampleTest extends TestCase
      *
      * @return void
      */
-    public function test_example()
+    public function test_basic_test()
     {
-        $this->assertTrue(true);
+       $response = $this->get("/login");
+       $response->assertStatus(200);
+    }
+
+    public function testUserIsRedirectedWithNoLogin()
+    {
+        $response = $this->get("/dashboard");
+        $response->assertRedirect(route('login'));
     }
 }

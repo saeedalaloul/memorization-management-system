@@ -86,7 +86,7 @@ class Settings extends Component
                 Setting::where('key', $key)->update(['value' => $value]);
             }
 
-            if ($this->logo != null) {
+            if ($this->logo !== null) {
                 $this->logo->storeAs("logo", "logo.jpeg", $disk = 'upload_attachments');
                 Setting::where('key', 'logo')->update(['value' => "logo.jpeg"]);
             }

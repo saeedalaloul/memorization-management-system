@@ -49,23 +49,66 @@
         </tfoot>
     </table>
 </div>
-<div class="row" style="transform: translate(-30%); padding: 10px;">
-    <div class="card-body">
-        <div class="col-md-12">
-            <button wire:click.prevent="minus_1()" style="width: 50px;" type="button"
-                    class="btn btn-outline-danger btn-sm">/
-            </button>
-            <button style="width: 50px;" wire:click.prevent="remove()" type="button"
-                    class="btn btn-outline-primary btn-sm">مسح
-            </button>
-            <button wire:click.prevent="minus_0_5()" style="width: 50px;" type="button"
-                    class="btn btn-outline-danger btn-sm">-
-            </button>
-            <button type="button"
-                    class="btn btn-outline-success btn-sm"
-                    data-toggle="modal"
-                    data-target="#approval-exam">اعتماد درجة الإختبار
-            </button>
+@if($examOrder->partable_type == 'App\Models\QuranPart')
+    <div class="row" style="transform: translate(-30%); padding: 5px;">
+        <div class="card-body">
+            <div class="col-md-12">
+                <button wire:click.prevent="minus_1()" style="width: 50px;" type="button"
+                        class="btn btn-outline-danger btn-sm">/
+                </button>
+                <button style="width: 50px;" wire:click.prevent="remove()" type="button"
+                        class="btn btn-outline-primary btn-sm">مسح
+                </button>
+                <button wire:click.prevent="minus_0_5()" style="width: 50px;" type="button"
+                        class="btn btn-outline-danger btn-sm">-
+                </button>
+                <button type="button"
+                        class="btn btn-outline-success btn-sm"
+                        data-toggle="modal"
+                        data-target="#approval-exam">اعتماد درجة الإختبار
+                </button>
+            </div>
         </div>
     </div>
-</div>
+
+@else
+    <div class="row" style="transform: translate(-17%); padding: 7px;">
+        <div class="card-body">
+            <div class="col-md-12">
+                <button wire:click.prevent="minus_1()" style="width: 50px;" type="button"
+                        class="btn btn-outline-danger btn-sm">/
+                </button>
+                <button style="width: 50px;" wire:click.prevent="remove()" type="button"
+                        class="btn btn-outline-primary btn-sm">مسح
+                </button>
+                <button wire:click.prevent="minus_0_5()" style="width: 50px;" type="button"
+                        class="btn btn-outline-danger btn-sm">-
+                </button>
+                @if (isset($top_narrator_discounts[$this->focus_id]) && $top_narrator_discounts[$this->focus_id] == true)
+                    <button wire:click.prevent="minus_3_or_clear()" type="button"
+                            class="btn btn-outline-warning btn-sm">مسح خصم الراوي الأعلى
+                    </button>
+                @else
+                    <button wire:click.prevent="minus_3_or_clear()" type="button"
+                            class="btn btn-outline-warning btn-sm">خصم الراوي الأعلى
+                    </button>
+                @endif
+
+                @if (isset($bottom_narrator_discounts[$this->focus_id]) && $bottom_narrator_discounts[$this->focus_id] == true)
+                    <button wire:click.prevent="minus_2_or_clear()" type="button"
+                            class="btn btn-outline-danger btn-sm">مسح خصم الراوي الأدنى
+                    </button>
+                @else
+                    <button wire:click.prevent="minus_2_or_clear()" type="button"
+                            class="btn btn-outline-danger btn-sm">خصم الراوي الأدنى
+                    </button>
+                @endif
+                <button type="button"
+                        class="btn btn-outline-success btn-sm"
+                        data-toggle="modal"
+                        data-target="#approval-exam">اعتماد درجة الإختبار
+                </button>
+            </div>
+        </div>
+    </div>
+@endif

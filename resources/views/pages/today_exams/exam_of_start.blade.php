@@ -24,10 +24,18 @@
                                         <td class="text-dark">
                                             @if ($examOrder->type == \App\Models\ExamOrder::IMPROVEMENT_TYPE)
                                                 <label class="badge badge-success">
-                                                    {{ $examOrder->QuranPart->name .' '.$examOrder->QuranPart->description . ' (طلب تحسين درجة)' }}
+                                                    @if($examOrder->partable_type == 'App\Models\QuranPart')
+                                                        {{$examOrder->partable->name .' '.$examOrder->partable->description . ' (طلب تحسين درجة)' }}
+                                                    @else
+                                                        {{$examOrder->partable->name .' ('.$examOrder->partable->total_hadith_parts.') حديث' . ' (طلب تحسين درجة)' }}
+                                                    @endif
                                                 </label>
                                             @else
-                                                {{ $examOrder->QuranPart->name .' '.$examOrder->QuranPart->description }}
+                                                @if($examOrder->partable_type == 'App\Models\QuranPart')
+                                                    {{$examOrder->partable->name .' '.$examOrder->partable->description }}
+                                                @else
+                                                    {{$examOrder->partable->name .' ('.$examOrder->partable->total_hadith_parts.') حديث'}}
+                                                @endif
                                             @endif
                                         </td>
                                         <th scope="row">تاريخ الإختبار</th>

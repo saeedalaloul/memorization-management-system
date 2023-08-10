@@ -20,7 +20,13 @@
                         <option value="">الكل</option>
                         @foreach ($groups as $group)
                             <option
-                                value="{{ $group->id }}">{{ $group->teacher->user->name}}</option>
+                                value="{{ $group->id }}">
+                                @if ($group->teacher_id == null)
+                                    {{$group->name . ' (لا يوجد محفظ)'}}
+                                @else
+                                    {{ $group->teacher->user->name }}
+                                @endif
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -35,14 +41,13 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="external-exams" style="font-size: 15px; color: #1e7e34">درجة الإختبار
-                        (الخارجية)*</label>
+                    <label for="mark-exams" style="font-size: 15px; color: #1e7e34">درجة الإختبار *</label>
                     <div>
-                        <select style="width: 100%;" class="custom-select mr-sm-2 select2" id="external-exams"
-                                wire:model="selectedExternalExams">
+                        <select style="width: 100%;" class="custom-select mr-sm-2 select2" id="mark-exams"
+                                wire:model="selectedMarkExams">
                             <option value="">الكل</option>
-                            <option value="1">اختبر</option>
-                            <option value="2">لم يختبر</option>
+                            <option value="1">اجتاز</option>
+                            <option value="2">لم يجتاز</option>
                         </select>
                     </div>
                 </div>
@@ -63,6 +68,37 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col-md-3">
+                    <label for="external-exams" style="font-size: 15px; color: #1e7e34">درجة الإختبار
+                        (الخارجية)*</label>
+                    <div>
+                        <select style="width: 100%;" class="custom-select mr-sm-2 select2" id="external-exams"
+                                wire:model="selectedExternalExams">
+                            <option value="">الكل</option>
+                            <option value="1">اختبر</option>
+                            <option value="2">لم يختبر</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="external-exams" style="font-size: 15px; color: #1e7e34">نوع الإختبار*</label>
+                    <div>
+                        <select style="width: 100%;" class="custom-select mr-sm-2 select2" id="type-exams"
+                                wire:model="selectedTypeExams">
+                            <option value="">الكل</option>
+                            @foreach(\App\Models\QuranPart::types() as $key => $type)
+                                <option value="{{$key}}">{{$type}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
                 <div class="col-md-2">
                     <button type="button" class="btn btn-success float-right"
                             wire:click.prevent="export();">تصدير اكسل
@@ -70,16 +106,21 @@
                 </div>
 
                 @if ($current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
+                    {{--                    <div class="col-md-2">--}}
+                    {{--                        <button type="button" class="btn btn-success float-right" data-toggle="modal"--}}
+                    {{--                                data-target="#import-file">استيراد--}}
+                    {{--                        </button>--}}
+                    {{--                    </div>--}}
                     <div class="col-md-2">
-                        <button type="button" class="btn btn-success float-right" data-toggle="modal"
-                                data-target="#import-file">استيراد
+                        <button type="button" class="btn btn-primary float-right"
+                                wire:click.prevent="all_export();">تصدير كل الإختبارات
                         </button>
                     </div>
                 @endif
-
             </div>
         </li>
     </div>
+
     @include('pages.exams.import_file')
 
     <x-search></x-search>
@@ -90,12 +131,18 @@
                 <th wire:click="sortBy('id')" style="cursor: pointer;">#
                     @include('livewire._sort-icon',['field'=>'id'])
                 </th>
-                <th>اسم الطالب</th>
-                <th>جزء الإختبار</th>
-                <th>درجة الإختبار</th>
-                <th>اسم المحفظ</th>
-                <th>اسم المختبر</th>
-                <th>تاريخ الإختبار</th>
+                <th wire:click="sortBy('student_id')" style="cursor: pointer;">اسم الطالب
+                    @include('livewire._sort-icon',['field'=>'student_id'])</th>
+                <th wire:click="sortBy('quran_part_id')" style="cursor: pointer;">جزء الإختبار
+                    @include('livewire._sort-icon',['field'=>'quran_part_id'])</th>
+                <th wire:click="sortBy('mark')" style="cursor: pointer;">درجة الإختبار
+                    @include('livewire._sort-icon',['field'=>'mark'])</th>
+                <th wire:click="sortBy('teacher_id')" style="cursor: pointer;">اسم المحفظ
+                    @include('livewire._sort-icon',['field'=>'teacher_id'])</th>
+                <th wire:click="sortBy('tester_id')" style="cursor: pointer;">اسم المختبر
+                    @include('livewire._sort-icon',['field'=>'tester_id'])</th>
+                <th wire:click="sortBy('datetime')" style="cursor: pointer;">تاريخ الإختبار
+                    @include('livewire._sort-icon',['field'=>'datetime'])</th>
                 <th>درجة الإختبار (الخارجية)</th>
                 <th>ملاحظات</th>
                 <th>العمليات</th>
@@ -108,7 +155,7 @@
                     <td>{{ $exam->student->user->name }}</td>
                     <td>{{ $exam->QuranPart->name . ' ' . $exam->QuranPart->description }}</td>
                     <td style="text-align: center; align-content: center">
-                        @if ($exam->mark >= $exam->examSuccessMark->mark)
+                        @if ($exam->mark >= $exam->exam_success_mark->mark)
                             @if ($exam->exam_improvement != null && $exam->exam_improvement->mark > $exam->mark)
                                 <div class="badge-success" style="width: 40px;">
                                     {{ $exam->exam_improvement->mark.'%' }}
@@ -135,26 +182,56 @@
                         @endif
                     </td>
                     <td>{{ $exam->notes }}</td>
-                    <td>
-                        @if ($exam->quran_part_id != 17 && $exam->quran_part_id != 18)
-                            @if($current_role == \App\Models\User::TEACHER_ROLE)
-                                @if ($exam->mark >= $exam->examSuccessMark->mark && $exam->exam_improvement == null)
-                                    <button
-                                        wire:click.prevent="submitExamImprovementRequest('{{$exam->student_id}}',{{$exam->quran_part_id}});"
-                                        class="btn btn-outline-success btn-sm">تحسين درجة الإختبار
-                                    </button>
+                    <td class="embed-responsive-item">
+                        <div class="btn-group mb-1 embed-responsive-item">
+                            <button type="button" class="btn btn-success">العمليات</button>
+                            <button type="button"
+                                    class="btn btn-success dropdown-toggle dropdown-toggle-split"
+                                    data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                <span class="sr-only">العمليات</span>
+                            </button>
+                            <div class="dropdown-menu embed-responsive-item" x-placement="top-end"
+                                 style="position: absolute; transform: translate3d(0px, 32px, 0px); top: 0px; left: 0px; will-change: transform;">
+                                @if ($exam->quran_part_id != 17 && $exam->quran_part_id != 18)
+                                    @if($current_role == \App\Models\User::TEACHER_ROLE)
+                                        @if ($exam->mark >= $exam->exam_success_mark->mark && $exam->exam_improvement == null)
+                                            <button class="dropdown-item"
+                                                    wire:click="submitExamImprovementRequest('{{$exam->student_id}}',{{$exam->quran_part_id}});">
+                                                <i style="color: blue"
+                                                   class="fa fa-plus"></i>&nbsp; تحسين
+                                                درجة الإختبار
+                                            </button>
+                                        @endif
+                                    @elseif($current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE || $current_role == \App\Models\User::ADMIN_ROLE)
+                                        <button class="dropdown-item"
+                                                wire:click="manage_exam('{{$exam->id}}');">
+                                            <i style="color: green" class="fas fa-chalkboard"></i>&nbsp; إدارة
+                                            الإختبار
+                                        </button>
+                                        @if ($exam->mark >= $exam->exam_success_mark->mark)
+                                            @if($exam->external_exam == null)
+                                                <button class="dropdown-item"
+                                                        wire:click="manage_external_exam('{{$exam->id}}','assign_mark');">
+                                                    <i style="color: green" class="fa fa-plus"></i>&nbsp; رصد
+                                                    درجة الإختبار (الخارجية)
+                                                </button>
+                                            @else
+                                                <button class="dropdown-item"
+                                                        wire:click="manage_external_exam('{{$exam->id}}','manage_exam');">
+                                                    <i style="color: blue" class="fas fa-mandolin"></i>&nbsp; إدارة
+                                                    الإختبار الخارجي
+                                                </button>
+                                            @endif
+                                        @endif
+                                    @endif
                                 @endif
-                            @elseif($current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
-                                @if ($exam->mark >= $exam->examSuccessMark->mark && $exam->external_exam == null)
-                                    <button wire:click="show_dialog_assign_external_exam('{{$exam->id}}');"
-                                            class="btn btn-outline-success btn-sm">رصد درجة الإختبار (الخارجية)
-                                    </button>
-                                @endif
-                            @endif
-                        @endif
+                            </div>
+                        </div>
                     </td>
                 </tr>
-                @include('pages.exams.assign_external_exam_mark')
+                @include('pages.exams.manage-exam')
+                @include('pages.exams.manage-external-exam')
             @empty
                 <tr style="text-align: center">
                     <td colspan="9">No data available in table</td>
@@ -221,6 +298,16 @@
         $("#external-exams").on('change', function (e) {
             let id = $(this).val()
         @this.set('selectedExternalExams', id);
+        });
+
+        $("#type-exams").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedTypeExams', id);
+        });
+
+        $("#mark-exams").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedMarkExams', id);
         });
     </script>
 @endpush

@@ -43,6 +43,7 @@ class FailureActivityOrderForTeacherNotify extends Notification
         return [
             'id' => $this->activity_order->id,
             'activity_member_name' => $this->activity_order->activity_member->user->name,
+            'activity_type_name'=> $this->activity_order->activity_type->name,
             'datetime' => $this->activity_order->datetime,
             'notes' => $this->activity_order->notes,
         ];

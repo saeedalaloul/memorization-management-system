@@ -24,13 +24,21 @@
                             @enderror
                         </div>
                         <div class="col-md-6">
+                            <label class="control-label">اسم آخر مختبر</label>
+                            <input type="text" wire:model.defer="last_tester_name" readonly class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="control-label">عدد مرات الإعادة</label>
+                            <input type="text" wire:model.defer="number_failure_times" readonly class="form-control">
+                        </div>
+                        <div class="col-md-6">
                             <label class="control-label">اختر المختبر</label>
                             <select wire:model.defer="tester_id" class="form-control form-white" style="padding: 10px;">
                                 <option selected value="">اختر المختبر...</option>
                                 @foreach($testers as $tester)
-                                    @if($tester->id != $teacher_id)
+                                    @if($tester->id !== $teacher_id)
                                         <option
-                                            {{$tester_id != null && $tester_id == $tester->id?'selected':''}}  value="{{$tester->id}}">{{$tester->user->name}}</option>
+                                            {{$tester_id !== null && $tester_id === $tester->id?'selected':''}}  value="{{$tester->id}}">{{$tester->user->name}}</option>
                                     @endif
                                 @endforeach
                             </select>

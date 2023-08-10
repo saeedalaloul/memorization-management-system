@@ -43,18 +43,20 @@ class NewStudentBlockForTeacherNotify extends Notification
         if (isset($this->student_block['number_pages'])) {
             return [
                 'id' => $this->student_block['id'],
+                'student_id' => $this->student_block['student_id'],
                 'student_name' => $this->student_block['student_name'],
                 'reason' => $this->student_block['reason'],
                 'number_times' => $this->student_block['number_times'],
                 'number_pages' => $this->student_block['number_pages'],
             ];
-        } else {
-            return [
-                'id' => $this->student_block['id'],
-                'student_name' => $this->student_block['student_name'],
-                'reason' => $this->student_block['reason'],
-                'number_times' => $this->student_block['number_times'],
-            ];
         }
+
+        return [
+            'id' => $this->student_block['id'],
+            'student_id' => $this->student_block['student_id'],
+            'student_name' => $this->student_block['student_name'],
+            'reason' => $this->student_block['reason'],
+            'number_times' => $this->student_block['number_times'],
+        ];
     }
 }

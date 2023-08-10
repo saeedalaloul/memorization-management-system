@@ -25,6 +25,8 @@ class SelectVisitTester extends HomeComponent
 
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
+        $this->link ='manage_visits_orders/';
         $this->oversight_members = $this->all_Oversight_Members();
     }
 
@@ -45,13 +47,13 @@ class SelectVisitTester extends HomeComponent
         $messageBag = new MessageBag();
 
         if ($this->exams_count > 0) {
-            if ($this->visit_date >= date('Y-m-d', time())) {
-                if (ExamOrder::query()->where('tester_id', $this->tester_id)->where('status', ExamOrder::ACCEPTABLE_STATUS)->whereDate('datetime', $this->visit_date)->first() != null) {
+            if ($this->visit_date >= date('Y-m-d')) {
+                if (ExamOrder::query()->where('tester_id', $this->tester_id)->where('status', ExamOrder::ACCEPTABLE_STATUS)->whereDate('datetime', $this->visit_date)->first() !== null) {
                     $visitOrder = VisitOrder::create([
-                        'hostable_type' => 'App\Models\Tester',
+                        'hostable_type' => Tester::class,
                         'hostable_id' => $this->tester_id,
                         'oversight_member_id' => $this->oversight_member_id,
-                        'datetime' => $this->visit_date . ' ' . date('H:i:s', time()),
+                        'datetime' => $this->visit_date . ' ' . date('H:i:s'),
                     ]);
 
                     // start push notifications to oversight member
@@ -63,7 +65,7 @@ class SelectVisitTester extends HomeComponent
                     ]));
                     $title = "طلب زيارة جديد";
                     $message = "لقد قام مشرف الرقابة بتعيينك زائر (رقابة) على اختبارات المختبر: " . $this->tester_name . " بتاريخ: " . $this->visit_date . " يرجى مراجعة تفاصيل الزيارة.";
-                    $this->push_notification($message, $title, [$visitOrder->oversight_member->user->user_fcm_token->device_token]);
+                    $this->push_notification($message, $title,$this->link.$visitOrder->id, [$visitOrder->oversight_member->user->user_fcm_token->device_token ?? null]);
                     // end push notifications to oversight member
 
                     $this->dispatchBrowserEvent('alert',

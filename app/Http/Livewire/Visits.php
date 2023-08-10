@@ -22,6 +22,7 @@ class Visits extends HomeComponent
     public function mount()
     {
         $this->current_role = auth()->user()->current_role;
+        $this->link = 'manage_visits/';
     }
 
     public function sendMessage($msg)
@@ -61,7 +62,7 @@ class Visits extends HomeComponent
             'reply' => 'required|string',
         ]);
 
-        if ($this->current_role == 'أمير المركز') {
+        if ($this->current_role === 'أمير المركز') {
             $this->visit->update([
                 'reply' => $this->reply,
                 'status' => Visit::REPLIED_STATUS,
@@ -74,13 +75,13 @@ class Visits extends HomeComponent
                 $title = "الرد على زيارة";
                 $message = "";
                 $hostname = "";
-                if ($this->visit->hostable_type == 'App\Models\Teacher') {
+                if ($this->visit->hostable_type === 'App\Models\Teacher') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام أمير المركز: " . auth()->user()->name . " بالرد على زيارة المحفظ: " . $hostname . " يرجى مراجعة تفاصيل الرد. ";
-                } else if ($this->visit->hostable_type == 'App\Models\Tester') {
+                } else if ($this->visit->hostable_type === 'App\Models\Tester') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام أمير المركز: " . auth()->user()->name . " بالرد على زيارة المختبر: " . $hostname . " يرجى مراجعة تفاصيل الرد. ";
-                } else if ($this->visit->hostable_type == 'App\Models\ActivityMember') {
+                } else if ($this->visit->hostable_type === 'App\Models\ActivityMember') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام أمير المركز: " . auth()->user()->name . " بالرد على زيارة المنشط: " . $hostname . " يرجى مراجعة تفاصيل الرد. ";
                 }
@@ -93,7 +94,7 @@ class Visits extends HomeComponent
                     'datetime' => $this->visit->datetime,
                 ]));
 
-                $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token]);
+                $this->push_notification($message, $title,$this->link.$this->visit->id, [$role_users->first()->user_fcm_token->device_token ?? null]);
             }
             // end push notifications to oversight supervisor
 
@@ -105,7 +106,7 @@ class Visits extends HomeComponent
 
     public function visitSolved($id)
     {
-        if ($this->current_role == 'مشرف الرقابة') {
+        if ($this->current_role === 'مشرف الرقابة') {
             $this->visit = Visit::where('id', $id)->first();
 
             $this->visit->update([
@@ -121,13 +122,13 @@ class Visits extends HomeComponent
                 $title = "تمت عملية معالجة زيارة";
                 $message = "";
                 $hostname = "";
-                if ($this->visit->hostable_type == 'App\Models\Teacher') {
+                if ($this->visit->hostable_type === 'App\Models\Teacher') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد تمت عملية معالجة زيارة المحفظ " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
-                } else if ($this->visit->hostable_type == 'App\Models\Tester') {
+                } else if ($this->visit->hostable_type === 'App\Models\Tester') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد تمت عملية معالجة زيارة المختبر " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
-                } else if ($this->visit->hostable_type == 'App\Models\ActivityMember') {
+                } else if ($this->visit->hostable_type === 'App\Models\ActivityMember') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد تمت عملية معالجة زيارة المنشط " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
                 }
@@ -137,7 +138,7 @@ class Visits extends HomeComponent
                     'hostname' => $hostname,
                     'host_type' => $this->visit->hostable_type,
                 ]));
-                $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token]);
+                $this->push_notification($message, $title,$this->link.$this->visit->id, [$role_users->first()->user_fcm_token->device_token ?? null]);
             }
             // end push notifications to admin
 
@@ -149,14 +150,14 @@ class Visits extends HomeComponent
 
     public function lunchModalVisitProcessing($id)
     {
-        if ($this->current_role == 'مشرف الرقابة') {
+        if ($this->current_role === 'مشرف الرقابة') {
             $this->visit = Visit::where('id', $id)->first();
         }
     }
 
     public function visitProcessing()
     {
-        if ($this->current_role == 'مشرف الرقابة') {
+        if ($this->current_role === 'مشرف الرقابة') {
             $this->validate([
                 'visit_processing_date' => 'required|date|date_format:Y-m-d',
             ]);
@@ -183,7 +184,7 @@ class Visits extends HomeComponent
 
     public function visitFailed($id)
     {
-        if ($this->current_role == 'مشرف الرقابة') {
+        if ($this->current_role === 'مشرف الرقابة') {
             $this->visit = Visit::where('id', $id)->first();
 
             $this->visit->update([
@@ -199,13 +200,13 @@ class Visits extends HomeComponent
                 $title = "فشل معالجة زيارة";
                 $message = "";
                 $hostname = "";
-                if ($this->visit->hostable_type == 'App\Models\Teacher') {
+                if ($this->visit->hostable_type === 'App\Models\Teacher') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد فشل معالجة زيارة المحفظ " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
-                } else if ($this->visit->hostable_type == 'App\Models\Tester') {
+                } else if ($this->visit->hostable_type === 'App\Models\Tester') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد فشل معالجة زيارة المختبر " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
-                } else if ($this->visit->hostable_type == 'App\Models\ActivityMember') {
+                } else if ($this->visit->hostable_type === 'App\Models\ActivityMember') {
                     $hostname = $this->visit->hostable->user->name;
                     $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد فشل معالجة زيارة المنشط " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
                 }
@@ -215,7 +216,7 @@ class Visits extends HomeComponent
                     'hostname' => $hostname,
                     'host_type' => $this->visit->hostable_type,
                 ]));
-                $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token]);
+                $this->push_notification($message, $title,$this->link.$this->visit->id, [$role_users->first()->user_fcm_token->device_token ?? null]);
             }
             // end push notifications to admin
 
@@ -242,10 +243,10 @@ class Visits extends HomeComponent
             ->when(!empty($this->selectedVisitTypeId), function ($q, $v) {
                 $q->where('hostable_type', $this->selectedVisitTypeId);
             })
-            ->when($this->current_role == 'مراقب', function ($q, $v) {
+            ->when($this->current_role === 'مراقب', function ($q, $v) {
                 $q->where('oversight_member_id', auth()->id());
             })
-            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) != 'message'), function ($q, $v) {
+            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) !== 'message'), function ($q, $v) {
                 $q->where('id', \Request::segment(2));
             })
             ->orderBy($this->sortBy, $this->sortDirection)

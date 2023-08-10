@@ -16,6 +16,7 @@ class CreateGroupsTable extends Migration
         Schema::create('groups', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name',50)->index()->unique();
+            $table->enum('type',['quran','sunnah','montada'])->index();
             $table->foreignUuid('grade_id')->index()->references('id')->on('grades')->restrictOnDelete();
             $table->foreignId('teacher_id')->nullable()->unique()->index()->references('id')->on('teachers')->restrictOnDelete();
             $table->timestamp('created_at')->index();

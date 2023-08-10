@@ -1,4 +1,5 @@
 <div>
+    @if ($current_role === \App\Models\User::ADMIN_ROLE)
     <div>
         @if (!empty($successMessage))
             <div class="alert alert-success" id="success-alert">
@@ -41,12 +42,6 @@
                                    data-bs-toggle="tab" role="tab" href="#"
                                    aria-controls="add_user-05" aria-selected="false"><i
                                         class="fas fa-user-edit"></i> تعديل الأدوار</a>
-                            @elseif($process_type == 'edit_permission')
-                                <a class="nav-link" id="add_user-05-tab"
-                                   :class="currentTab === 'form' ? 'active show':'' "
-                                   data-bs-toggle="tab" role="tab" href="#"
-                                   aria-controls="add_user-05" aria-selected="false"><i
-                                        class="fas fa-edit"></i> تعديل الصلاحيات</a>
                             @else
                                 <a class="nav-link" id="add_user-05-tab"
                                    :class="currentTab === 'form' ? 'active show':'' "
@@ -70,8 +65,6 @@
                                 @include('pages.users.reset_password_user')
                             @elseif($process_type == 'edit_roles')
                                 @include('pages.users.user_roles_edit')
-                            @elseif($process_type == 'edit_permission')
-                                @include('pages.users.user_permission_edit')
                             @else
                                 @include('pages.users.user_form')
                             @endif
@@ -82,6 +75,7 @@
         </div>
     </div>
     <x-loading-indicator></x-loading-indicator>
+    @endif
 </div>
 @push('alpine-plugins')
     <!-- Alpine Plugins -->

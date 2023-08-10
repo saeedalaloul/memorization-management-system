@@ -23,6 +23,7 @@ class VisitsOrders extends HomeComponent
     public function mount()
     {
         $this->current_role = auth()->user()->current_role;
+        $this->link = 'manage_visits_orders/';
     }
 
     public function render()
@@ -58,7 +59,7 @@ class VisitsOrders extends HomeComponent
 
     public function sendVisit($id)
     {
-        if ($this->current_role == 'مراقب') {
+        if ($this->current_role === 'مراقب') {
             $visitOrder = VisitOrder::where('id', $id)->first();
 
             $visitOrder->update([
@@ -72,13 +73,13 @@ class VisitsOrders extends HomeComponent
                 $title = "طلب زيارة قيد الإعتماد";
                 $message = "";
                 $hostname = "";
-                if ($visitOrder->hostable_type == 'App\Models\Teacher') {
+                if ($visitOrder->hostable_type === 'App\Models\Teacher') {
                     $hostname = $visitOrder->hostable->user->name;
                     $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المحفظ " . $hostname . " يرجى مراجعة طلب الزيارة. ";
-                } else if ($visitOrder->hostable_type == 'App\Models\Tester') {
+                } else if ($visitOrder->hostable_type === 'App\Models\Tester') {
                     $hostname = $visitOrder->hostable->user->name;
                     $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المختبر " . $hostname . " يرجى مراجعة طلب الزيارة. ";
-                } else if ($visitOrder->hostable_type == 'App\Models\ActivityMember') {
+                } else if ($visitOrder->hostable_type === 'App\Models\ActivityMember') {
                     $hostname = $visitOrder->hostable->user->name;
                     $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المنشط " . $hostname . " يرجى مراجعة طلب الزيارة. ";
                 }
@@ -90,7 +91,7 @@ class VisitsOrders extends HomeComponent
                     'oversight_member_name' => $visitOrder->oversight_member->user->name,
                     'datetime' => $visitOrder->datetime,
                 ]));
-                $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token]);
+                $this->push_notification($message, $title,$this->link.$visitOrder->id, [$role_users->first()->user_fcm_token->device_token ?? null]);
             }
             // end push notifications to oversight supervisor
 
@@ -101,7 +102,7 @@ class VisitsOrders extends HomeComponent
 
     public function sendVisitAfterEdit()
     {
-        if ($this->current_role == 'مراقب') {
+        if ($this->current_role === 'مراقب') {
             $this->visitOrder->update([
                 'status' => VisitOrder::IN_APPROVAL_STATUS,
             ]);
@@ -113,13 +114,13 @@ class VisitsOrders extends HomeComponent
                 $title = "طلب زيارة قيد الإعتماد";
                 $message = "";
                 $hostname = "";
-                if ($this->visitOrder->hostable_type == 'App\Models\Teacher') {
+                if ($this->visitOrder->hostable_type === 'App\Models\Teacher') {
                     $hostname = $this->visitOrder->hostable->user->name;
                     $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المحفظ " . $hostname . " يرجى مراجعة طلب الزيارة. ";
-                } else if ($this->visitOrder->hostable_type == 'App\Models\Tester') {
+                } else if ($this->visitOrder->hostable_type === 'App\Models\Tester') {
                     $hostname = $this->visitOrder->hostable->user->name;
                     $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المختبر " . $hostname . " يرجى مراجعة طلب الزيارة. ";
-                } else if ($this->visitOrder->hostable_type == 'App\Models\ActivityMember') {
+                } else if ($this->visitOrder->hostable_type === 'App\Models\ActivityMember') {
                     $hostname = $this->visitOrder->hostable->user->name;
                     $message = "لقد قام عضو الرقابة: " . auth()->user()->name . " بإرسال زيارة المنشط " . $hostname . " يرجى مراجعة طلب الزيارة. ";
                 }
@@ -131,7 +132,7 @@ class VisitsOrders extends HomeComponent
                     'oversight_member_name' => $this->visitOrder->oversight_member->user->name,
                     'datetime' => $this->visitOrder->datetime,
                 ]));
-                $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token]);
+                $this->push_notification($message, $title,$this->link.$this->visitOrder->id, [$role_users->first()->user_fcm_token->device_token ?? null]);
             }
             // end push notifications to oversight supervisor
 
@@ -145,7 +146,7 @@ class VisitsOrders extends HomeComponent
     public function visitEditRequest($id)
     {
         $visitOrder = VisitOrder::where('id', $id)->first();
-        if ($this->current_role == 'مشرف الرقابة') {
+        if ($this->current_role === 'مشرف الرقابة') {
             $visitOrder->update([
                 'status' => VisitOrder::IN_SENDING_STATUS,
             ]);
@@ -154,13 +155,13 @@ class VisitsOrders extends HomeComponent
             $title = "تعديل طلب زيارة";
             $message = "";
             $hostname = "";
-            if ($visitOrder->hostable_type == 'App\Models\Teacher') {
+            if ($visitOrder->hostable_type === 'App\Models\Teacher') {
                 $hostname = $visitOrder->hostable->user->name;
                 $message = "لقد قام مشرف الرقابة بطلب تعديل تفاصيل زيارة حلقة المحفظ: " . $hostname . " يرجى مراجعة تفاصيل الزيارة.";
-            } else if ($visitOrder->hostable_type == 'App\Models\Tester') {
+            } else if ($visitOrder->hostable_type === 'App\Models\Tester') {
                 $hostname = $visitOrder->hostable->user->name;
                 $message = "لقد قام مشرف الرقابة بطلب تعديل تفاصيل زيارة المختبر: " . $hostname . " يرجى مراجعة تفاصيل الزيارة.";
-            } else if ($visitOrder->hostable_type == 'App\Models\ActivityMember') {
+            } else if ($visitOrder->hostable_type === 'App\Models\ActivityMember') {
                 $hostname = $visitOrder->hostable->user->name;
                 $message = "لقد قام مشرف الرقابة بطلب تعديل تفاصيل زيارة المنشط: " . $hostname . " يرجى مراجعة تفاصيل الزيارة.";
             }
@@ -171,7 +172,7 @@ class VisitsOrders extends HomeComponent
                 'datetime' => $visitOrder->datetime,
             ]));
 
-            $this->push_notification($message, $title, [$visitOrder->oversight_member->user->user_fcm_token->device_token]);
+            $this->push_notification($message, $title,$this->link.$visitOrder->id, [$visitOrder->oversight_member->user->user_fcm_token->device_token ?? null]);
             // end push notifications to oversight member
 
             $this->dispatchBrowserEvent('alert',
@@ -182,7 +183,7 @@ class VisitsOrders extends HomeComponent
     public function approvalVisit($id)
     {
         $visitOrder = VisitOrder::where('id', $id)->first();
-        if ($this->current_role == 'مشرف الرقابة') {
+        if ($this->current_role === 'مشرف الرقابة') {
             DB::beginTransaction();
             try {
                 $visit = Visit::create([
@@ -204,13 +205,13 @@ class VisitsOrders extends HomeComponent
                     $title = "زيارة جديدة";
                     $message = "";
                     $hostname = "";
-                    if ($visit->hostable_type == 'App\Models\Teacher') {
+                    if ($visit->hostable_type === 'App\Models\Teacher') {
                         $hostname = $visit->hostable->user->name;
                         $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد زيارة المحفظ " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
-                    } else if ($visit->hostable_type == 'App\Models\Tester') {
+                    } else if ($visit->hostable_type === 'App\Models\Tester') {
                         $hostname = $visit->hostable->user->name;
                         $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد زيارة المختبر " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
-                    } else if ($visit->hostable_type == 'App\Models\ActivityMember') {
+                    } else if ($visit->hostable_type === 'App\Models\ActivityMember') {
                         $hostname = $visit->hostable->user->name;
                         $message = "لقد قام مشرف الرقابة: " . auth()->user()->name . " بإعتماد زيارة المنشط " . $hostname . " يرجى مراجعة تفاصيل الزيارة. ";
                     }
@@ -222,7 +223,7 @@ class VisitsOrders extends HomeComponent
                         'oversight_member_name' => $visit->oversight_member->user->name,
                         'datetime' => $visit->datetime,
                     ]));
-                    $this->push_notification($message, $title, [$role_users->first()->user_fcm_token->device_token]);
+                    $this->push_notification($message, $title, 'manage_visits/'.$visit->id,[$role_users->first()->user_fcm_token->device_token ?? null]);
                 }
                 // end push notifications to admin
 
@@ -270,13 +271,13 @@ class VisitsOrders extends HomeComponent
             ->when(!empty($this->selectedVisitTypeId), function ($q, $v) {
                 $q->where('hostable_type', $this->selectedVisitTypeId);
             })
-            ->when($this->current_role == 'مراقب', function ($q, $v) {
+            ->when($this->current_role === 'مراقب', function ($q, $v) {
                 $q->where('oversight_member_id', auth()->id())
                     ->when(empty($this->selectedStatusId), function ($q, $v) {
                         $q->whereIn('status', [VisitOrder::IN_PENDING_STATUS, VisitOrder::IN_SENDING_STATUS]);
                     });
             })
-            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) != 'message'), function ($q, $v) {
+            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) !== 'message'), function ($q, $v) {
                 $q->where('id', \Request::segment(2));
             })
             ->orderBy($this->sortBy, $this->sortDirection)

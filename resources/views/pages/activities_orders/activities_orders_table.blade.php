@@ -22,7 +22,7 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{$activities_order->activity_type->name}}</td>
                     <td>{{$activities_order->students_count}}</td>
-                    <td>{{\Carbon\Carbon::parse($activities_order->activity_date)->translatedFormat('l j F Y h:i a')}}</td>
+                    <td>{{\Carbon\Carbon::parse($activities_order->datetime)->translatedFormat('l j F Y h:i a')}}</td>
                     <td>{{$activities_order->teacher->user->name}}</td>
                     <td>
                         @if(isset($activities_order->activity_member))

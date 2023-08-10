@@ -8,7 +8,10 @@
                     @include('livewire._sort-icon',['field'=>'id'])
                 </th>
                 <th>اسم المختبر</th>
-                <th>عدد الإختبارات</th>
+                <th>عدد طلبات الإختبارات</th>
+                <th>عدد الإختبارات الكلي</th>
+                <th>عدد اختبارات هذا الشهر</th>
+                <th>عدد اختبارات هذا العام</th>
                 <th>العمليات</th>
             </tr>
             </thead>
@@ -17,7 +20,10 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $tester->user->name }}</td>
+                    <td>{{$tester->exams_orders_count}}</td>
                     <td>{{ $tester->exams_count }}</td>
+                    <td>{{ $tester->exams_month_count }}</td>
+                    <td>{{ $tester->exams_year_count }}</td>
                     <td>
                         <button type="button" class="btn btn-danger btn-sm"
                                 wire:click="getModalData({{$tester->id}});"
@@ -38,7 +44,10 @@
             <tr class="text-dark table-success">
                 <th>#</th>
                 <th>اسم المختبر</th>
-                <th>عدد الإختبارات</th>
+                <th>عدد طلبات الإختبارات</th>
+                <th>عدد الإختبارات الكلي</th>
+                <th>عدد اختبارات هذا الشهر</th>
+                <th>عدد اختبارات هذا العام</th>
                 <th>العمليات</th>
             </tr>
             </tfoot>

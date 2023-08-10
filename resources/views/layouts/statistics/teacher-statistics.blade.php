@@ -6,7 +6,7 @@
                 <div class="clearfix">
                     <div class="float-left">
                                     <span class="text-success">
-                                        <i class="fas fa-watch highlight-icon" aria-hidden="true"></i>
+                                        <i class="fas fa-user-graduate highlight-icon" aria-hidden="true"></i>
                                     </span>
                     </div>
                     <div class="float-right text-right">
@@ -189,7 +189,13 @@
                                                 <tr>
                                                     <td>{{$loop->iteration}}</td>
                                                     <td>{{ $exam->student_name }}</td>
-                                                    <td>{{ $exam->quran_part_name}}</td>
+                                                    <td>
+                                                        @if (isset($exam->quran_part_name))
+                                                            {{ $exam->quran_part_name}}
+                                                        @else
+                                                            {{ $exam->sunnah_part_name}}
+                                                        @endif
+                                                    </td>
                                                     <td style="text-align: center; align-content: center">
                                                         @if ($exam->mark >= $exam->exam_success_mark)
                                                             <div class="badge-success" style="width: 40px;">

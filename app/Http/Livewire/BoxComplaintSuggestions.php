@@ -29,6 +29,7 @@ class BoxComplaintSuggestions extends HomeComponent
     public function mount()
     {
         $this->current_role = auth()->user()->current_role;
+        $this->link = 'manage_box_complaint_suggestions/';
         $this->all_Roles();
     }
 
@@ -36,12 +37,12 @@ class BoxComplaintSuggestions extends HomeComponent
     {
         $this->process_type = 'detailsShow';
         $this->boxComplaintSuggestion = BoxComplaintSuggestion::where('id', $id)->first();
-        if ($this->boxComplaintSuggestion->receiver_id == auth()->id()
-            && $this->boxComplaintSuggestion->subject_read_at == null) {
+        if ($this->boxComplaintSuggestion->receiver_id === auth()->id()
+            && $this->boxComplaintSuggestion->subject_read_at === null) {
             $this->boxComplaintSuggestion->update(['subject_read_at' => Carbon::now()]);
-        } elseif ($this->boxComplaintSuggestion->sender_id == auth()->id()
-            && $this->boxComplaintSuggestion->reply != null
-            && $this->boxComplaintSuggestion->reply_read_at == null) {
+        } elseif ($this->boxComplaintSuggestion->sender_id === auth()->id()
+            && $this->boxComplaintSuggestion->reply !== null
+            && $this->boxComplaintSuggestion->reply_read_at === null) {
             $this->boxComplaintSuggestion->update(['reply_read_at' => Carbon::now()]);
         }
     }
@@ -50,8 +51,8 @@ class BoxComplaintSuggestions extends HomeComponent
     public function complaintReply($id)
     {
         $this->boxComplaintSuggestion = BoxComplaintSuggestion::where('id', $id)->first();
-        if ($this->boxComplaintSuggestion->receiver_id == auth()->id()) {
-            if ($this->boxComplaintSuggestion->subject_read_at == null) {
+        if ($this->boxComplaintSuggestion->receiver_id === auth()->id()) {
+            if ($this->boxComplaintSuggestion->subject_read_at = null) {
                 $this->boxComplaintSuggestion->update(['subject_read_at' => Carbon::now()]);
             }
             $this->process_type = 'complaintReply';
@@ -72,17 +73,17 @@ class BoxComplaintSuggestions extends HomeComponent
             ['type' => 'success', 'message' => 'تمت عملية الرد على الشكوى/الاقتراح بنجاح.']);
 
         $this->boxComplaintSuggestion->sender->notify(new ReplayBoxComplaintSuggestionNotify($this->boxComplaintSuggestion));
-        if ($this->boxComplaintSuggestion->category == BoxComplaintSuggestion::COMPLAINT_CATEGORY) {
+        if ($this->boxComplaintSuggestion->category === BoxComplaintSuggestion::COMPLAINT_CATEGORY) {
             $title = "الرد على شكوى";
             $message = "لقد تم الرد على الشكوى التي قدمتها إلى: " . $this->boxComplaintSuggestion->receiver->name . " يرجى مراجعة الرد.";
-        } elseif ($this->boxComplaintSuggestion->category == BoxComplaintSuggestion::SUGGESTION_CATEGORY) {
+        } elseif ($this->boxComplaintSuggestion->category === BoxComplaintSuggestion::SUGGESTION_CATEGORY) {
             $title = "الرد على اقتراح";
             $message = "لقد تم الرد على الاقتراح التي قدمته إلى: " . $this->boxComplaintSuggestion->receiver->name . " يرجى مراجعة الرد.";
         } else {
             $title = "الرد على فكرة";
             $message = "لقد تم الرد على الفكرة التي قدمتها إلى: " . $this->boxComplaintSuggestion->receiver->name . " يرجى مراجعة الرد.";
         }
-        $this->push_notification($message, $title, [$this->boxComplaintSuggestion->sender->user_fcm_token->device_token]);
+        $this->push_notification($message, $title,$this->link.$this->boxComplaintSuggestion->id, [$this->boxComplaintSuggestion->sender->user_fcm_token->device_token ?? null]);
 
         $this->clearForm();
         $this->process_type = '';
@@ -117,14 +118,14 @@ class BoxComplaintSuggestions extends HomeComponent
     {
         return BoxComplaintSuggestion::query()
             ->with(['sender', 'receiver'])
-            ->when($this->current_role == 'مشرف الرقابة' || $this->current_role == 'أمير المركز' || $this->current_role == 'مشرف', function ($q, $v) {
+            ->when($this->current_role === 'مشرف الرقابة' || $this->current_role === 'أمير المركز' || $this->current_role === 'مشرف', function ($q, $v) {
                 $q->where('sender_id', auth()->id())
                     ->OrWhere('receiver_id', auth()->id());
             })
-            ->when($this->current_role == 'محفظ', function ($q, $v) {
+            ->when($this->current_role === 'محفظ', function ($q, $v) {
                 $q->where('sender_id', auth()->id());
             })
-            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) != 'message'), function ($q, $v) {
+            ->when(!empty(strval(\Request::segment(2)) && strval(\Request::segment(2)) !== 'message'), function ($q, $v) {
                 $q->where('id', \Request::segment(2));
             })
             ->orderBy($this->sortBy, $this->sortDirection)
@@ -141,26 +142,26 @@ class BoxComplaintSuggestions extends HomeComponent
         foreach ($this->role_id as $key => $role_id) {
             $role = $this->roles->where('id', $this->role_id[$key])
                 ->first();
-            if ($role != null) {
-                if ($role->name == 'مشرف' && $this->current_role == 'محفظ') {
+            if ($role !== null) {
+                if ($role->name === 'مشرف' && $this->current_role === 'محفظ') {
                     $user = $role->users()
                         ->whereRelation('supervisor', 'grade_id', '=', Teacher::find(auth()->id())->grade_id)
                         ->select('id')->first();
-                } else if ($role->name != 'مشرف') {
+                } else if ($role->name !== 'مشرف') {
                     $user = $role->users()
                         ->select('id')->first();
                 }
                 if (isset($user)) {
                     $receiver_id = $user->id;
-                    if ($receiver_id != auth()->id()) {
-                        array_push($arr_external_user_ids, $receiver_id);
-                        array_push($boxComplaintSuggestions, [
+                    if ($receiver_id !== auth()->id()) {
+                        $arr_external_user_ids[] = $receiver_id;
+                        $boxComplaintSuggestions[] = [
                             'datetime' => Carbon::now(),
                             'category' => $this->category,
                             'subject' => $this->subject,
                             'sender_id' => auth()->id(),
                             'receiver_id' => $receiver_id,
-                        ]);
+                        ];
                     }
                 }
             }
@@ -175,17 +176,17 @@ class BoxComplaintSuggestions extends HomeComponent
                 foreach ($boxComplaintSuggestions as $boxComplaintSuggestion) {
                     $boxComplaintSuggestion = BoxComplaintSuggestion::create($boxComplaintSuggestion);
                     $boxComplaintSuggestion->receiver->notify(new NewBoxComplaintSuggestionNotify($boxComplaintSuggestion));
-                    if ($boxComplaintSuggestion->category == BoxComplaintSuggestion::COMPLAINT_CATEGORY) {
+                    if ($boxComplaintSuggestion->category === BoxComplaintSuggestion::COMPLAINT_CATEGORY) {
                         $title = "شكوى جديدة";
                         $message = "لقد تم تقديم شكوى جديدة من قبل المحفظ: " . $boxComplaintSuggestion->sender->name . " يرجى مراجعة الشكوى والرد عليها.";
-                    } elseif ($boxComplaintSuggestion->category == BoxComplaintSuggestion::SUGGESTION_CATEGORY) {
+                    } elseif ($boxComplaintSuggestion->category === BoxComplaintSuggestion::SUGGESTION_CATEGORY) {
                         $title = "اقتراح جديد";
                         $message = "لقد تم تقديم اقتراح جديد من قبل المحفظ: " . $boxComplaintSuggestion->sender->name . " يرجى مراجعة الاقتراح والرد عليه.";
                     } else {
                         $title = "فكرة جديدة";
                         $message = "لقد تم تقديم فكرة جديدة من قبل المحفظ: " . $boxComplaintSuggestion->sender->name . " يرجى مراجعة الفكرة والرد عليها.";
                     }
-                    $this->push_notification($message, $title, [$boxComplaintSuggestion->receiver->user_fcm_token->device_token]);
+                    $this->push_notification($message, $title,$this->link.$boxComplaintSuggestion->id, [$boxComplaintSuggestion->receiver->user_fcm_token->device_token ?? null]);
                 }
 
                 $this->dispatchBrowserEvent('alert',

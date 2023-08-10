@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\ExamOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -38,11 +39,16 @@ class AcceptExamOrderForTeacherNotify extends Notification
      */
     public function toArray($notifiable)
     {
+        if ($this->exam_order->partable_type == 'App\Models\QuranPart') {
+            $part_name =  $this->exam_order->partable->name.' '.$this->exam_order->partable->description;
+        }else{
+            $part_name =  $this->exam_order->partable->name. ' (' . $this->exam_order->partable->total_hadith_parts. ') حديث';
+        }
         return [
             'id'=>$this->exam_order->id,
             'student_name'=> $this->exam_order->student->user->name,
             'tester_name'=> $this->exam_order->tester->user->name,
-            'quran_part_name'=> $this->exam_order->quranPart->name.' '.$this->exam_order->quranPart->description,
+            'part_name'=>$part_name,
             'type' => $this->exam_order->type,
             'datetime'=> $this->exam_order->datetime,
         ];

@@ -13,7 +13,9 @@ class Teacher extends Model
         return $query
             ->where('id', 'like', '%' . $val . '%')
             ->OrwhereHas('user', function ($q) use ($val) {
-                $q->where('name', 'LIKE', "%$val%");
+                $q->where('name', 'LIKE', "%$val%")
+                    ->OrWhere('identification_number', 'LIKE', "%$val%")
+                    ->OrWhere('phone', 'LIKE', "%$val%");
             });
     }
 

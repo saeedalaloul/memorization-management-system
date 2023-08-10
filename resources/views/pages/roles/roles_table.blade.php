@@ -16,23 +16,27 @@
                     </thead>
                     <tbody>
                     @forelse($roles as $role)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{$role->name}}</td>
-                            <td>{{$role->users_count}}</td>
-                            <td>
-                                <button
-                                    @click.prevent="currentTab = 'form'"
-                                    wire:click.prevent="edit_permission({{$role->id}})"
-                                    class="btn btn-outline-success btn-sm">تعديل الصلاحيات
-                                </button>
-                            </td>
-                        </tr>
+{{--                        @if($role->name !== \App\Models\User::ADMIN_ROLE)--}}
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{$role->name}}</td>
+                                <td>{{$role->users_count}}</td>
+                                <td>
+                                    <button
+                                        wire:click.prevent="edit_permission({{$role->id}})"
+                                        class="btn btn-outline-success btn-sm">تعديل الصلاحيات
+                                    </button>
+                                </td>
+                            </tr>
+{{--                        @endif--}}
                     @empty
                         <tr style="text-align: center">
                             <td colspan="4">No data available in table</td>
                         </tr>
                     @endforelse
+                    @can('تعديل دور')
+                        @include('pages.roles.edit_permission_modal')
+                    @endcan
                     </tbody>
                     <tfoot>
                     <tr class="text-dark table-success">

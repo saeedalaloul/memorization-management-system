@@ -18,20 +18,20 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>
-                    @if ($punitive_measure->type == \App\Models\PunitiveMeasure::BLOCK_TYPE)
+                    @if ($punitive_measure->type === \App\Models\PunitiveMeasure::BLOCK_TYPE)
                         حظر
                     @else
                         إنذار
                     @endif
                 </td>
                 <td>
-                    @if ($punitive_measure->reason == \App\Models\PunitiveMeasure::MEMORIZE_REASON)
+                    @if ($punitive_measure->reason === \App\Models\PunitiveMeasure::MEMORIZE_REASON)
                         ضعف الحفظ
-                    @elseif($punitive_measure->reason == \App\Models\PunitiveMeasure::ABSENCE_REASON)
+                    @elseif($punitive_measure->reason === \App\Models\PunitiveMeasure::ABSENCE_REASON)
                         الغياب
-                    @elseif($punitive_measure->reason == \App\Models\PunitiveMeasure::DID_NOT_MEMORIZE_REASON)
+                    @elseif($punitive_measure->reason === \App\Models\PunitiveMeasure::DID_NOT_MEMORIZE_REASON)
                         لم يحفظ
-                    @elseif($punitive_measure->reason == \App\Models\PunitiveMeasure::LATE_REASON)
+                    @elseif($punitive_measure->reason === \App\Models\PunitiveMeasure::LATE_REASON)
                         بسبب التأخر
                     @endif
                 </td>
@@ -52,14 +52,15 @@
                             class="btn btn-outline-danger btn-sm" title="حذف">
                         <i class="fa fa-trash"></i></button>
                 </td>
-                @include('pages.punitive_measures.select_group_custom')
-                @include('pages.punitive_measures.delete_punitive_measure')
             </tr>
         @empty
             <tr style="text-align: center">
                 <td colspan="4">No data available in table</td>
             </tr>
         @endforelse
+        @include('pages.punitive_measures.select_group_custom')
+        @include('pages.punitive_measures.remove_group_custom')
+        @include('pages.punitive_measures.delete_punitive_measure')
         </tbody>
         <tfoot>
         <tr class="text-dark table-success">

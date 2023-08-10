@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Excel;
 
 class Grades extends HomeComponent
 {
-    public $name;
+    public $name,$section;
 
     public function render()
     {
@@ -21,6 +21,7 @@ class Grades extends HomeComponent
 
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
         $this->sortBy = "name";
     }
 
@@ -30,18 +31,21 @@ class Grades extends HomeComponent
         $data = Grade::find($id);
         $this->modalId = $data->id;
         $this->name = $data->name;
+        $this->section = $data->section;
     }
 
     public function modelData()
     {
         return [
             'name' => $this->name,
+            'section' => $this->section,
         ];
     }
 
     public function rules()
     {
-        return ['name' => 'required|unique:grades,name,' . $this->modalId];
+        return ['name' => 'required|unique:grades,name,' . $this->modalId,
+            'section' => 'required|string'];
     }
 
     public function messages()
@@ -49,6 +53,8 @@ class Grades extends HomeComponent
         return [
             'name.required' => 'حقل اسم المرحلة مطلوب',
             'name.unique' => 'اسم المرحلة موجود مسبقا',
+            'section.required' => 'حقل قسم المرحلة مطلوب',
+            'section.string' => 'حقل قسم المرحلة يجب أن يكون نص',
         ];
     }
 
@@ -57,6 +63,7 @@ class Grades extends HomeComponent
     {
         $this->resetValidation();
         $this->name = null;
+        $this->section = null;
         $this->modalId = '';
     }
 
@@ -84,18 +91,19 @@ class Grades extends HomeComponent
 
     public function destroy($id)
     {
-        Grade::where('id', $id)->delete();
         $this->dispatchBrowserEvent('hideDialog');
         $this->dispatchBrowserEvent('alert',
-            ['type' => 'error', 'message' => 'تم حذف المرحلة بنجاح.']);
+            ['type' => 'error', 'message' => 'عذرا لا يمكنك حذف المرحلة بتاتا.']);
+//        Grade::where('id', $id)->delete();
     }
 
     public function all_Grades()
     {
-        if (auth()->user()->current_role == 'أمير المركز') {
+        if (auth()->user()->current_role === 'أمير المركز') {
             return Grade::query()
                 ->withCount('teachers')
                 ->withCount('groups')
+                ->withCount('students')
                 ->search($this->search)
                 ->orderBy($this->sortBy, $this->sortDirection)
                 ->paginate($this->perPage);
@@ -103,15 +111,16 @@ class Grades extends HomeComponent
         return [];
     }
 
-    public function submitSearch(){
+    public function submitSearch()
+    {
         $this->all_Grades();
     }
 
     public function all_teachers_export()
     {
         $teachers = DB::table('teachers')
-            ->select(['users.name', 'identification_number', 'phone', 'dob', 'economic_situation',
-                'recitation_level', 'academic_qualification','grades.name as grade_name'])
+            ->select(['users.name', 'identification_number', 'phone', 'email', 'dob', 'economic_situation',
+                'recitation_level', 'academic_qualification', 'grades.name as grade_name'])
             ->join('users', 'teachers.id', '=', 'users.id')
             ->join('user_infos', 'users.id', '=', 'user_infos.id')
             ->join('grades', 'teachers.grade_id', '=', 'grades.id')
@@ -125,7 +134,7 @@ class Grades extends HomeComponent
         if (!empty($id)) {
             $grade_name = Grade::where('id', $id)->first()->name;
             $teachers = DB::table('teachers')
-                ->select(['name', 'identification_number', 'phone', 'dob', 'economic_situation', 'recitation_level', 'academic_qualification'])
+                ->select(['name', 'identification_number', 'phone', 'email', 'dob', 'economic_situation', 'recitation_level', 'academic_qualification'])
                 ->join('users', 'teachers.id', '=', 'users.id')
                 ->join('user_infos', 'users.id', '=', 'user_infos.id')
                 ->where('teachers.grade_id', '=', $id)

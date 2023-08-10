@@ -1,19 +1,18 @@
 <div class="row">
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
-            @if (auth()->user()->current_role == \App\Models\User::ADMIN_ROLE)
+            @if (auth()->user()->current_role === \App\Models\User::ADMIN_ROLE)
                 <div class="card-body">
                     <li class="list-group-item">
                         <div class="row">
                             <div class="col-3">
                                 @can('إضافة مرحلة')
-                                    <button type="button" wire:click.prevent="modalFormReset()"
+                                    <button type="button" wire:click="modalFormReset()"
                                             class="button x-small"
                                             data-toggle="modal"
                                             data-target="#gradeAdded">
                                         اضافة مرحلة
                                     </button>
-                                    @include('pages.grades.add')
                                 @endcan
                             </div>
                             <div class="col-md-3">
@@ -40,8 +39,10 @@
                                 <th wire:click="sortBy('name')" style="cursor: pointer;">اسم المرحلة
                                     @include('livewire._sort-icon',['field'=>'name'])
                                 </th>
+                                <th>القسم</th>
                                 <th>عدد محفظي المرحلة</th>
                                 <th>عدد حلقات المرحلة</th>
+                                <th>عدد طلاب المرحلة</th>
                                 <th>العمليات</th>
                             </tr>
                             </thead>
@@ -50,8 +51,10 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $grade->name }}</td>
+                                    <td>{{ \App\Models\Grade::sections()[$grade->section] }}</td>
                                     <td>{{ $grade->teachers_count }}</td>
                                     <td>{{ $grade->groups_count }}</td>
+                                    <td>{{ $grade->students_count }}</td>
                                     <td>
                                         @if ($grade->teachers_count > 0)
                                             <button type="button"
@@ -60,7 +63,7 @@
                                                     title="تصدير بيانات المحفظين"><i
                                                     class="fa fa-download"></i></button>
                                         @endif
-                                        @if ($grade->groups_count > 0)
+                                        @if ($grade->students_count > 0)
                                             <button type="button"
                                                     wire:click.prevent="grade_students_export('{{$grade->id}}');"
                                                     class="btn btn-primary btn-sm"
@@ -90,7 +93,7 @@
 
                             @empty
                                 <tr style="text-align: center">
-                                    <td colspan="6">No data available in table</td>
+                                    <td colspan="8">No data available in table</td>
                                 </tr>
                             @endforelse
 
@@ -99,13 +102,16 @@
                             <tr class="text-dark table-success">
                                 <th>#</th>
                                 <th>اسم المرحلة</th>
+                                <th>القسم</th>
                                 <th>عدد محفظي المرحلة</th>
                                 <th>عدد حلقات المرحلة</th>
+                                <th>عدد طلاب المرحلة</th>
                                 <th>العمليات</th>
                             </tr>
                             </tfoot>
                         </table>
                     </div>
+                    @include('pages.grades.add')
                     <div id="datatable_wrapper"
                          class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
                         <div class="row">

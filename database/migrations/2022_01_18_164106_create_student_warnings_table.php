@@ -17,7 +17,7 @@ class CreateStudentWarningsTable extends Migration
         Schema::create('student_warnings', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignId('student_id')->index()->references('id')->on('students')->restrictOnDelete();
-            $table->enum('reason',['memorize','did-not-memorize','absence','late'])->index();
+            $table->enum('reason',['memorize','did-not-memorize','absence','late','authorized'])->index();
             $table->date('warning_expiry_date')->nullable()->index();
             $table->json('details');
             $table->string('notes', 50)->nullable();

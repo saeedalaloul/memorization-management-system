@@ -1,45 +1,51 @@
 @can('إدارة الأنشطة')
     <div class="card-body">
         <li class="list-group-item">
-        <div class="row">
-            <div class="col-md-3">
-                <label style="font-size: 15px; color: #1e7e34">المراحل*</label>
-                <select style="width: 100%;" wire:model="selectedGradeId" id="grade"
-                        class="custom-select mr-sm-2 select2">
-                    <option value="">الكل</option>
-                    @foreach ($grades as $grade)
-                        <option
-                            value="{{ $grade->id }}">{{ $grade->name}}</option>
-                    @endforeach
-                </select>
-            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label style="font-size: 15px; color: #1e7e34">المراحل*</label>
+                    <select style="width: 100%;" wire:model="selectedGradeId" id="grade"
+                            class="custom-select mr-sm-2 select2">
+                        <option value="">الكل</option>
+                        @foreach ($grades as $grade)
+                            <option
+                                value="{{ $grade->id }}">{{ $grade->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="col-md-3">
-                <label style="font-size: 15px; color: #1e7e34">المحفظين*</label>
-                <select style="width: 100%;" class="custom-select mr-sm-2 select2" id="teacher"
-                        wire:model="selectedTeacherId">
-                    <option value="">الكل</option>
-                    @foreach ($groups as $group)
-                        <option
-                            value="{{ $group->id }}">{{ $group->teacher->user->name}}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="col-md-3">
+                    <label style="font-size: 15px; color: #1e7e34">المحفظين*</label>
+                    <select style="width: 100%;" class="custom-select mr-sm-2 select2" id="teacher"
+                            wire:model="selectedTeacherId">
+                        <option value="">الكل</option>
+                        @foreach ($groups as $group)
+                            <option
+                                value="{{ $group->id }}">
+                                @if ($group->teacher_id === null)
+                                    {{$group->name . ' (لا يوجد محفظ)'}}
+                                @else
+                                    {{ $group->teacher->user->name }}
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="co-md-3">
-                <div class="card-body datepicker-form">
-                    <div class="input-group">
-                        <input type="date" wire:model="searchDateFrom"
-                               class="form-control" placeholder="تاريخ البداية"
-                               required>
-                        <span class="input-group-addon">الي تاريخ</span>
-                        <input class="form-control" wire:model="searchDateTo"
-                               placeholder="تاريخ النهاية" type="date" required>
+                <div class="co-md-3">
+                    <div class="card-body datepicker-form">
+                        <div class="input-group">
+                            <input type="date" wire:model="searchDateFrom"
+                                   class="form-control" placeholder="تاريخ البداية"
+                                   required>
+                            <span class="input-group-addon">الي تاريخ</span>
+                            <input class="form-control" wire:model="searchDateTo"
+                                   placeholder="تاريخ النهاية" type="date" required>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </div>
+            </div>
         </li>
     </div>
     <x-search></x-search>

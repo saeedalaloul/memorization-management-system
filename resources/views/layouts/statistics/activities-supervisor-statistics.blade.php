@@ -178,12 +178,12 @@
                                             <tbody>
                                             @forelse($statistics[1] as $activity_order)
                                                 <tr>
-                                                    <td>{{$loop->iteration}}</td>
-                                                    <td>{{ $activity_order->activity_name }}</td>
-                                                    <td>{{ $activity_order->students_activity_count }}</td>
-                                                    <td>{{ $activity_order->datetime }}</td>
-                                                    <td>{{ $activity_order->activity_teacher_name }}</td>
-                                                    <td>{{ $activity_order->activity_member_name }}</td>
+                                                    <td class="text-success">{{$loop->iteration}}</td>
+                                                    <td class="text-success">{{ $activity_order->activity_name }}</td>
+                                                    <td class="text-success">{{ $activity_order->students_activity_count }}</td>
+                                                    <td class="text-success">{{\Carbon\Carbon::parse($activity_order->datetime)->translatedFormat('l j F Y h:i a')}}</td>
+                                                    <td class="text-success">{{ $activity_order->activity_teacher_name }}</td>
+                                                    <td class="text-success">{{ $activity_order->activity_member_name }}</td>
                                                     <td>
                                                         @if($activity_order->status == \App\Models\ActivityOrder::IN_PENDING_STATUS)
                                                             <label class="badge badge-primary">قيد الدراسة</label>
@@ -229,12 +229,12 @@
                                             <tbody>
                                             @forelse($statistics[2] as $activity)
                                                 <tr>
-                                                    <td>{{$loop->iteration}}</td>
-                                                    <td>{{ $activity->activity_name }}</td>
-                                                    <td>{{ $activity->students_activity_count }}</td>
-                                                    <td>{{ $activity->datetime }}</td>
-                                                    <td>{{ $activity->activity_teacher_name }}</td>
-                                                    <td>{{ $activity->activity_member_name }}</td>
+                                                    <td class="text-success">{{$loop->iteration}}</td>
+                                                    <td class="text-success">{{ $activity->activity_name }}</td>
+                                                    <td class="text-success">{{ $activity->students_activity_count }}</td>
+                                                    <td class="text-success">{{ $activity->datetime }}</td>
+                                                    <td class="text-success">{{ $activity->activity_teacher_name }}</td>
+                                                    <td class="text-success">{{ $activity->activity_member_name }}</td>
                                                     <td class="text-success">{{ $activity->created_at }}</td>
                                                 </tr>
                                             @empty

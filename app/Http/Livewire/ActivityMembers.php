@@ -23,6 +23,7 @@ class ActivityMembers extends HomeComponent
 
     public function mount()
     {
+        $this->current_role = auth()->user()->current_role;
         $this->all_Roles();
     }
 
@@ -50,23 +51,21 @@ class ActivityMembers extends HomeComponent
     public function destroy($id)
     {
         $activityMember = ActivityMember::find($id);
-        if ($activityMember != null) {
+        if ($activityMember !== null) {
             if ($activityMember->activities->count() > 0) {
                 $this->catchError = "عذرا لا يمكن حذف المنشط بسبب وجود أنشطة مسجلة باسم المنشط";
                 $this->dispatchBrowserEvent('hideDialog');
+            } else if ($activityMember->activities_orders->count() > 0) {
+                $this->catchError = "عذرا لا يمكن حذف المنشط بسبب وجود طلبات أنشطة لديه يرجى إجرائها أو حذفها";
+                $this->dispatchBrowserEvent('hideDialog');
             } else {
-                if ($activityMember->activities_orders->count() > 0) {
-                    $this->catchError = "عذرا لا يمكن حذف المنشط بسبب وجود طلبات أنشطة لديه يرجى إجرائها أو حذفها";
-                    $this->dispatchBrowserEvent('hideDialog');
-                } else {
-                    $roleId = Role::select('*')->where('name', '=', 'منشط')->first();
-                    $activityMember->user->removeRole($roleId);
-                    $activityMember->delete();
-                    $this->dispatchBrowserEvent('hideDialog');
-                    $this->dispatchBrowserEvent('alert',
-                        ['type' => 'error', 'message' => 'تم حذف عضو الأنشطة بنجاح.']);
-                    Cache::forget(ActivityMember::CACHE_KEY);
-                }
+                $roleId = Role::select('*')->where('name', '=', 'منشط')->first();
+                $activityMember->user->removeRole($roleId);
+                $activityMember->delete();
+                $this->dispatchBrowserEvent('hideDialog');
+                $this->dispatchBrowserEvent('alert',
+                    ['type' => 'error', 'message' => 'تم حذف عضو الأنشطة بنجاح.']);
+                Cache::forget(ActivityMember::CACHE_KEY);
             }
         }
     }
@@ -76,7 +75,8 @@ class ActivityMembers extends HomeComponent
         $this->destroy($this->modalId);
     }
 
-    public function getModalData($id){
+    public function getModalData($id)
+    {
         $this->modalId = $id;
     }
 
@@ -90,7 +90,8 @@ class ActivityMembers extends HomeComponent
             ->paginate($this->perPage);
     }
 
-    public function submitSearch(){
+    public function submitSearch()
+    {
         $this->all_Activity_Members();
     }
 
@@ -99,8 +100,10 @@ class ActivityMembers extends HomeComponent
         return User::query()
             ->with(['activity_member'])
             ->select(['id', 'name'])
-            ->whereDoesntHave('roles', function ($q) {
-                $q->whereIn('name', ['طالب', 'ولي أمر الطالب']);
+            ->whereHas('roles', function ($q) {
+                $q->whereIn('name', [User::ADMIN_ROLE, User::ACTIVITIES_SUPERVISOR_ROLE, User::ACTIVITY_MEMBER_ROLE,
+                    User::OVERSIGHT_SUPERVISOR_ROLE, User::OVERSIGHT_MEMBER_ROLE, User::TEACHER_ROLE, User::EXAMS_SUPERVISOR_ROLE,
+                    User::TESTER_ROLE, User::SUPERVISOR_ROLE, User::COURSES_SUPERVISOR_ROLE]);
             })
             ->when(!empty($this->selectedRoleId), function ($q, $v) {
                 $q->whereRelation('roles', 'id', '=', $this->selectedRoleId);
@@ -109,7 +112,8 @@ class ActivityMembers extends HomeComponent
             ->paginate($this->perPage);
     }
 
-    public function submitSearch_(){
+    public function submitSearch_()
+    {
         $this->all_Users();
     }
 

@@ -16,7 +16,7 @@ class CreatePunitiveMeasuresTable extends Migration
         Schema::create('punitive_measures', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->enum('type',['block','warning'])->index();
-            $table->enum('reason',['memorize','did-not-memorize','absence','late'])->index();
+            $table->enum('reason',['memorize','did-not-memorize','absence','late','authorized'])->index();
             $table->boolean('number_times')->unsigned()->index();
             $table->unsignedFloat('quantity',2,1)->nullable()->unsigned()->index();
             $table->timestamp('created_at')->index();

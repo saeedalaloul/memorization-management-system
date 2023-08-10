@@ -15,7 +15,7 @@
                 </select>
             </div>
 
-            @if($current_role == \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE || $current_role == \App\Models\User::ADMIN_ROLE || $current_role == \App\Models\User::OVERSIGHT_MEMBER_ROLE)
+            @if($current_role === \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE || $current_role === \App\Models\User::ADMIN_ROLE || $current_role === \App\Models\User::OVERSIGHT_MEMBER_ROLE)
                 <div class="col-md-3">
                     <label for="student" style="font-size: 15px; color: #1e7e34">حالة الزيارة*</label>
                     <select style="width: 100%;" wire:model="selectedStatusId"
@@ -50,34 +50,34 @@
         @forelse($visits as $visit)
             @php
                 $selectClass = '';
-                    if (isset($visit) && $visit->visit_processing_reminder != null) {
+                    if (isset($visit) && $visit->visit_processing_reminder !== null) {
                         $val = \Carbon\Carbon::parse($visit->visit_processing_reminder->reminder_datetime)->format('Y-m-d') < date('Y-m-d', time());
-                        $val == true ? $selectClass = 'text-dark table-danger': $selectClass ='';
+                        $val === true ? $selectClass = 'text-dark table-danger': $selectClass ='';
                     }
             @endphp
             <tr class="{{$selectClass}}">
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $visit->oversight_member->user->name }}</td>
                 <td>
-                    @if($visit->hostable_type == 'App\Models\Teacher')
+                    @if($visit->hostable_type === 'App\Models\Teacher')
                         زيارة إلى حلقة
-                    @elseif($visit->hostable_type == 'App\Models\Tester')
+                    @elseif($visit->hostable_type === 'App\Models\Tester')
                         زيارة إلى مختبر
-                    @elseif($visit->hostable_type == 'App\Models\ActivityMember')
+                    @elseif($visit->hostable_type === 'App\Models\ActivityMember')
                         زيارة إلى منشط
                     @endif
                 </td>
                 <td>{{ \Carbon\Carbon::parse($visit->datetime)->format('Y-m-d') }}</td>
                 <td>
-                    @if($visit->status == \App\Models\Visit::IN_PENDING_STATUS)
+                    @if($visit->status === \App\Models\Visit::IN_PENDING_STATUS)
                         <label class="badge badge-warning">مطلوب الرد</label>
-                    @elseif($visit->status == \App\Models\Visit::REPLIED_STATUS)
+                    @elseif($visit->status === \App\Models\Visit::REPLIED_STATUS)
                         <label class="badge badge-info">تم الرد</label>
-                    @elseif($visit->status == \App\Models\Visit::IN_PROCESS_STATUS)
+                    @elseif($visit->status === \App\Models\Visit::IN_PROCESS_STATUS)
                         <label class="badge badge-primary">في انتظار المعالجة</label>
-                    @elseif($visit->status == \App\Models\Visit::FAILURE_STATUS)
+                    @elseif($visit->status === \App\Models\Visit::FAILURE_STATUS)
                         <label class="badge badge-danger">فشل المعالجة</label>
-                    @elseif($visit->status == \App\Models\Visit::SOLVED_STATUS)
+                    @elseif($visit->status === \App\Models\Visit::SOLVED_STATUS)
                         <label class="badge badge-success">تم الحل</label>
                     @endif
                 </td>
@@ -85,7 +85,7 @@
                     @if (isset($val) && isset($visit->visit_processing_reminder))
                         @if ($val)
                             <div hidden wire:click=""></div>
-                            @if ($visit->status == \App\Models\Visit::REPLIED_STATUS)
+                            @if ($visit->status === \App\Models\Visit::REPLIED_STATUS)
                                 <button type="button" class="btn btn-outline-danger btn-sm"
                                         wire:click.prevent="sendMessage(' لقد تم الرد من قبل أمير المركز مرة أخرى على الحالة السابقة للزيارة جاري المعالجة .. حيث تاريخ {{\Carbon\Carbon::parse($visit->visit_processing_reminder->reminder_datetime)->format('Y-m-d')}} هو التاريخ الذي تم تعيينه لمعالجة الزيارة ف يرجي مراجعة رد أمير المركز واتخاذ قرار بشأن ذلك!');"
                                         data-toggle="popover" data-trigger="focus" title="تاريخ معالجة الزيارة"
@@ -102,7 +102,7 @@
                             @endif
                         @else
                             <div hidden wire:click=""></div>
-                            @if ($visit->status == \App\Models\Visit::REPLIED_STATUS)
+                            @if ($visit->status === \App\Models\Visit::REPLIED_STATUS)
                                 <button type="button" class="btn btn-outline-danger btn-sm"
                                         wire:click.prevent="sendMessage(' لقد تم الرد من قبل أمير المركز مرة أخرى على الحالة السابقة للزيارة جاري المعالجة .. حيث تاريخ {{\Carbon\Carbon::parse($visit->visit_processing_reminder->reminder_datetime)->format('Y-m-d')}} هو التاريخ الذي تم تعيينه لمعالجة الزيارة ف يرجي مراجعة رد أمير المركز واتخاذ قرار بشأن ذلك!');"
                                         data-toggle="popover" data-trigger="focus" title="تاريخ معالجة الزيارة"
@@ -120,14 +120,14 @@
                             @endif
                         @endif
                     @endif
-                    @if ($current_role == \App\Models\User::OVERSIGHT_MEMBER_ROLE)
+                    @if ($current_role === \App\Models\User::OVERSIGHT_MEMBER_ROLE)
                         <div hidden wire:click=""></div>
                         <button type="button" class="btn btn-success btn-sm"
                                 @click.prevent="currentTab = 'form'"
                                 wire:click="visitDetailsShow('{{$visit->id}}');"
                                 title="عرض تفاصيل الزيارة">
                             <i class="fa fa-eye"></i></button>
-                    @elseif($current_role == \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE)
+                    @elseif($current_role === \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE)
                         <div hidden wire:click=""></div>
                         <button type="button" class="btn btn-info btn-sm"
                                 @click.prevent="currentTab = 'form'"
@@ -135,7 +135,7 @@
                                 title="عرض تفاصيل الزيارة">
                             <i class="fa fa-eye"></i></button>
 
-                        @if($visit->status == \App\Models\Visit::REPLIED_STATUS  || $visit->status == \App\Models\Visit::IN_PROCESS_STATUS)
+                        @if($visit->status === \App\Models\Visit::REPLIED_STATUS  || $visit->status === \App\Models\Visit::IN_PROCESS_STATUS)
                             <button type="button" class="btn btn-success btn-sm"
                                     wire:click="visitSolved('{{$visit->id}}');"
                                     title="تم الحل">
@@ -154,26 +154,26 @@
                                 <i class="fa fa-close"></i></button>
                         @endif
 
-                        @if($visit->status == \App\Models\Visit::FAILURE_STATUS)
+                        @if($visit->status === \App\Models\Visit::FAILURE_STATUS)
                             <button type="button" class="btn btn-success btn-sm"
                                     wire:click="visitSolved('{{$visit->id}}');"
                                     title="تم الحل">
                                 <i class="fa fa-check"></i></button>
                         @endif
-                    @elseif($current_role == \App\Models\User::ADMIN_ROLE)
+                    @elseif($current_role === \App\Models\User::ADMIN_ROLE)
                         <div hidden wire:click=""></div>
                         <button type="button" class="btn btn-success btn-sm"
                                 @click.prevent="currentTab = 'form'"
                                 wire:click="visitDetailsShow('{{$visit->id}}');"
                                 title="عرض تفاصيل الزيارة">
                             <i class="fa fa-eye"></i></button>
-                        @if ($visit->status == \App\Models\Visit::IN_PENDING_STATUS)
+                        @if ($visit->status === \App\Models\Visit::IN_PENDING_STATUS)
                             <button type="button" class="btn btn-warning btn-sm"
                                     @click.prevent="currentTab = 'form'"
                                     wire:click="visitReply('{{$visit->id}}');"
                                     title="الرد على الزيارة">
                                 <i class="fa fa-reply"></i></button>
-                        @elseif($visit->status == \App\Models\Visit::IN_PROCESS_STATUS)
+                        @elseif($visit->status === \App\Models\Visit::IN_PROCESS_STATUS)
                             <button type="button" class="btn btn-warning btn-sm"
                                     @click.prevent="currentTab = 'form'"
                                     wire:click="visitReply('{{$visit->id}}');"
@@ -184,8 +184,8 @@
                 </td>
             </tr>
             @include('pages.visits.visit_processing')
-            @if ($visibleDetailsModalId != null && $visibleDetailsModalId == $visit->id)
-                @if($visit->hostable_type == 'App\Models\Teacher')
+            @if ($visibleDetailsModalId !== null && $visibleDetailsModalId === $visit->id)
+                @if($visit->hostable_type === 'App\Models\Teacher')
                     <tr class="fold">
                         <td colspan="7">
                             <div class="fold-content">
@@ -211,7 +211,7 @@
                                         <td>{{$teacher->group->name }}</td>
                                         <td>{{ $teacher->group->grade->name }}</td>
                                         <td>
-                                            @if ($teacher->group != null)
+                                            @if ($teacher->group !== null)
                                                 {{ $teacher->user->name }}
                                             @else
                                                 لا يوجد محفظ
@@ -224,7 +224,7 @@
                             </div>
                         </td>
                     </tr>
-                @elseif($visit->hostable_type == 'App\Models\Tester')
+                @elseif($visit->hostable_type === 'App\Models\Tester')
                     <tr class="fold">
                         <td colspan="7">
                             <div class="fold-content">
@@ -261,7 +261,7 @@
                             </div>
                         </td>
                     </tr>
-                @elseif($visit->hostable_type == 'App\Models\ActivityMember')
+                @elseif($visit->hostable_type === 'App\Models\ActivityMember')
                     <tr class="fold">
                         <td colspan="7">
                             <div class="fold-content">

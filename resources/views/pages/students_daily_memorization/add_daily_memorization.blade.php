@@ -7,14 +7,17 @@
                     : {{$dayOfWeek}} {{date('Y-m-d')}}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
-            <div class="modal-body p-20">
 
+            <div class="modal-body p-20">
                 <div class="row">
                     <div class="col-md-12">
                         <label class="control-label" style="display: flex;justify-content: center;">العملية</label>
-                        <select wire:model.defer="selectedType" id="type" class="form-control form-white" style="padding: 1px;">
+                        <select wire:model.defer="selectedType" id="type"
+                                class="form-control form-white"
+                                style="padding: 1px;">
+                            <option value="">اختر العملية...</option>
                             @foreach(\App\Models\StudentDailyMemorization::types() as $key => $value)
-                            <option value="{{$key}}">{{$value}}</option>
+                                <option value="{{$key}}">{{$value}}</option>
                             @endforeach
                         </select>
                         @error('selectedType')
@@ -24,67 +27,176 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6">
-                        <label class="control-label">من سورة</label>
-                        <select wire:model="sura_from_id" class="form-control form-white" style="padding: 1px;">
-                            @if (isset($suras_from))
-                                @foreach($suras_from as $sura)
-                                    <option value="{{$sura->id}}">{{$sura->name}}</option>
+                    <div class="col-md-12">
+                        @if($selectedType === \App\Models\StudentDailyMemorization::CUMULATIVE_REVIEW_TYPE)
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="control-label" style="display: flex;justify-content: start;">حدد
+                                        الأجزاء المجتمعة</label>
+                                    <select wire:model="selectedPartCombinedId" class="form-control form-white"
+                                            style="padding: 1px;">
+                                        <option value="">حدد الأجزاء المجتمعة...</option>
+                                        @foreach($partsCombined as $partCombined)
+                                            <option
+                                                value="{{$partCombined->id}}">{{$partCombined->name .' '.$partCombined->description}}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('selectedPartCombinedId')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="control-label" style="display: flex;justify-content: start;">حدد الجزء
+                                        المنفرد</label>
+                                    <select wire:model="selectedPartId" class="form-control form-white"
+                                            style="padding: 1px;">
+                                        <option value="">حدد الجزء المنفرد...</option>
+                                        @foreach($parts as $part)
+                                            <option
+                                                value="{{$part->id}}">{{$part->name .' '.$part->description}}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('selectedPartId')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="scrollbar max-h-200" style="overflow-y: auto; outline: #0b2e13;">
+                                @foreach($rows as $index => $value)
+                                    @if(isset($suras[$index]->name))
+                                        <div class="row" style="width: 100%;">
+                                            <div class="col-md-5">
+                                                <label class="control-label">سورة</label>
+                                                <div class="form-check">
+                                                    <input wire:model="suras_selected.{{$suras[$index]->id}}"
+                                                           class="form-check-input"
+                                                           type="checkbox" id="suras_selected.{{ $index }}" required="">
+                                                    <label class="form-check-label"
+                                                           for="suras_selected.{{$index}}">{{$suras[$index]->name}}</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="control-label">أية</label>
+                                                @if(isset($suras_selected[$suras[$index]->id]) && $suras_selected[$suras[$index]->id])
+                                                    <select disabled wire:model="" class="form-control form-white"
+                                                            id="suras_selected.{{$index}}" style="padding: 1px;">
+                                                        <option value="">اختر الآية...</option>
+                                                    </select>
+                                                @else
+                                                    <select wire:model="suras_custom_selected.{{$suras[$index]->id}}"
+                                                            class="form-control form-white"
+                                                            id="suras_selected.{{$index}}" style="padding: 1px;">
+                                                        <option value="">اختر الآية...</option>
+                                                        @for($i = $suras[$index]->aya_from+1;$i <= $suras[$index]->total_number_aya;$i++)
+                                                            <option value="{{$i}}">{{$i}}</option>
+                                                        @endfor
+                                                    </select>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
                                 @endforeach
-                            @endif
-                        </select>
-                        @error('sura_from_id')
-                        <div class="alert alert-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label class="control-label">أية</label>
-                        <select wire:model.defer="aya_from_id" class="form-control form-white" style="padding: 1px;">
-                            @if (isset($ayas_from))
-                                @foreach($ayas_from as $aya_from)
-                                    <option value="{{$aya_from}}">{{$aya_from}}</option>
+                            </div>
+                        @else
+                            <div class="scrollbar max-h-200" style="overflow-y: auto; outline: #0b2e13;">
+                                @foreach($rows as $index_ => $value_)
+                                    <div class="row" style="width: 100%;">
+                                        <div class="col-md-5">
+                                            <label class="control-label">اختر السورة</label>
+                                            <select
+                                                {{$modalId !== '' ? 'disabled readonly':''}} wire:model="suras_selected.{{$index_}}.id"
+                                                class="form-control form-white"
+                                                id="suras_selected.{{$index_}}.id"
+                                                style="padding: 1px;">
+                                                <option value="">اختر السورة...</option>
+                                                @if (isset($suras) && !empty($suras))
+                                                    @foreach($suras as $sura)
+                                                        <option value="{{$sura->id}}">{{$sura->name}}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            @error('suras_selected.'.$index_.'.id')
+                                            <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-5">
+                                            <label class="control-label">أية</label>
+                                            <select wire:model="suras_selected.{{$index_}}.aya_to"
+                                                    class="form-control form-white"
+                                                    id="suras_selected.{{ $index_ }}.id" style="padding: 1px;">
+                                                <option value="">اختر الآية...</option>
+                                                @if (isset($suras_selected[$index_]['id']))
+                                                    @foreach($suras as $sura)
+                                                        @if($sura->id == $suras_selected[$index_]['id'])
+                                                            @if($modalId === '')
+                                                                @for($i =$sura->aya_from+1;$i <= $sura->total_number_aya;$i++)
+                                                                    <option value="{{$i}}">{{$i}}</option>
+                                                                @endfor
+                                                            @else
+                                                                @for($i =$sura->aya_from;$i <= $sura->total_number_aya;$i++)
+                                                                    <option value="{{$i}}">{{$i}}</option>
+                                                                @endfor
+                                                            @endif
+                                                        @endif
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            @error('suras_selected.'.$index_.'.aya_to')
+                                            <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        @if($modalId !== '')
+                                            <div class="col-md-2">
+                                                <label class="mr-sm-2">العمليات:</label>
+                                                <input class="btn btn-danger btn-block"
+                                                       wire:click.prevent="removeRow({{$index_}})"
+                                                       type="button" value="حذف"/>
+                                            </div>
+                                        @else
+                                            @if($index_ === count($rows) - 1)
+                                                <div class="col-md-2">
+                                                    <label class="mr-sm-2">العمليات:</label>
+                                                    <input class="btn btn-danger btn-block"
+                                                           wire:click.prevent="removeRow({{$index_}})"
+                                                           type="button" value="حذف"/>
+                                                </div>
+                                            @endif
+                                        @endif
+                                    </div>
                                 @endforeach
-                            @endif
-                        </select>
-                        @error('aya_from_id')
-                        <div class="alert alert-danger">{{ $message }}</div>
-                        @enderror
+                            </div>
+                        @endif
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <label class="control-label">إلى سورة</label>
-                        <select wire:model="sura_to_id" class="form-control form-white" style="padding: 1px;">
-                            @if (isset($suras_to))
-                                @foreach($suras_to as $sura)
-                                    <option value="{{$sura->id}}">{{$sura->name}}</option>
-                                @endforeach
+                @if($selectedType === \App\Models\StudentDailyMemorization::CUMULATIVE_REVIEW_TYPE)
+                    <div class="row mt-20">
+                        <div class="col-12">
+                            @if($selected_count !== 0 && $selected_count === count($suras))
+                                <input class="button" wire:click.prevent="undoSelectAll" type="button"
+                                       value="إلغاء تحديد الكل"/>
+                            @else
+                                <input class="button" wire:click.prevent="selectAll" type="button" value="تحديد الكل"/>
                             @endif
-                        </select>
-                        @error('sura_to_id')
-                        <div class="alert alert-danger">{{ $message }}</div>
-                        @enderror
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="control-label">أية</label>
-                        <select wire:model.defer="aya_to_id" class="form-control form-white" style="padding: 1px;">
-                            @if (isset($ayas_to))
-                                @foreach($ayas_to as $aya_to)
-                                    <option value="{{$aya_to}}">{{$aya_to}}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                        @error('aya_to_id')
-                        <div class="alert alert-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
+                @else
+                    @if($modalId === '')
+                        <div class="row mt-20">
+                            <div class="col-12">
+                                <input class="button" wire:click.prevent="addRow" type="button" value="إدراج سجل"/>
+                            </div>
+                        </div>
+                    @endif
+                @endif
 
                 <div class="row">
                     <div class="col-md-12">
                         <label class="control-label">التقييم</label>
                         <select wire:model.defer="evaluation" class="form-control form-white" style="padding: 1px;">
+                            <option value="">اختر التقييم...</option>
                             @foreach(\App\Models\StudentDailyMemorization::evaluations() as $key => $evaluation)
                                 <option value="{{$key}}">{{$evaluation}}</option>
                             @endforeach
@@ -97,7 +209,20 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger ripple" data-dismiss="modal">إغلاق</button>
-                <button wire:click.prevent="validateModal()" type="button" class="btn btn-success ripple">حفظ</button>
+                @if($modalId !== '')
+                    <button wire:click.prevent="delete()" type="button" class="btn btn-warning ripple">حذف التسميع
+                        اليومي
+                    </button>
+                    @if($selectedType !== \App\Models\StudentDailyMemorization::CUMULATIVE_REVIEW_TYPE)
+                        <button wire:click.prevent="validateModal()" type="button"
+                                class="btn btn-primary ripple">تحديث
+                            التسميع اليومي
+                        </button>
+                    @endif
+                @else
+                    <button wire:click.prevent="validateModal()" type="button" class="btn btn-success ripple">حفظ
+                    </button>
+                @endif
             </div>
         </div>
     </div>

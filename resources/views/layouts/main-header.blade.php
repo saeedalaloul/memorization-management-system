@@ -4,9 +4,11 @@
 <nav class="admin-header navbar navbar-default col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
     <!-- logo -->
     <div class="text-left navbar-brand-wrapper">
-        <a class="navbar-brand brand-logo" href="#"><img src="{{asset('assets/images/logo-dark.png',true)}}" alt=""></a>
-        <a class="navbar-brand brand-logo-mini" href="#"><img src="{{asset('assets/images/logo-icon-dark.png',true)}}"
-                                                              alt=""></a>
+        <a class="navbar-brand brand-logo" href="{{route('dashboard')}}"><img
+                src="{{asset('assets/images/logo-dark.png',true)}}" alt=""></a>
+        <a class="navbar-brand brand-logo-mini" href="{{route('dashboard')}}"><img
+                src="{{asset('assets/images/logo-icon-dark.png',true)}}"
+                alt=""></a>
     </div>
     <!-- Top bar left -->
     <ul class="nav navbar-nav mr-auto">
@@ -37,6 +39,10 @@
                                  alt="">
                         @elseif(auth()->user()->current_role == \App\Models\User::SUPERVISOR_ROLE)
                             {{\App\Models\User::SUPERVISOR_ROLE }}
+                            <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
+                                 alt="">
+                        @elseif(auth()->user()->current_role == \App\Models\User::SPONSORSHIP_SUPERVISORS_ROLE)
+                            {{\App\Models\User::SPONSORSHIP_SUPERVISORS_ROLE }}
                             <img style="width: 23px; height: 17px;" src="{{ URL::asset('assets/images/teacher.png') }}"
                                  alt="">
                         @elseif(auth()->user()->current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
@@ -76,12 +82,14 @@
                 </button>
                 <div class="dropdown-menu">
                     @for ($i = 0; $i < count(auth()->user()->roles); $i++)
-                        <form method="post" action="{{route('switch_account')}}">
-                            @csrf
-                            <input value="{{auth()->user()->roles[$i]->name}}" name="current_role" hidden>
-                            <button type="submit" class="dropdown-item" rel="alternate"
-                                    href="#">{{auth()->user()->roles[$i]->name}}</button>
-                        </form>
+                        @if (auth()->user()->roles[$i]->name != \App\Models\User::STUDENT_ROLE && auth()->user()->roles[$i]->name != \App\Models\User::FATHER_ROLE)
+                            <form method="post" action="{{route('switch_account')}}">
+                                @csrf
+                                <input value="{{auth()->user()->roles[$i]->name}}" name="current_role" hidden>
+                                <button type="submit" class="dropdown-item" rel="alternate"
+                                        href="#">{{auth()->user()->roles[$i]->name}}</button>
+                            </form>
+                        @endif
                     @endfor
                 </div>
             </div>
@@ -130,6 +138,9 @@
                         @elseif($value->type == 'App\Notifications\NewStudentWarningForTeacherNotify'
                                  || $value->type == 'App\Notifications\ExpiredStudentWarningForTeacherNotify')
                             @include('layouts.notifications.student-warnings-notifications')
+                        @elseif($value->type == 'App\Notifications\NewStudentForTeacherNotify'
+                           || $value->type == 'App\Notifications\MoveStudentForTeacherNotify')
+                            @include('layouts.notifications.new-or-move-student-notifications')
                         @elseif($value->type == 'App\Notifications\NewStudentBlockForTeacherNotify'
                                || $value->type == 'App\Notifications\ExpiredStudentBlockForTeacherNotify')
                             @include('layouts.notifications.student-blocks-notifications')
@@ -151,26 +162,27 @@
                 @endif
             </div>
         </li>
-        <li class="nav-item dropdown">
-            <a class="nav-link top-nav" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-               aria-expanded="true"> <i class=" ti-view-grid"></i> </a>
-            <div class="dropdown-menu dropdown-menu-right dropdown-big">
-                <div class="dropdown-header">
-                    <strong>Quick Links</strong>
-                </div>
-                <div class="dropdown-divider"></div>
-                <div class="nav-grid">
-                    <a href="#" class="nav-grid-item"><i class="ti-files text-primary"></i><h5>New Task</h5></a>
-                    <a href="#" class="nav-grid-item"><i class="ti-check-box text-success"></i><h5>Assign Task</h5>
-                    </a>
-                </div>
-                <div class="nav-grid">
-                    <a href="#" class="nav-grid-item"><i class="ti-pencil-alt text-warning"></i><h5>Add Orders</h5>
-                    </a>
-                    <a href="#" class="nav-grid-item"><i class="ti-truck text-danger "></i><h5>New Orders</h5></a>
-                </div>
-            </div>
-        </li>
+        @if(auth()->user()->current_role == \App\Models\User::ADMIN_ROLE)
+            @include('layouts.quick-links.admin-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::ACTIVITIES_SUPERVISOR_ROLE)
+            @include('layouts.quick-links.activities-supervisor-main-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::ACTIVITY_MEMBER_ROLE)
+            @include('layouts.quick-links.activity-member-main-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE)
+            @include('layouts.quick-links.exams-supervisor-main-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::TESTER_ROLE)
+            @include('layouts.quick-links.tester-main-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::SUPERVISOR_ROLE)
+            @include('layouts.quick-links.supervisor-main-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::SPONSORSHIP_SUPERVISORS_ROLE)
+            @include('layouts.quick-links.sponsorships-supervisor-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::TEACHER_ROLE)
+            @include('layouts.quick-links.teacher-main-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::OVERSIGHT_SUPERVISOR_ROLE)
+            @include('layouts.quick-links.oversight-supervisor-main-quick-links')
+        @elseif(auth()->user()->current_role == \App\Models\User::OVERSIGHT_MEMBER_ROLE)
+            @include('layouts.quick-links.oversight-member-main-quick-links')
+        @endif
         <li class="nav-item dropdown mr-30">
             <a class="nav-link nav-pill user-avatar" data-toggle="dropdown" href="#" role="button"
                aria-haspopup="true"

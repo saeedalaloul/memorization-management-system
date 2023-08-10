@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="keywords" content="HTML5 Template"/>
-    <meta name="description" content="Webmin - Bootstrap 4 & Angular 5 Admin Dashboard Template"/>
-    <meta name="author" content="potenzaglobalsolutions.com"/>
+    <meta name="keywords" content="Al-ansar Center"/>
+    <meta name="description" content="مركز الأنصار لتحفيظ القرآن الكريم والسنة النبوية"/>
+    <meta name="author" content="#"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap" rel="stylesheet">
 @stack('alpine-plugins')
     <!-- Alpine Core -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>

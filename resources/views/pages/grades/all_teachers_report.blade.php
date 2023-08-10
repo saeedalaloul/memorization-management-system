@@ -14,6 +14,9 @@
             رقم الجوال
         </th>
         <th style="height: 30px; background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+            البريد الإلكتروني
+        </th>
+        <th style="height: 30px; background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
             تاريخ الميلاد
         </th>
         <th style="height: 30px; background:#D9D9D9; border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
@@ -37,6 +40,7 @@
             <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">{{ $teacher->name }}</td>
             <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">{{ $teacher->identification_number }}</td>
             <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">{{ $teacher->phone }}</td>
+            <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">{{ $teacher->email }}</td>
             <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">{{ $teacher->dob }}</td>
             <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
                 @if ($teacher->economic_situation == \App\Models\UserInfo::GOOD_STATUS)
@@ -50,13 +54,13 @@
             <td style="border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
                 @if ($teacher->recitation_level == \App\Models\UserInfo::AL_NOORANIAH_LEVEL)
                     القاعدة النورانية
-                @elseif($teacher->economic_situation == \App\Models\UserInfo::QUALIFYING_LEVEL)
+                @elseif($teacher->recitation_level == \App\Models\UserInfo::QUALIFYING_LEVEL)
                     التأهيلية
-                @elseif($teacher->economic_situation == \App\Models\UserInfo::HIGH_LEVEL)
+                @elseif($teacher->recitation_level == \App\Models\UserInfo::HIGH_LEVEL)
                     العليا
-                @elseif($teacher->economic_situation == \App\Models\UserInfo::TAHIL_ALSANAD_LEVEL)
+                @elseif($teacher->recitation_level == \App\Models\UserInfo::TAHIL_ALSANAD_LEVEL)
                     تأهيل السند
-                @else
+                @elseif($teacher->recitation_level == \App\Models\UserInfo::SANAD_LEVEL)
                     سند
                 @endif
             </td>
@@ -69,7 +73,7 @@
         </tr>
     @empty
         <tr style="text-align: center">
-            <td colspan="4">No data available in table</td>
+            <td colspan="5">No data available in table</td>
         </tr>
     @endforelse
     </tbody>
@@ -86,6 +90,9 @@
         </th>
         <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
             رقم الجوال
+        </th>
+        <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
+            البريد الإلكتروني
         </th>
         <th style="background:#D9D9D9;border:solid;font-weight: bold;font-size: 12px;font-family: Calibri;text-align:center;vertical-align: center;">
             تاريخ الميلاد

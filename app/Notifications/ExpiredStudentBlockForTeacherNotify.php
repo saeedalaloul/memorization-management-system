@@ -43,6 +43,7 @@ class ExpiredStudentBlockForTeacherNotify extends Notification
         return [
             'id' => $this->student_block->id,
             'student_name' => $this->student_block->student->user->name,
+            'student_id' => $this->student_block->student_id,
             'reason' => $this->student_block->reason,
             'block_expiry_date' => $this->student_block->block_expiry_date,
             'notes' => $this->student_block->notes,

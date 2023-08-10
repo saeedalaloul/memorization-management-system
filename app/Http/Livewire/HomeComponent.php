@@ -24,6 +24,7 @@ class HomeComponent extends Component
     public string $current_role;
     public string $successMessage = '';
     public $testers = [];
+    public $link;
     protected string $paginationTheme = 'bootstrap';
 
     protected $queryString = ['search' => ['except' => '']];
@@ -45,7 +46,7 @@ class HomeComponent extends Component
 
     public function sortBy($field)
     {
-        if ($this->sortDirection == 'asc') {
+        if ($this->sortDirection === 'asc') {
             $this->sortDirection = 'desc';
         } else {
             $this->sortDirection = 'asc';

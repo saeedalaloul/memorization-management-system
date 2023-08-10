@@ -26,126 +26,118 @@ class TeachersAttendance extends HomeComponent
 
     public function checkAllRadioBtn($type)
     {
-        if ($type == TeacherAttendance::ABSENCE_STATUS) {
+        if ($type === TeacherAttendance::ABSENCE_STATUS) {
             $this->isSelectedRadioBtn0 = !$this->isSelectedRadioBtn0;
-            if ($this->isSelectedRadioBtn0 == true) {
+            if ($this->isSelectedRadioBtn0 === true) {
                 $this->isSelectedRadioBtn1 = !$this->isSelectedRadioBtn0;
                 $this->isSelectedRadioBtn2 = !$this->isSelectedRadioBtn0;
                 $this->isSelectedRadioBtn3 = !$this->isSelectedRadioBtn0;
                 $this->selectedTeachers = [];
-                for ($i = 0; $i < count($this->all_Teachers()); $i++) {
-                    if ($this->all_Teachers()[$i]->attendance()->count() == 0) {
-                        array_push($this->selectedTeachers, [
-                            'id' => $this->all_Teachers()[$i]->id,
-                            'grade_id' => $this->all_Teachers()[$i]->grade_id,
+                foreach ($this->all_Teachers() as $iValue) {
+                    if ($iValue->attendance()->count() === 0) {
+                        $this->selectedTeachers[] = [
+                            'id' => $iValue->id,
+                            'grade_id' => $iValue->grade_id,
                             'status' => TeacherAttendance::ABSENCE_STATUS,
-                        ]);
-                    } else {
-                        if (Carbon::parse($this->all_Teachers()[$i]->attendance()->latest()->first()->datetime)->format('Y-m-d') != date('Y-m-d')) {
-                            array_push($this->selectedTeachers, [
-                                'id' => $this->all_Teachers()[$i]->id,
-                                'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                                'status' => TeacherAttendance::ABSENCE_STATUS,
-                            ]);
-                        }
+                        ];
+                    } else if (Carbon::parse($iValue->attendance()->latest()->first()->datetime)->format('Y-m-d') !== date('Y-m-d')) {
+                        $this->selectedTeachers[] = [
+                            'id' => $iValue->id,
+                            'grade_id' => $iValue->grade_id,
+                            'status' => TeacherAttendance::ABSENCE_STATUS,
+                        ];
                     }
                 }
             } else {
                 foreach ($this->selectedTeachers as $key => $value) {
-                    if ($this->selectedTeachers[$key]['status'] == false) {
+                    if ($this->selectedTeachers[$key]['status'] === false) {
                         unset($this->selectedTeachers[$key]);
                     }
                 }
             }
-        } else if ($type == TeacherAttendance::PRESENCE_STATUS) {
+        } else if ($type === TeacherAttendance::PRESENCE_STATUS) {
             $this->isSelectedRadioBtn1 = !$this->isSelectedRadioBtn1;
-            if ($this->isSelectedRadioBtn1 == true) {
+            if ($this->isSelectedRadioBtn1 === true) {
                 $this->isSelectedRadioBtn0 = !$this->isSelectedRadioBtn1;
                 $this->isSelectedRadioBtn2 = !$this->isSelectedRadioBtn1;
                 $this->isSelectedRadioBtn3 = !$this->isSelectedRadioBtn1;
                 $this->selectedTeachers = [];
-                for ($i = 0; $i < count($this->all_Teachers()); $i++) {
-                    if ($this->all_Teachers()[$i]->attendance()->count() == 0) {
-                        array_push($this->selectedTeachers, [
-                            'id' => $this->all_Teachers()[$i]->id,
-                            'grade_id' => $this->all_Teachers()[$i]->grade_id,
+                foreach ($this->all_Teachers() as $iValue) {
+                    if ($iValue->attendance()->count() === 0) {
+                        $this->selectedTeachers[] = [
+                            'id' => $iValue->id,
+                            'grade_id' => $iValue->grade_id,
                             'status' => TeacherAttendance::PRESENCE_STATUS
-                        ]);
-                    } else {
-                        if (Carbon::parse($this->all_Teachers()[$i]->attendance()->latest()->first()->datetime)->format('Y-m-d') != date('Y-m-d')) {
-                            array_push($this->selectedTeachers, [
-                                'id' => $this->all_Teachers()[$i]->id,
-                                'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                                'status' => TeacherAttendance::PRESENCE_STATUS
-                            ]);
-                        }
+                        ];
+                    } else if (Carbon::parse($iValue->attendance()->latest()->first()->datetime)->format('Y-m-d') !== date('Y-m-d')) {
+                        $this->selectedTeachers[] = [
+                            'id' => $iValue->id,
+                            'grade_id' => $iValue->grade_id,
+                            'status' => TeacherAttendance::PRESENCE_STATUS
+                        ];
                     }
                 }
             } else {
                 foreach ($this->selectedTeachers as $key => $value) {
-                    if ($this->selectedTeachers[$key]['status'] == true) {
+                    if ($this->selectedTeachers[$key]['status'] === true) {
                         unset($this->selectedTeachers[$key]);
                     }
                 }
             }
-        } else if ($type == TeacherAttendance::LATE_STATUS) {
+        } else if ($type === TeacherAttendance::LATE_STATUS) {
             $this->isSelectedRadioBtn2 = !$this->isSelectedRadioBtn2;
-            if ($this->isSelectedRadioBtn2 == true) {
+            if ($this->isSelectedRadioBtn2 === true) {
                 $this->isSelectedRadioBtn0 = !$this->isSelectedRadioBtn2;
                 $this->isSelectedRadioBtn1 = !$this->isSelectedRadioBtn2;
                 $this->isSelectedRadioBtn3 = !$this->isSelectedRadioBtn2;
                 $this->selectedTeachers = [];
-                for ($i = 0; $i < count($this->all_Teachers()); $i++) {
-                    if ($this->all_Teachers()[$i]->attendance()->count() == 0) {
-                        array_push($this->selectedTeachers, [
-                            'id' => $this->all_Teachers()[$i]->id,
-                            'grade_id' => $this->all_Teachers()[$i]->grade_id,
+                foreach ($this->all_Teachers() as $iValue) {
+                    if ($iValue->attendance()->count() === 0) {
+                        $this->selectedTeachers[] = [
+                            'id' => $iValue->id,
+                            'grade_id' => $iValue->grade_id,
                             'status' => TeacherAttendance::LATE_STATUS
-                        ]);
-                    } else {
-                        if (Carbon::parse($this->all_Teachers()[$i]->attendance()->latest()->first()->datetime)->format('Y-m-d') != date('Y-m-d')) {
-                            array_push($this->selectedTeachers, [
-                                'id' => $this->all_Teachers()[$i]->id,
-                                'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                                'status' => TeacherAttendance::LATE_STATUS
-                            ]);
-                        }
+                        ];
+                    } else if (Carbon::parse($iValue->attendance()->latest()->first()->datetime)->format('Y-m-d') !== date('Y-m-d')) {
+                        $this->selectedTeachers[] = [
+                            'id' => $iValue->id,
+                            'grade_id' => $iValue->grade_id,
+                            'status' => TeacherAttendance::LATE_STATUS
+                        ];
                     }
                 }
             } else {
                 foreach ($this->selectedTeachers as $key => $value) {
-                    if ($this->selectedTeachers[$key]['status'] == 2) {
+                    if ($this->selectedTeachers[$key]['status'] === 2) {
                         unset($this->selectedTeachers[$key]);
                     }
                 }
             }
-        } else if ($type == TeacherAttendance::AUTHORIZED_STATUS) {
+        } else if ($type === TeacherAttendance::AUTHORIZED_STATUS) {
             $this->isSelectedRadioBtn3 = !$this->isSelectedRadioBtn3;
-            if ($this->isSelectedRadioBtn3 == true) {
+            if ($this->isSelectedRadioBtn3 === true) {
                 $this->isSelectedRadioBtn0 = !$this->isSelectedRadioBtn3;
                 $this->isSelectedRadioBtn1 = !$this->isSelectedRadioBtn3;
                 $this->isSelectedRadioBtn2 = !$this->isSelectedRadioBtn3;
                 $this->selectedTeachers = [];
-                for ($i = 0; $i < count($this->all_Teachers()); $i++) {
-                    if ($this->all_Teachers()[$i]->attendance()->count() == 0) {
-                        array_push($this->selectedTeachers, [
-                            'id' => $this->all_Teachers()[$i]->id,
-                            'grade_id' => $this->all_Teachers()[$i]->grade_id,
+                foreach ($this->all_Teachers() as $iValue) {
+                    if ($iValue->attendance()->count() === 0) {
+                        $this->selectedTeachers[] = [
+                            'id' => $iValue->id,
+                            'grade_id' => $iValue->grade_id,
                             'status' => TeacherAttendance::AUTHORIZED_STATUS
-                        ]);
-                    } else {
-                        if (Carbon::parse($this->all_Teachers()[$i]->attendance()->latest()->first()->datetime)->format('Y-m-d') != date('Y-m-d')) {
-                            array_push($this->selectedTeachers, [
-                                'id' => $this->all_Teachers()[$i]->id,
-                                'grade_id' => $this->all_Teachers()[$i]->grade_id,
-                                'status' => TeacherAttendance::AUTHORIZED_STATUS
-                            ]);
-                        }
+                        ];
+                    } else if (Carbon::parse($iValue->attendance()->latest()->first()->datetime)->format('Y-m-d') !== date('Y-m-d')) {
+                        $this->selectedTeachers[] = [
+                            'id' => $iValue->id,
+                            'grade_id' => $iValue->grade_id,
+                            'status' => TeacherAttendance::AUTHORIZED_STATUS
+                        ];
                     }
                 }
             } else {
                 foreach ($this->selectedTeachers as $key => $value) {
-                    if ($this->selectedTeachers[$key]['status'] == 2) {
+                    if ($this->selectedTeachers[$key]['status'] === 2) {
                         unset($this->selectedTeachers[$key]);
                     }
                 }
@@ -155,12 +147,12 @@ class TeachersAttendance extends HomeComponent
 
     public function store()
     {
-        for ($i = 0; $i < count($this->selectedTeachers); $i++) {
+        foreach ($this->selectedTeachers as $iValue) {
             TeacherAttendance::updateOrCreate([
-                'teacher_id' => $this->selectedTeachers[$i]['id'],
-                'grade_id' => $this->selectedTeachers[$i]['grade_id'],
+                'teacher_id' => $iValue['id'],
+                'grade_id' => $iValue['grade_id'],
                 'datetime' => now(),
-                'status' => $this->selectedTeachers[$i]['status']
+                'status' => $iValue['status']
             ]);
             $this->dispatchBrowserEvent('alert',
                 ['type' => 'success', 'message' => 'تمت عملية اعتماد حضور وغياب المحفظين بنجاح.']);
@@ -180,33 +172,33 @@ class TeachersAttendance extends HomeComponent
         if (count($this->selectedTeachers) > 0) {
             $key_ = -1;
             foreach ($this->selectedTeachers as $key => $value) {
-                if ($value['id'] == $id) {
+                if ($value['id'] === $id) {
                     $key_ = $key;
                     break;
                 }
             }
-            if ($key_ == -1) {
-                array_push($this->selectedTeachers, [
+            if ($key_ === -1) {
+                $this->selectedTeachers[] = [
                     'id' => $id,
                     'grade_id' => $teacher->grade_id,
                     'status' => $status,
-                ]);
+                ];
             } else {
                 $this->selectedTeachers[$key_]['status'] = $status;
             }
         } else {
-            array_push($this->selectedTeachers, [
+            $this->selectedTeachers[] = [
                 'id' => $id,
                 'grade_id' => $teacher->grade_id,
                 'status' => $status,
-            ]);
+            ];
         }
     }
 
     public
     function all_Grades()
     {
-        if ($this->current_role == 'مشرف') {
+        if ($this->current_role === 'مشرف') {
             $this->selectedGradeId = Supervisor::where('id', auth()->id())->first()->grade_id;
             $this->grades = Grade::where('id', $this->selectedGradeId)->get();
         } else {
@@ -219,10 +211,10 @@ class TeachersAttendance extends HomeComponent
         return Teacher::query()
             ->with(['user', 'grade', 'attendance_today'])
             ->search($this->search)
-            ->when($this->current_role == 'مشرف', function ($q, $v) {
+            ->when($this->current_role === 'مشرف', function ($q, $v) {
                 $q->where('grade_id', Supervisor::where('id', auth()->id())->first()->grade_id);
             })
-            ->when($this->current_role == 'أمير المركز' && !empty($this->selectedGradeId), function ($q, $v) {
+            ->when($this->current_role === 'أمير المركز' && !empty($this->selectedGradeId), function ($q, $v) {
                 $q->where('grade_id', '=', $this->selectedGradeId);
             })
             ->orderBy($this->sortBy, $this->sortDirection)

@@ -1,5 +1,5 @@
 <!-- Deleted inFormation Student -->
-<div wire:ignore.self class="modal fade" id="reset_user_password" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div wire:ignore.self class="modal fade" id="reset-user-password" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

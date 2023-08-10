@@ -41,6 +41,7 @@ class AcceptActivityOrderForActivityMemberNotify extends Notification
         return [
             'id'=>$this->activity_order->id,
             'teacher_name'=> $this->activity_order->teacher->user->name,
+            'activity_type_name'=> $this->activity_order->activity_type->name,
             'datetime'=> $this->activity_order->datetime,
         ];
     }

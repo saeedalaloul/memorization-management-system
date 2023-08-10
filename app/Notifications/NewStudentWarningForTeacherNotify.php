@@ -43,18 +43,20 @@ class NewStudentWarningForTeacherNotify extends Notification
         if (isset($this->student_warning['number_pages'])) {
             return [
                 'id' => $this->student_warning['id'],
+                'student_id' => $this->student_warning['student_id'],
                 'student_name' => $this->student_warning['student_name'],
                 'reason' => $this->student_warning['reason'],
                 'number_times' => $this->student_warning['number_times'],
                 'number_pages' => $this->student_warning['number_pages'],
             ];
-        } else {
-            return [
-                'id' => $this->student_warning['id'],
-                'student_name' => $this->student_warning['student_name'],
-                'reason' => $this->student_warning['reason'],
-                'number_times' => $this->student_warning['number_times'],
-            ];
         }
+
+        return [
+            'id' => $this->student_warning['id'],
+            'student_id' => $this->student_warning['student_id'],
+            'student_name' => $this->student_warning['student_name'],
+            'reason' => $this->student_warning['reason'],
+            'number_times' => $this->student_warning['number_times'],
+        ];
     }
 }

@@ -11,7 +11,7 @@
                     </div>
                     <div class="float-right text-right">
                         <p class="card-text text-dark">عدد الطلاب</p>
-                        <h4>{{$statistics[0][0]->students_count ?? 0}}</h4>
+                        <h4>{{$statistics[0][0]->students_male_count ?? 0}}</h4>
                     </div>
 
                 </div>
@@ -34,7 +34,7 @@
                     </div>
                     <div class="float-right text-right">
                         <p class="card-text text-dark">عدد المحفظين</p>
-                        <h4>{{$statistics[0][0]->teachers_count ?? 0}}</h4>
+                        <h4>{{$statistics[0][0]->teachers_male_count ?? 0}}</h4>
                     </div>
                 </div>
                 <p class="text-muted pt-3 mb-0 mt-2 border-top">
@@ -54,8 +54,8 @@
                                     </span>
                     </div>
                     <div class="float-right text-right">
-                        <p class="card-text text-dark">عدد الحلقات</p>
-                        <h4>{{$statistics[0][0]->groups_count ?? 0}}</h4>
+                        <p class="card-text text-dark">عدد حلقات الطلاب</p>
+                        <h4>{{$statistics[0][0]->groups_male_count ?? 0}}</h4>
                     </div>
                 </div>
                 <p class="text-muted pt-3 mb-0 mt-2 border-top">
@@ -89,6 +89,97 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+        <div class="card card-statistics h-100">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                                    <span class="text-danger">
+                                        <i class="fas fa-user-graduate highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                    </div>
+                    <div class="float-right text-right">
+                        <p class="card-text text-dark">عدد الطالبات</p>
+                        <h4>{{$statistics[0][0]->students_female_count ?? 0}}</h4>
+                    </div>
+
+                </div>
+                <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                    <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
+                        href="{{url('manage_student',null,true)}}" target="_blank"><span class="text-danger">عرض البيانات</span></a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+        <div class="card card-statistics h-100">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                                    <span class="text-primary">
+                                        <i class="fas fa-chalkboard-teacher highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                    </div>
+                    <div class="float-right text-right">
+                        <p class="card-text text-dark">عدد المحفظات</p>
+                        <h4>{{$statistics[0][0]->teachers_female_count ?? 0}}</h4>
+                    </div>
+                </div>
+                <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                    <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
+                        href="{{url('manage_teacher',null,true)}}" target="_blank"><span class="text-danger">عرض البيانات</span></a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+        <div class="card card-statistics h-100">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                                    <span class="text-dark">
+                                        <i class="fas fa-group highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                    </div>
+                    <div class="float-right text-right">
+                        <p class="card-text text-dark">عدد حلقات الطالبات</p>
+                        <h4>{{$statistics[0][0]->groups_female_count ?? 0}}</h4>
+                    </div>
+                </div>
+                <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                    <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a href="{{url('manage_group',null,true)}}"
+                                                                                target="_blank"><span
+                            class="text-danger">عرض البيانات</span></a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-30">
+        <div class="card card-statistics h-100">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                                    <span class="text-success">
+                                        <i class="fas fa-book-reader highlight-icon" aria-hidden="true"></i>
+                                    </span>
+                    </div>
+                    <div class="float-right text-right">
+                        <p class="card-text text-dark">عدد الإختبارات القرآنية الخارجية</p>
+                        <h4>{{$statistics[0][0]->external_exams_count ?? 0}}</h4>
+                    </div>
+                </div>
+                <p class="text-muted pt-3 mb-0 mt-2 border-top">
+                    <i class="fas fa-binoculars mr-1" aria-hidden="true"></i><a
+                        href="{{url('manage_exams',null,true)}}" target="_blank"><span
+                            class="text-danger">عرض البيانات</span></a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Orders Status widgets-->
 
 <div class="row">

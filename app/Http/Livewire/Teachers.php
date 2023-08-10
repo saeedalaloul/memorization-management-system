@@ -6,6 +6,7 @@ use App\Models\Grade;
 use App\Models\Supervisor;
 use App\Models\Teacher;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\MessageBag;
@@ -32,8 +33,8 @@ class Teachers extends HomeComponent
 
     public function mount()
     {
-        $this->all_Grades();
         $this->current_role = auth()->user()->current_role;
+        $this->all_Grades();
     }
 
     public function render()
@@ -47,7 +48,7 @@ class Teachers extends HomeComponent
         $data = Teacher::find($teacher_id);
         $this->modalId = $data->id;
         $this->grade_id = $data->grade_id;
-        $this->economic_situation = $data->user->user_info->economic_situation?? null;
+        $this->economic_situation = $data->user->user_info->economic_situation ?? null;
         $this->recitation_level = $data->user->user_info->recitation_level ?? null;
         $this->academic_qualification = $data->user->user_info->academic_qualification ?? null;
         $this->name = $data->user->name;
@@ -70,6 +71,7 @@ class Teachers extends HomeComponent
     {
         return [
             'name' => $this->name,
+            'gender' => Grade::whereId($this->grade_id)->first()->section,
             'email' => $this->email,
             'dob' => $this->dob,
             'phone' => $this->phone,
@@ -114,7 +116,8 @@ class Teachers extends HomeComponent
             'academic_qualification.required' => 'المؤهل العلمي مطلوب',
             'photo.image' => 'حقل الصورة يجب أن يحتوي على صورة',
             'photo.mimes' => 'يجب أن تكون صيغة الصورة إما jpeg أو png أو jpg',
-            'photo.max' => 'يجب أن لا يزيد حجم الصورة عن 2048 كيلو بايت',
+            'photo.max' => 'يجب أن لا يزيد حجم الصورة عن 1024 كيلو بايت',
+            'photo.unique' => 'عذرا يوجد صورة بهذا الاسم مسبقا',
         ];
     }
 
@@ -139,6 +142,13 @@ class Teachers extends HomeComponent
     public function store()
     {
         $this->validate();
+
+        if (!empty($this->photo)) {
+            $this->validate([
+                'photo' => 'required|image|mimes:jpg,jpeg,png|max:1024|unique:users,profile_photo,' . $this->modalId,
+            ]);
+        }
+
         DB::beginTransaction();
         try {
             $user = User::create($this->modelUser());
@@ -148,7 +158,7 @@ class Teachers extends HomeComponent
             Teacher::create($this->modelTeacher($user->id));
             if (!empty($this->photo)) {
                 $this->uploadImage($this->photo,
-                    $this->identification_number . '.' . $this->photo->getClientOriginalExtension(),
+                    $this->identification_number . Carbon::now()->timestamp . '.' . $this->photo->getClientOriginalExtension(),
                     $user->id);
             }
             $this->modalFormReset();
@@ -179,18 +189,23 @@ class Teachers extends HomeComponent
     public function update()
     {
         $this->validate();
+
+        if (!empty($this->photo)) {
+            $this->validate([
+                'photo' => 'required|image|mimes:jpg,jpeg,png|max:1024|unique:users,profile_photo,' . $this->modalId,
+            ]);
+        }
+
         DB::beginTransaction();
         try {
             $isUpdated = true;
             $teacher = Teacher::where('id', $this->modalId)->first();
-            if ($teacher->grade_id != $this->grade_id) {
-                if ($teacher->group != null) {
-                    $isUpdated = false;
-                }
+            if (($teacher->grade_id !== $this->grade_id) && $teacher->group !== null) {
+                $isUpdated = false;
             }
             if ($isUpdated) {
                 $teacher->update($this->modelTeacher($this->modalId));
-                if ($teacher->user->user_info == null) {
+                if ($teacher->user->user_info === null) {
                     $teacher->user->user_info()->create($this->modelUserInfo($this->modalId));
                 } else {
                     $teacher->user->user_info->update($this->modelUserInfo($this->modalId));
@@ -201,7 +216,7 @@ class Teachers extends HomeComponent
                 if (!empty($this->photo)) {
                     $this->deleteImage($teacher->user->profile_photo);
                     $this->uploadImage($this->photo,
-                        $this->identification_number . '.' . $this->photo->getClientOriginalExtension(),
+                        $this->identification_number . Carbon::now()->timestamp . '.' . $this->photo->getClientOriginalExtension(),
                         $this->modalId);
                 }
                 $this->modalFormReset();
@@ -222,10 +237,29 @@ class Teachers extends HomeComponent
     public function destroy($teacher_id)
     {
         $teacher = Teacher::find($teacher_id);
-        $teacher->delete();
-        $this->dispatchBrowserEvent('hideDialog');
-        $this->dispatchBrowserEvent('alert',
-            ['type' => 'success', 'message' => 'تم حذف المحفظ بنجاح.']);
+
+        if ($teacher->group !== null) {
+            $this->catchError = "عذرا لا يمكنك حذف المحفظ بسبب وجود حلقة لدىه";
+        } elseif ($teacher->attendance->count() > 0) {
+            $this->catchError = "عذرا لا يمكنك حذف المحفظ بسبب وجود سجل حضور وغياب مسجل بإسمه";
+        } elseif ($teacher->attendance_student->count() > 0) {
+            $this->catchError = "عذرا لا يمكنك حذف المحفظ بسبب وجود سجل حضور وغياب لدى طلابه مسجل بإسمه";
+        } elseif ($teacher->student_daily_memorization->count() > 0) {
+            $this->catchError = "عذرا لا يمكنك حذف المحفظ بسبب وجود سجل تسميع يومي لدى طلابه مسجل بإسمه";
+        } elseif ($teacher->exam_order->count() > 0) {
+            $this->catchError = "عذرا لا يمكنك حذف المحفظ بسبب وجود طلبات اختبارات لدى طلابه مسجل بإسمه";
+        } elseif ($teacher->exam->count() > 0) {
+            $this->catchError = "عذرا لا يمكنك حذف المحفظ بسبب وجود اختبارات لدى طلابه مسجل بإسمه";
+        } elseif ($teacher->visit_orders->count() > 0) {
+            $this->catchError = "عذرا لا يمكنك حذف المحفظ بسبب اعتماد طلبات زيارة من قبل الرقابة إلى حلقته";
+        } else {
+//            $teacher->delete();
+            $this->dispatchBrowserEvent('hideDialog');
+            $this->dispatchBrowserEvent('alert',
+                ['type' => 'error', 'message' => 'عذرا لا يمكنك حذف المحفظ بتاتا.']);
+        }
+
+
     }
 
     public function all_Teachers()
@@ -233,23 +267,36 @@ class Teachers extends HomeComponent
         return Teacher::query()
             ->with(['user', 'grade'])
             ->search($this->search)
-            ->when($this->current_role == 'مشرف', function ($q, $v) {
+            ->when($this->current_role === User::SUPERVISOR_ROLE, function ($q, $v) {
                 $q->where('grade_id', '=', $this->grade_id);
             })
-            ->when($this->current_role == 'أمير المركز' && !empty($this->selectedGradeId), function ($q, $v) {
+            ->when($this->current_role === User::ADMIN_ROLE && !empty($this->selectedGradeId), function ($q, $v) {
                 $q->where('grade_id', '=', $this->selectedGradeId);
+            })
+            ->when($this->current_role === User::SPONSORSHIP_SUPERVISORS_ROLE, function ($q) {
+                $groups_ids = DB::table('sponsorship_groups')
+                    ->select(['group_id'])
+                    ->whereIn('sponsorship_id', auth()->user()->sponsorships->pluck('id')->toArray())
+                    ->distinct()
+                    ->pluck('group_id')->toArray();
+                $q->whereHas('group', function ($q) use ($groups_ids) {
+                    $q->whereIn('id', $groups_ids);
+                })->when(!empty($this->selectedGradeId), function ($q, $v) {
+                    $q->where('grade_id', '=', $this->selectedGradeId);
+                });
             })
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate($this->perPage);
     }
 
-    public function submitSearch(){
+    public function submitSearch()
+    {
         $this->all_Teachers();
     }
 
     public function all_Grades()
     {
-        if (auth()->user()->current_role == 'مشرف') {
+        if (auth()->user()->current_role === User::SUPERVISOR_ROLE) {
             $this->grade_id = Supervisor::where('id', auth()->id())->first()->grade_id;
             $this->grades = Grade::where('id', $this->grade_id)->get();
         } else {

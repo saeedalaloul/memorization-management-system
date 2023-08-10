@@ -15,7 +15,7 @@ class CreateVisitsTable extends Migration
     {
         Schema::create('visits', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('hostable_type');
+            $table->string('hostable_type',30)->index();
             $table->unsignedBigInteger('hostable_id')->index();
             $table->dateTime('datetime')->index();
             $table->enum('status',['in-pending','replied','in-process','failure','solved'])->default('in-pending')->index();

@@ -33,5 +33,9 @@
             $('#refusal-exam').modal('hide');
             $('#delete-exam-order').modal('hide');
         });
+
+        window.addEventListener('showModalDelete', _ => {
+            $('#delete-exam-order').modal('show');
+        });
     </script>
 @endsection

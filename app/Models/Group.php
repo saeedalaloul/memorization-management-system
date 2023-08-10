@@ -9,7 +9,20 @@ class Group extends Model
 {
     use SimpleUuid;
 
-    protected $fillable = ['name', 'grade_id', 'teacher_id'];
+    protected $fillable = ['name', 'grade_id','type','teacher_id'];
+
+    const QURAN_TYPE = "quran";
+    const SUNNAH_TYPE = "sunnah";
+    const MONTADA_TYPE = "montada";
+
+    public static function types()
+    {
+        return [
+            self::QURAN_TYPE => 'قرآن',
+            self::SUNNAH_TYPE => 'سنة',
+            self::MONTADA_TYPE => 'منتدى حفاظ',
+        ];
+    }
 
     public function scopeSearch($query, $val)
     {
@@ -41,7 +54,12 @@ class Group extends Model
 
     public function students()
     {
-        return $this->hasMany(Student::class);
+        return $this->hasMany(Student::class, 'group_id');
+    }
+
+    public function students_sunnah()
+    {
+        return $this->hasMany(Student::class, 'group_sunnah_id');
     }
 
     // علاقة بين الحلقات والمحفظين لجلب اسم المحفظ في جدول الحلقات
@@ -49,5 +67,10 @@ class Group extends Model
     public function punitive_measures()
     {
         return $this->belongsToMany('App\Models\PunitiveMeasure', 'punitive_measure_groups');
+    }
+
+    public function sponsorships()
+    {
+        return $this->belongsToMany(Sponsorship::class, 'sponsorship_groups');
     }
 }

@@ -10,7 +10,6 @@
         </li>
         <!-- menu title -->
         <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">نظام إدارة التحفيظ لمركز الأنصار</li>
-
         <li>
             <a href="javascript:void(0);" data-toggle="collapse" data-target="#General-administration-department">
                 <div class="pull-left"><i class="fas fa-chalkboard"></i><span
@@ -29,7 +28,33 @@
                     <li><a href="{{url('manage_supervisor',null,true)}}">إدارة مشرفي المراحل</a></li>
                 @endcan
                 @can('إدارة المحفظين')
-                    <li><a href="{{url('manage_teacher',null,true)}}">إدارة المحفظين</a></li>@endcan
+                    <li><a href="{{url('manage_teacher',null,true)}}">إدارة المحفظين</a></li>
+                @endcan
+                @can('إدارة الحفظة')
+                    <li><a href="{{url('manage_quran_memorizers',null,true)}}">إدارة الحفظة</a>
+                    </li>
+                @endcan
+                <li><a href="{{url('manage_public_statistics',null,true)}}">إدارة الإحصائيات العامة</a>
+                </li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="javascript:void(0);" data-toggle="collapse"
+               data-target="#Sponsorship-affairs-management">
+                <div class="pull-left"><i class="fas fa-deafness"></i><span
+                        class="right-nav-text">إدارة قسم الكفالات</span></div>
+                <div class="pull-right"><i class="ti-plus"></i></div>
+                <div class="clearfix"></div>
+            </a>
+            <ul id="Sponsorship-affairs-management" class="collapse" data-parent="#sidebarnav">
+                @can('إدارة الكفالات')
+                    <li><a href="{{url('manage_sponsorships',null,true)}}">إدارة الكفالات</a></li>
+                @endcan
+                @can('إدارة مشرفي الحلقات المكفولة')
+                    <li><a href="{{url('manage_sponsorship_supervisors',null,true)}}">إدارة مشرفي الحلقات المكفولة</a>
+                    </li>
+                @endcan
             </ul>
         </li>
 
@@ -47,19 +72,49 @@
                 @endcan
                 @can('إدارة تقرير الحفظ والمراجعة')
                     <li><a href="{{url('manage_report_daily_memorization',null,true)}}">تقرير الحفظ
-                            والمراجعة</a>
+                            والمراجعة قسم (القرآن)</a>
                     </li>
+                    <li><a href="{{url('manage_report_daily_memorization_sunnah',null,true)}}">تقرير الحفظ والمراجعة قسم
+                            (السنة)</a></li>
                 @endcan
-                @can('إدارة التقارير الشهرية')
-                    <li><a href="{{url('manage_report_monthly_memorization',null,true)}}">التقارير الشهرية</a>
-                    </li>
-                @endcan
+                <li><a href="{{url('manage_track_student_transfers',null,true)}}">إدارة تتبع تنقلات الطلاب</a></li>
                 @can('إدارة الاجراءات العقابية')
                     <li><a href="{{url('manage_punitive_measures',null,true)}}">إدارة الاجراءات العقابية</a></li>
                 @endcan
             </ul>
         </li>
 
+        <li>
+            <a href="javascript:void(0);" data-toggle="collapse" data-target="#Managing-exams-department">
+                <div class="pull-left"><i class="fas fa-book-open"></i><span
+                        class="right-nav-text">إدارة الإختبارات</span></div>
+                <div class="pull-right"><i class="ti-plus"></i></div>
+                <div class="clearfix"></div>
+            </a>
+            <ul id="Managing-exams-department" class="collapse" data-parent="#sidebarnav">
+                @can('إدارة الإختبارات')
+                    <li>
+                        <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية</a>
+                    </li>
+                    <li>
+                        <a href="{{url('manage_sunnah_exams',null,true)}}">اختبارات السنة</a>
+                    </li>
+                @endcan
+                @can('إدارة طلبات الإختبارات')
+                    <li>
+                        <a href="{{url('manage_exams_orders',null,true)}}">طلبات الإختبارات</a>
+                    </li>
+                @endcan
+                @can('إدارة الإختبارات الخارجية')
+                    <li>
+                        <a href="{{url('manage_external_exams',null,true)}}">الإختبارات القرآنية الخارجية</a>
+                    </li>
+                @endcan
+                @can('إضافة اختبار')
+                    <li><a href="{{url('manage_add_exam',null,true)}}">إضافة اختبار</a></li>
+                @endcan
+            </ul>
+        </li>
 
         <li>
             <a href="javascript:void(0);" data-toggle="collapse"
@@ -112,16 +167,21 @@
         </li>
 
         <li>
-            <a href="javascript:void(0);" data-toggle="collapse" data-target="#Managing-exams-department">
-                <div class="pull-left"><i class="fas fa-book-open"></i><span
-                        class="right-nav-text">إدارة الإختبارات القرآنية</span></div>
+            <a href="javascript:void(0);" data-toggle="collapse"
+               data-target="#reports-management">
+                <div class="pull-left"><i class="fas fa-chalkboard-teacher"></i><span
+                        class="right-nav-text">إدارة التقارير</span></div>
                 <div class="pull-right"><i class="ti-plus"></i></div>
                 <div class="clearfix"></div>
             </a>
-            <ul id="Managing-exams-department" class="collapse" data-parent="#sidebarnav">
-                @can('إدارة الإختبارات')
-                    <li>
-                        <a href="{{url('manage_exams',null,true)}}">الإختبارات القرآنية</a>
+            <ul id="reports-management" class="collapse" data-parent="#sidebarnav">
+                @can('إدارة حالة تقارير الطلاب')
+                    <li><a href="{{url('manage_students_reports_status',null,true)}}">حالة تقارير الطلاب</a>
+                    </li>
+                @endcan
+
+                @can('إدارة التقارير الشهرية')
+                    <li><a href="{{url('manage_report_monthly_memorization',null,true)}}">التقارير الشهرية</a>
                     </li>
                 @endcan
             </ul>

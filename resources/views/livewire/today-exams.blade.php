@@ -9,15 +9,62 @@
     </div>
     <div class="col-xl-12 mb-30">
         <div class="card card-statistics h-100">
-            @if($current_role == \App\Models\User::ADMIN_ROLE || $current_role == \App\Models\User::EXAMS_SUPERVISOR_ROLE ||
-                $current_role == \App\Models\User::TEACHER_ROLE || $current_role == \App\Models\User::TESTER_ROLE
-                || $current_role == \App\Models\User::SUPERVISOR_ROLE)
+            @if($current_role === \App\Models\User::EXAMS_SUPERVISOR_ROLE || $current_role === \App\Models\User::TEACHER_ROLE || $current_role === \App\Models\User::TESTER_ROLE
+                || $current_role === \App\Models\User::SUPERVISOR_ROLE)
                 <div class="card-body">
                     <br>
-                    @if ($isExamOfStart == true)
+                    @if ($isExamOfStart === true)
                         @include('pages.today_exams.exam_of_start')
                     @else
                         @can('إدارة اختبارات اليوم')
+                            <div class="card-body">
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label style="font-size: 15px; color: #1e7e34">المراحل*</label>
+                                            <select style="width: 100%;" wire:model="selectedGradeId" id="grade"
+                                                    class="custom-select mr-sm-2 select2">
+                                                <option value="">الكل</option>
+                                                @foreach ($grades as $grade)
+                                                    <option
+                                                        value="{{ $grade->id }}">{{ $grade->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label style="font-size: 15px; color: #1e7e34">المحفظين*</label>
+                                            <select style="width: 100%;" class="custom-select mr-sm-2 select2" id="teacher"
+                                                    wire:model="selectedTeacherId">
+                                                <option value="">الكل</option>
+                                                @foreach ($groups as $group)
+                                                    <option value="{{ $group->id }}">
+                                                        @if ($group->teacher_id === null)
+                                                            {{$group->name . ' (لا يوجد محفظ)'}}
+                                                        @else
+                                                            {{ $group->teacher->user->name }}
+                                                        @endif
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+
+                                        <div class="col-md-3">
+                                            <label for="student" style="font-size: 15px; color: #1e7e34">الطلاب*</label>
+                                            <select style="width: 100%;" class="custom-select mr-sm-2 select2"
+                                                    id="student"
+                                                    wire:model="selectedStudentId">
+                                                <option value="">الكل</option>
+                                                @foreach($students as $student)
+                                                    <option
+                                                        value="{{ $student->id }}">{{ $student->user->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </li>
+                            </div>
                             <x-search></x-search>
                             <div class="table-responsive mt-15">
                                 <table class="table center-aligned-table mb-0">
@@ -42,10 +89,18 @@
                                             <td>
                                                 @if ($exam_today->type == \App\Models\ExamOrder::IMPROVEMENT_TYPE)
                                                     <label class="badge badge-success">
-                                                        {{ $exam_today->QuranPart->name .' '.$exam_today->QuranPart->description . ' (طلب تحسين درجة)' }}
+                                                        @if($exam_today->partable_type == 'App\Models\QuranPart')
+                                                            {{$exam_today->partable->name .' '.$exam_today->partable->description . ' (طلب تحسين درجة)' }}
+                                                        @else
+                                                            {{$exam_today->partable->name .' ('.$exam_today->partable->total_hadith_parts.') حديث' . ' (طلب تحسين درجة)' }}
+                                                        @endif
                                                     </label>
                                                 @else
-                                                    {{ $exam_today->QuranPart->name .' '.$exam_today->QuranPart->description }}
+                                                    @if($exam_today->partable_type == 'App\Models\QuranPart')
+                                                        {{$exam_today->partable->name .' '.$exam_today->partable->description }}
+                                                    @else
+                                                        {{$exam_today->partable->name .' ('.$exam_today->partable->total_hadith_parts.') حديث'}}
+                                                    @endif
                                                 @endif
                                             </td>
                                             <td>{{ $exam_today->teacher->user->name }}</td>
@@ -118,3 +173,23 @@
     </div>
     <x-loading-indicator></x-loading-indicator>
 </div>
+@push('js')
+    <script>
+        $("#grade").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedGradeId', id);
+            livewire.emit('getTeachersByGradeId');
+        });
+
+        $("#teacher").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedTeacherId', id);
+            livewire.emit('getStudentsByTeacherId', id);
+        });
+
+        $("#student").on('change', function (e) {
+            let id = $(this).val()
+        @this.set('selectedStudentId', id);
+        });
+    </script>
+@endpush

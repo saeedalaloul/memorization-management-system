@@ -18,7 +18,7 @@
                             <div class="col-md-6">
                                 <label class="control-label">جزء الإختبار</label>
                                 <input type="text"
-                                       value="{{$examOrder->quranPart->name . ' '. $examOrder->quranPart->description}}"
+                                       value="{{$examOrder->partable->name . ' '. $examOrder->partable->description}}"
                                        readonly class="form-control">
                             </div>
                             <div class="col-md-12">

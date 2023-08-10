@@ -81,7 +81,12 @@ class PunitiveMeasures extends HomeComponent
             $this->selectedPunitiveMeasure = $punitiveMeasure->type;
             $this->selectedReason = $punitiveMeasure->reason;
             $this->number_times = $punitiveMeasure->number_times;
-            $this->dispatchBrowserEvent('showModal');
+            if ($process_type === 'add') {
+                $this->dispatchBrowserEvent('showModalSelect');
+            } else {
+                $this->dispatchBrowserEvent('showModalRemove');
+            }
+            $this->getTeachersByGradeId();
         }
     }
 
@@ -94,7 +99,7 @@ class PunitiveMeasures extends HomeComponent
     public function store()
     {
         $this->validate();
-        if ($this->selectedReason == PunitiveMeasure::MEMORIZE_REASON) {
+        if ($this->selectedReason === PunitiveMeasure::MEMORIZE_REASON) {
             $this->validate(['quantity' => 'required|numeric|between:0.5,5',]);
         }
         $punitiveMeasure = PunitiveMeasure::where('type', $this->selectedPunitiveMeasure)
@@ -121,7 +126,7 @@ class PunitiveMeasures extends HomeComponent
     public function update()
     {
         $this->validate();
-        if ($this->selectedReason == PunitiveMeasure::MEMORIZE_REASON) {
+        if ($this->selectedReason === PunitiveMeasure::MEMORIZE_REASON) {
             $this->validate(['quantity' => 'required|numeric|between:0.5,5',]);
         }
         $punitiveMeasure = PunitiveMeasure::where('id', '!=', $this->modalId)
@@ -148,13 +153,18 @@ class PunitiveMeasures extends HomeComponent
 
     public function approval_on_group()
     {
-        $this->validate([
-            'selectedGradeId' => 'required|string',
-            'groups_ids' => 'required|array|min:1',
-        ]);
+        if ($this->process_type === 'remove') {
+            $this->validate([
+                'groups_ids' => 'array',
+            ]);
+        } else {
+            $this->validate([
+                'groups_ids' => 'required|array|min:1',
+            ]);
+        }
 
         $punitiveMeasure = PunitiveMeasure::where('id', $this->modalId)->first();
-        if ($this->process_type == 'add') {
+        if ($this->process_type === 'add') {
             $punitiveMeasure?->groups()->attach($this->groups_ids);
         } else {
             $punitiveMeasure?->groups()->sync($this->groups_ids);
@@ -189,7 +199,7 @@ class PunitiveMeasures extends HomeComponent
 
     public function all_Grades()
     {
-        if ($this->current_role == 'أمير المركز') {
+        if ($this->current_role === 'أمير المركز') {
             $this->grades = Grade::all();
         }
     }
@@ -198,23 +208,25 @@ class PunitiveMeasures extends HomeComponent
     {
         $this->reset('groups_ids', 'groups');
 
-        if ($this->current_role == 'أمير المركز') {
-            if ($this->selectedGradeId) {
-                $this->groups = Group::query()->with(['teacher.user', 'punitive_measures'])
-                    ->when($this->process_type == 'remove', function ($q, $v) {
-                        $q->whereRelation('punitive_measures', function ($q) {
-                            $q->where('type', $this->selectedPunitiveMeasure)
-                                ->where('reason', $this->selectedReason)
-                                ->where('number_times', $this->number_times);
-                        });
-                    })->when($this->process_type == 'add', function ($q, $v) {
-                        $q->whereDoesntHave('punitive_measures', function ($q) {
-                            $q->where('type', $this->selectedPunitiveMeasure)
-                                ->where('reason', $this->selectedReason);
-                        });
-                    })
-                    ->where('grade_id', $this->selectedGradeId)->get();
-            }
+        if ($this->current_role === 'أمير المركز') {
+            $this->groups = Group::query()
+                ->where('type','=',Group::QURAN_TYPE)
+                ->with(['teacher.user', 'punitive_measures'])
+                ->when($this->process_type === 'remove', function ($q, $v) {
+                    $q->whereRelation('punitive_measures', function ($q) {
+                        $q->where('type', $this->selectedPunitiveMeasure)
+                            ->where('reason', $this->selectedReason)
+                            ->where('number_times', $this->number_times);
+                    });
+                })->when($this->process_type === 'add', function ($q, $v) {
+                    $q->whereDoesntHave('punitive_measures', function ($q) {
+                        $q->where('type', $this->selectedPunitiveMeasure)
+                            ->where('reason', $this->selectedReason);
+                    });
+                })
+                ->when(!empty($this->selectedGradeId), function ($q, $v) {
+                    $q->where('grade_id', $this->selectedGradeId);
+                })->get();
         }
         return [];
     }
@@ -227,6 +239,7 @@ class PunitiveMeasures extends HomeComponent
             $this->dispatchBrowserEvent('alert',
                 ['type' => 'success', 'message' => 'تمت عملية حذف الإجراء العقابي بنجاح.']);
             $this->dispatchBrowserEvent('hideModal');
+            $this->modalFormReset();
         }
     }
 }
